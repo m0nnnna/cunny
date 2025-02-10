@@ -98,8 +98,8 @@ export const Reply = as<'div', ReplyProps>(
             <LinePlaceholder
               style={{
                 backgroundColor: color.SurfaceVariant.ContainerActive,
-                maxWidth: toRem(placeholderWidth),
-                width: '100vw',
+                width: toRem(placeholderWidth),
+                maxWidth: '100%',
               }}
             />
           )}
