@@ -6,17 +6,14 @@ import { SequenceCardStyle } from '../styles.css';
 import { SettingTile } from '../../../components/setting-tile';
 import { useSetting } from '../../../state/hooks/settings';
 import { settingsAtom } from '../../../state/settings';
-import { usePermissionState } from '../../../hooks/usePermission';
+import { getNotificationState, usePermissionState } from '../../../hooks/usePermission';
 import { AllMessagesNotifications } from './AllMessages';
 import { SpecialMessagesNotifications } from './SpecialMessages';
 import { KeywordMessagesNotifications } from './KeywordMessages';
 import { IgnoredUserList } from './IgnoredUserList';
 
 function SystemNotification() {
-  const notifPermission = usePermissionState(
-    'notifications',
-    window.Notification.permission === 'default' ? 'prompt' : window.Notification.permission
-  );
+  const notifPermission = usePermissionState('notifications', getNotificationState());
   const [showNotifications, setShowNotifications] = useSetting(settingsAtom, 'showNotifications');
   const [isNotificationSounds, setIsNotificationSounds] = useSetting(
     settingsAtom,
@@ -41,8 +38,9 @@ function SystemNotification() {
           description={
             notifPermission === 'denied' ? (
               <Text as="span" style={{ color: color.Critical.Main }} size="T200">
-                Notification permission is blocked. Please allow notification permission from
-                browser address bar.
+                {'Notification' in window
+                  ? 'Notification permission is blocked. Please allow notification permission from browser address bar.'
+                  : 'Notifications are not supported by the system.'}
               </Text>
             ) : (
               <span>Show desktop notifications when message arrive.</span>
