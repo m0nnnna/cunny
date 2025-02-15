@@ -257,7 +257,9 @@ export function Toolbar() {
   const modKey = isMacOS() ? KeySymbol.Command : 'Ctrl';
   const disableInline = isBlockActive(editor, BlockType.CodeBlock);
 
-  const canEscape = isAnyMarkActive(editor) || !isBlockActive(editor, BlockType.Paragraph);
+  const canEscape = isBlockActive(editor, BlockType.Paragraph)
+    ? isAnyMarkActive(editor)
+    : ReactEditor.isFocused(editor);
   const [isMarkdown, setIsMarkdown] = useSetting(settingsAtom, 'isMarkdown');
 
   return (
