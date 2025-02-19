@@ -471,36 +471,34 @@ export function SearchEmojiGroup({
   return (
     <EmojiGroup key={id} id={id} label={label}>
       {tab === EmojiBoardTab.Emoji
-        ? searchResult
-            .sort((a, b) => a.shortcode.localeCompare(b.shortcode))
-            .map((emoji) =>
-              'unicode' in emoji ? (
-                <EmojiItem
-                  key={emoji.unicode}
-                  label={emoji.label}
-                  type={EmojiType.Emoji}
-                  data={emoji.unicode}
-                  shortcode={emoji.shortcode}
-                >
-                  {emoji.unicode}
-                </EmojiItem>
-              ) : (
-                <EmojiItem
-                  key={emoji.shortcode}
-                  label={emoji.body || emoji.shortcode}
-                  type={EmojiType.CustomEmoji}
-                  data={emoji.url}
-                  shortcode={emoji.shortcode}
-                >
-                  <img
-                    loading="lazy"
-                    className={css.CustomEmojiImg}
-                    alt={emoji.body || emoji.shortcode}
-                    src={mxcUrlToHttp(mx, emoji.url, useAuthentication) ?? emoji.url}
-                  />
-                </EmojiItem>
-              )
+        ? searchResult.map((emoji) =>
+            'unicode' in emoji ? (
+              <EmojiItem
+                key={emoji.unicode}
+                label={emoji.label}
+                type={EmojiType.Emoji}
+                data={emoji.unicode}
+                shortcode={emoji.shortcode}
+              >
+                {emoji.unicode}
+              </EmojiItem>
+            ) : (
+              <EmojiItem
+                key={emoji.shortcode}
+                label={emoji.body || emoji.shortcode}
+                type={EmojiType.CustomEmoji}
+                data={emoji.url}
+                shortcode={emoji.shortcode}
+              >
+                <img
+                  loading="lazy"
+                  className={css.CustomEmojiImg}
+                  alt={emoji.body || emoji.shortcode}
+                  src={mxcUrlToHttp(mx, emoji.url, useAuthentication) ?? emoji.url}
+                />
+              </EmojiItem>
             )
+          )
         : searchResult.map((emoji) =>
             'unicode' in emoji ? null : (
               <StickerItem
