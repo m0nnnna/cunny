@@ -79,6 +79,28 @@ function GlobalPackSelector({
     });
   };
 
+  const addSelected = (adds: PackAddress[]) => {
+    setSelected((addresses) => {
+      const newAddresses = Array.from(addresses);
+      adds.forEach((address) => {
+        if (newAddresses.find((addr) => packAddressEqual(addr, address))) {
+          return;
+        }
+        newAddresses.push(address);
+      });
+      return newAddresses;
+    });
+  };
+
+  const removeSelected = (adds: PackAddress[]) => {
+    setSelected((addresses) => {
+      const newAddresses = addresses.filter(
+        (addr) => !adds.find((address) => packAddressEqual(addr, address))
+      );
+      return newAddresses;
+    });
+  };
+
   const hasSelected = selected.length > 0;
   return (
     <Box grow="Yes" direction="Column">
@@ -115,9 +137,35 @@ function GlobalPackSelector({
             {Array.from(roomToPacks.entries()).map(([roomId, roomPacks]) => {
               const room = mx.getRoom(roomId);
               if (!room) return null;
+              const roomPackAddresses = roomPacks
+                .map((pack) => pack.address)
+                .filter((addr) => addr !== undefined);
+              const allSelected = roomPackAddresses.every((addr) =>
+                selected.find((address) => packAddressEqual(addr, address))
+              );
+
               return (
                 <Box key={roomId} direction="Column" gap="100">
-                  <Text size="L400">{room.name}</Text>
+                  <Box alignItems="Center">
+                    <Box grow="Yes">
+                      <Text size="L400">{room.name}</Text>
+                    </Box>
+                    <Box shrink="No">
+                      <Chip
+                        variant={allSelected ? 'Critical' : 'Surface'}
+                        radii="Pill"
+                        onClick={() => {
+                          if (allSelected) {
+                            removeSelected(roomPackAddresses);
+                            return;
+                          }
+                          addSelected(roomPackAddresses);
+                        }}
+                      >
+                        <Text size="B300">{allSelected ? 'Unselect All' : 'Select All'}</Text>
+                      </Chip>
+                    </Box>
+                  </Box>
                   {roomPacks.map((pack) => {
                     const avatarMxc = pack.getAvatarUrl(ImageUsage.Emoticon);
                     const avatarUrl = avatarMxc
@@ -126,7 +174,7 @@ function GlobalPackSelector({
                     const { address } = pack;
                     if (!address) return null;
 
-                    const added = selected.find((addr) => packAddressEqual(addr, address));
+                    const added = !!selected.find((addr) => packAddressEqual(addr, address));
                     return (
                       <SequenceCard
                         key={pack.id}
@@ -152,7 +200,11 @@ function GlobalPackSelector({
                             </Box>
                           }
                           after={
-                            <Checkbox variant="Success" onClick={() => toggleSelect(address)} />
+                            <Checkbox
+                              checked={added}
+                              variant="Success"
+                              onClick={() => toggleSelect(address)}
+                            />
                           }
                         />
                       </SequenceCard>
