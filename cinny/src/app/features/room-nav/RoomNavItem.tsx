@@ -182,7 +182,9 @@ export function RoomNavItem({
   const { focusWithinProps } = useFocusWithin({ onFocusWithinChange: setHover });
   const [menuAnchor, setMenuAnchor] = useState<RectCords>();
   const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
-  const typingMember = useRoomTypingMember(room.roomId);
+  const typingMember = useRoomTypingMember(room.roomId).filter(
+    (receipt) => receipt.userId !== mx.getUserId()
+  );
 
   const handleContextMenu: MouseEventHandler<HTMLElement> = (evt) => {
     evt.preventDefault();
@@ -219,7 +221,9 @@ export function RoomNavItem({
                 <RoomAvatar
                   roomId={room.roomId}
                   src={
-                    direct ? getDirectRoomAvatarUrl(mx, room, 96, useAuthentication) : getRoomAvatarUrl(mx, room, 96, useAuthentication)
+                    direct
+                      ? getDirectRoomAvatarUrl(mx, room, 96, useAuthentication)
+                      : getRoomAvatarUrl(mx, room, 96, useAuthentication)
                   }
                   alt={room.name}
                   renderFallback={() => (
