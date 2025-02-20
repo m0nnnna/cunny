@@ -1,3 +1,9 @@
+/**
+ * https://www.npmjs.com/package/escape-string-regexp
+ */
+export const sanitizeForRegex = (unsafeText: string): string =>
+  unsafeText.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&').replace(/-/g, '\\x2d');
+
 export const HTTP_URL_PATTERN = `https?:\\/\\/(?:www\\.)?(?:[^\\s)]*)(?<![.,:;!/?()[\\]\\s]+)`;
 
 export const URL_REG = new RegExp(HTTP_URL_PATTERN, 'g');

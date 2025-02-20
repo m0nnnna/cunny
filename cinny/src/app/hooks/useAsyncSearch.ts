@@ -10,6 +10,7 @@ import {
   matchQuery,
   ResultHandler,
 } from '../utils/AsyncSearch';
+import { sanitizeForRegex } from '../utils/regex';
 
 export type UseAsyncSearchOptions = AsyncSearchOption & {
   matchOptions?: MatchQueryOption;
@@ -55,8 +56,8 @@ export const orderSearchItems = <TSearchItem extends object | string | number>(
 
   // we will consider "_" as word boundary char.
   // because in more use-cases it is used. (like: emojishortcode)
-  const boundaryRegex = new RegExp(`(\\b|_)${query}`);
-  const perfectBoundaryRegex = new RegExp(`(\\b|_)${query}(\\b|_)`);
+  const boundaryRegex = new RegExp(`(\\b|_)${sanitizeForRegex(query)}`);
+  const perfectBoundaryRegex = new RegExp(`(\\b|_)${sanitizeForRegex(query)}(\\b|_)`);
 
   orderedItems.sort((i1, i2) => {
     const str1 = performMatch(getItemStr(i1, query), query, options);

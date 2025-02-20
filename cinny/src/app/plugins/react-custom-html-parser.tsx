@@ -21,7 +21,7 @@ import {
   mxcUrlToHttp,
 } from '../utils/matrix';
 import { getMemberDisplayName } from '../utils/room';
-import { EMOJI_PATTERN, URL_NEG_LB } from '../utils/regex';
+import { EMOJI_PATTERN, sanitizeForRegex, URL_NEG_LB } from '../utils/regex';
 import { getHexcodeForEmoji, getShortcodeFor } from './emoji';
 import { findAndReplace } from '../utils/findAndReplace';
 import {
@@ -171,7 +171,7 @@ export const scaleSystemEmoji = (text: string): (string | JSX.Element)[] =>
   );
 
 export const makeHighlightRegex = (highlights: string[]): RegExp | undefined => {
-  const pattern = highlights.join('|');
+  const pattern = highlights.map(sanitizeForRegex).join('|');
   if (!pattern) return undefined;
   return new RegExp(pattern, 'gi');
 };

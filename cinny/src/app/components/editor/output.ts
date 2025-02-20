@@ -5,6 +5,7 @@ import { BlockType } from './types';
 import { CustomElement } from './slate';
 import { parseBlockMD, parseInlineMD } from '../../plugins/markdown';
 import { findAndReplace } from '../../utils/findAndReplace';
+import { sanitizeForRegex } from '../../utils/regex';
 
 export type OutputOptions = {
   allowTextFormatting?: boolean;
@@ -179,7 +180,7 @@ export const customHtmlEqualsPlainText = (customHtml: string, plain: string): bo
 export const trimCustomHtml = (customHtml: string) => customHtml.replace(/<br\/>$/g, '').trim();
 
 export const trimCommand = (cmdName: string, str: string) => {
-  const cmdRegX = new RegExp(`^(\\s+)?(\\/${cmdName})([^\\S\n]+)?`);
+  const cmdRegX = new RegExp(`^(\\s+)?(\\/${sanitizeForRegex(cmdName)})([^\\S\n]+)?`);
 
   const match = str.match(cmdRegX);
   if (!match) return str;
