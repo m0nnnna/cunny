@@ -5,6 +5,7 @@ import { Header, Menu, Scroll, config } from 'folds';
 
 import * as css from './AutocompleteMenu.css';
 import { preventScrollWithArrowKey, stopPropagation } from '../../../utils/keyboard';
+import { useAlive } from '../../../hooks/useAlive';
 
 type AutocompleteMenuProps = {
   requestClose: () => void;
@@ -12,13 +13,22 @@ type AutocompleteMenuProps = {
   children: ReactNode;
 };
 export function AutocompleteMenu({ headerContent, requestClose, children }: AutocompleteMenuProps) {
+  const alive = useAlive();
+
+  const handleDeactivate = () => {
+    if (alive()) {
+      // The component is unmounted so we will not call for `requestClose`
+      requestClose();
+    }
+  };
+
   return (
     <div className={css.AutocompleteMenuBase}>
       <div className={css.AutocompleteMenuContainer}>
         <FocusTrap
           focusTrapOptions={{
             initialFocus: false,
-            onDeactivate: () => requestClose(),
+            onPostDeactivate: handleDeactivate,
             returnFocusOnDeactivate: false,
             clickOutsideDeactivates: true,
             allowOutsideClick: true,
