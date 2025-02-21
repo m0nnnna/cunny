@@ -26,8 +26,23 @@ export type ScrollToOptions = {
   stopInView?: boolean;
 };
 
-export type ScrollToElement = (element: HTMLElement, opts?: ScrollToOptions) => void;
-export type ScrollToItem = (index: number, opts?: ScrollToOptions) => void;
+/**
+ * Scrolls the page to a specified element in the DOM.
+ *
+ * @param {HTMLElement} element - The DOM element to scroll to.
+ * @param {ScrollToOptions} [opts] - Optional configuration for the scroll behavior (e.g., smooth scrolling, alignment).
+ * @returns {boolean} - Returns `true` if the scroll was successful, otherwise returns `false`.
+ */
+export type ScrollToElement = (element: HTMLElement, opts?: ScrollToOptions) => boolean;
+
+/**
+ * Scrolls the page to an item at the specified index within a scrollable container.
+ *
+ * @param {number} index - The index of the item to scroll to.
+ * @param {ScrollToOptions} [opts] - Optional configuration for the scroll behavior (e.g., smooth scrolling, alignment).
+ * @returns {boolean} - Returns `true` if the scroll was successful, otherwise returns `false`.
+ */
+export type ScrollToItem = (index: number, opts?: ScrollToOptions) => boolean;
 
 type HandleObserveAnchor = (element: HTMLElement | null) => void;
 
@@ -186,10 +201,10 @@ export const useVirtualPaginator = <TScrollElement extends HTMLElement>(
   const scrollToElement = useCallback<ScrollToElement>(
     (element, opts) => {
       const scrollElement = getScrollElement();
-      if (!scrollElement) return;
+      if (!scrollElement) return false;
 
       if (opts?.stopInView && isInScrollView(scrollElement, element)) {
-        return;
+        return false;
       }
       let scrollTo = element.offsetTop;
       if (opts?.align === 'center' && canFitInScrollView(scrollElement, element)) {
@@ -207,6 +222,7 @@ export const useVirtualPaginator = <TScrollElement extends HTMLElement>(
         top: scrollTo - (opts?.offset ?? 0),
         behavior: opts?.behavior,
       });
+      return true;
     },
     [getScrollElement]
   );
@@ -215,7 +231,7 @@ export const useVirtualPaginator = <TScrollElement extends HTMLElement>(
     (index, opts) => {
       const { range: currentRange, limit: currentLimit, count: currentCount } = propRef.current;
 
-      if (index < 0 || index >= currentCount) return;
+      if (index < 0 || index >= currentCount) return false;
       // index is not in range change range
       // and trigger scrollToItem in layoutEffect hook
       if (index < currentRange.start || index >= currentRange.end) {
@@ -227,7 +243,7 @@ export const useVirtualPaginator = <TScrollElement extends HTMLElement>(
           index,
           opts,
         };
-        return;
+        return true;
       }
 
       // find target or it's previous rendered element to scroll to
@@ -241,9 +257,9 @@ export const useVirtualPaginator = <TScrollElement extends HTMLElement>(
           top: opts?.offset ?? 0,
           behavior: opts?.behavior,
         });
-        return;
+        return true;
       }
-      scrollToElement(itemElement, opts);
+      return scrollToElement(itemElement, opts);
     },
     [getScrollElement, scrollToElement, getItemElement, onRangeChange]
   );
