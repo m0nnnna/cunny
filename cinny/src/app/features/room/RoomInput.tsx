@@ -255,7 +255,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
       const commandName = getBeginCommand(editor);
 
-      let plainText = toPlainText(editor.children).trim();
+      let plainText = toPlainText(editor.children, isMarkdown).trim();
       let customHtml = trimCustomHtml(
         toMatrixCustomHTML(editor.children, {
           allowTextFormatting: true,
