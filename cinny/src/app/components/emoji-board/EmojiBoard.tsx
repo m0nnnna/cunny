@@ -50,6 +50,7 @@ import { addRecentEmoji } from '../../plugins/recent-emoji';
 import { mobileOrTablet } from '../../utils/user-agent';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
 import { ImagePack, ImageUsage, PackImageReader } from '../../plugins/custom-emoji';
+import { getEmoticonSearchStr } from '../../plugins/utils';
 
 const RECENT_GROUP_ID = 'recent_group';
 const SEARCH_GROUP_ID = 'search_group';
@@ -636,15 +637,8 @@ export const NativeEmojiGroups = memo(
   )
 );
 
-const getSearchListItemStr = (item: PackImageReader | IEmoji) => {
-  const shortcode = `:${item.shortcode}:`;
-  if ('body' in item) {
-    return [shortcode, item.body ?? ''];
-  }
-  return shortcode;
-};
 const SEARCH_OPTIONS: UseAsyncSearchOptions = {
-  limit: 26,
+  limit: 1000,
   matchOptions: {
     contain: true,
   },
@@ -696,9 +690,11 @@ export function EmojiBoard({
 
   const [result, search, resetSearch] = useAsyncSearch(
     searchList,
-    getSearchListItemStr,
+    getEmoticonSearchStr,
     SEARCH_OPTIONS
   );
+
+  const searchedItems = result?.items.slice(0, 100);
 
   const handleOnChange: ChangeEventHandler<HTMLInputElement> = useDebounce(
     useCallback(
@@ -920,13 +916,13 @@ export function EmojiBoard({
               direction="Column"
               gap="200"
             >
-              {result && (
+              {searchedItems && (
                 <SearchEmojiGroup
                   mx={mx}
                   tab={tab}
                   id={SEARCH_GROUP_ID}
-                  label={result.items.length ? 'Search Results' : 'No Results found'}
-                  emojis={result.items}
+                  label={searchedItems.length ? 'Search Results' : 'No Results found'}
+                  emojis={searchedItems}
                   useAuthentication={useAuthentication}
                 />
               )}

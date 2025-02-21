@@ -74,7 +74,7 @@ const withAllowedMembership = (member: RoomMember): boolean =>
   member.membership === Membership.Knock;
 
 const SEARCH_OPTIONS: UseAsyncSearchOptions = {
-  limit: 20,
+  limit: 1000,
   matchOptions: {
     contain: true,
   },
@@ -97,7 +97,7 @@ export function UserMentionAutocomplete({
   const members = useRoomMembers(mx, roomId);
 
   const [result, search, resetSearch] = useAsyncSearch(members, getRoomMemberStr, SEARCH_OPTIONS);
-  const autoCompleteMembers = (result ? result.items : members.slice(0, 20)).filter(
+  const autoCompleteMembers = (result ? result.items.slice(0, 20) : members.slice(0, 20)).filter(
     withAllowedMembership
   );
 

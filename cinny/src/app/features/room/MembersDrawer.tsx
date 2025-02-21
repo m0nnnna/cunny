@@ -156,7 +156,7 @@ export type MembersFilterOptions = {
 };
 
 const SEARCH_OPTIONS: UseAsyncSearchOptions = {
-  limit: 100,
+  limit: 1000,
   matchOptions: {
     contain: true,
   },
@@ -428,8 +428,9 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
                         }}
                         after={<Icon size="50" src={Icons.Cross} />}
                       >
-                        <Text size="B300">{`${result.items.length || 'No'} ${result.items.length === 1 ? 'Result' : 'Results'
-                          }`}</Text>
+                        <Text size="B300">{`${result.items.length || 'No'} ${
+                          result.items.length === 1 ? 'Result' : 'Results'
+                        }`}</Text>
                       </Chip>
                     )
                   }
@@ -485,15 +486,17 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
                   const member = tagOrMember;
                   const name = getName(member);
                   const avatarMxcUrl = member.getMxcAvatarUrl();
-                  const avatarUrl = avatarMxcUrl ? mx.mxcUrlToHttp(
-                    avatarMxcUrl,
-                    100,
-                    100,
-                    'crop',
-                    undefined,
-                    false,
-                    useAuthentication
-                  ) : undefined;
+                  const avatarUrl = avatarMxcUrl
+                    ? mx.mxcUrlToHttp(
+                        avatarMxcUrl,
+                        100,
+                        100,
+                        'crop',
+                        undefined,
+                        false,
+                        useAuthentication
+                      )
+                    : undefined;
 
                   return (
                     <MenuItem

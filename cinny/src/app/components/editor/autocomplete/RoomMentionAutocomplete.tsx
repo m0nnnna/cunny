@@ -65,7 +65,6 @@ type RoomMentionAutocompleteProps = {
 };
 
 const SEARCH_OPTIONS: UseAsyncSearchOptions = {
-  limit: 20,
   matchOptions: {
     contain: true,
   },
@@ -97,7 +96,7 @@ export function RoomMentionAutocomplete({
     SEARCH_OPTIONS
   );
 
-  const autoCompleteRoomIds = result ? result.items : allRooms.slice(0, 20);
+  const autoCompleteRoomIds = result ? result.items.slice(0, 20) : allRooms.slice(0, 20);
 
   useEffect(() => {
     if (query.text) search(query.text);
