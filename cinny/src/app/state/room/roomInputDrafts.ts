@@ -3,21 +3,28 @@ import { atomFamily } from 'jotai/utils';
 import { Descendant } from 'slate';
 import { EncryptedAttachmentInfo } from 'browser-encrypt-attachment';
 import { IEventRelation } from 'matrix-js-sdk';
-import { TListAtom, createListAtom } from '../list';
 import { createUploadAtomFamily } from '../upload';
 import { TUploadContent } from '../../utils/matrix';
+import { createListAtom } from '../list';
 
-export const roomUploadAtomFamily = createUploadAtomFamily();
+export type TUploadMetadata = {
+  markedAsSpoiler: boolean;
+};
 
 export type TUploadItem = {
   file: TUploadContent;
   originalFile: TUploadContent;
+  metadata: TUploadMetadata;
   encInfo: EncryptedAttachmentInfo | undefined;
 };
 
-export const roomIdToUploadItemsAtomFamily = atomFamily<string, TListAtom<TUploadItem>>(
+export type TUploadListAtom = ReturnType<typeof createListAtom<TUploadItem>>;
+
+export const roomIdToUploadItemsAtomFamily = atomFamily<string, TUploadListAtom>(
   createListAtom
 );
+
+export const roomUploadAtomFamily = createUploadAtomFamily();
 
 export type RoomIdToMsgAction =
   | {

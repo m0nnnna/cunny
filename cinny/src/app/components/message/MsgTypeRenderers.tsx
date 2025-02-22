@@ -22,6 +22,8 @@ import {
   IThumbnailContent,
   IVideoContent,
   IVideoInfo,
+  MATRIX_SPOILER_PROPERTY_NAME,
+  MATRIX_SPOILER_REASON_PROPERTY_NAME,
 } from '../../../types/matrix/common';
 import { FALLBACK_MIMETYPE, getBlobSafeMimeType } from '../../utils/mimeTypes';
 import { parseGeoUri, scaleYDimension } from '../../utils/common';
@@ -177,6 +179,8 @@ type RenderImageContentProps = {
   mimeType?: string;
   url: string;
   encInfo?: IEncryptedFile;
+  markedAsSpoiler?: boolean;
+  spoilerReason?: string;
 };
 type MImageProps = {
   content: IImageContent;
@@ -204,6 +208,8 @@ export function MImage({ content, renderImageContent, outlined }: MImageProps) {
           mimeType: imgInfo?.mimetype,
           url: mxcUrl,
           encInfo: content.file,
+          markedAsSpoiler: content[MATRIX_SPOILER_PROPERTY_NAME],
+          spoilerReason: content[MATRIX_SPOILER_REASON_PROPERTY_NAME],
         })}
       </AttachmentBox>
     </Attachment>

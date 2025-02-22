@@ -30,3 +30,10 @@ export const AbsoluteFooter = style([
     right: config.space.S100,
   },
 ]);
+
+export const Blur = style([
+  DefaultReset,
+  {
+    filter: 'blur(44px)',
+  },
+]);

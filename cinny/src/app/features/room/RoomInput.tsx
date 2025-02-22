@@ -167,10 +167,24 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
           const encryptFiles = fulfilledPromiseSettledResult(
             await Promise.allSettled(safeFiles.map((f) => encryptFile(f)))
           );
-          encryptFiles.forEach((ef) => fileItems.push(ef));
+          encryptFiles.forEach((ef) =>
+            fileItems.push({
+              ...ef,
+              metadata: {
+                markedAsSpoiler: false,
+              },
+            })
+          );
         } else {
           safeFiles.forEach((f) =>
-            fileItems.push({ file: f, originalFile: f, encInfo: undefined })
+            fileItems.push({
+              file: f,
+              originalFile: f,
+              encInfo: undefined,
+              metadata: {
+                markedAsSpoiler: false,
+              },
+            })
           );
         }
         setSelectedFiles({
@@ -420,7 +434,14 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                         // eslint-disable-next-line react/no-array-index-key
                         key={index}
                         isEncrypted={!!fileItem.encInfo}
-                        uploadAtom={roomUploadAtomFamily(fileItem.file)}
+                        fileItem={fileItem}
+                        setMetadata={(metadata) =>
+                          setSelectedFiles({
+                            type: 'REPLACE',
+                            item: fileItem,
+                            replacement: { ...fileItem, metadata },
+                          })
+                        }
                         onRemove={handleRemoveUpload}
                       />
                     ))}

@@ -1,28 +1,41 @@
-import React, { useEffect } from 'react';
-import { Chip, Icon, IconButton, Icons, Text, color } from 'folds';
+import React, { useCallback, useEffect } from 'react';
+import { Chip, Icon, IconButton, Icons, Text, Tooltip, TooltipProvider, color } from 'folds';
 import { UploadCard, UploadCardError, UploadCardProgress } from './UploadCard';
-import { TUploadAtom, UploadStatus, UploadSuccess, useBindUploadAtom } from '../../state/upload';
+import { UploadStatus, UploadSuccess, useBindUploadAtom } from '../../state/upload';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { TUploadContent } from '../../utils/matrix';
 import { getFileTypeIcon } from '../../utils/common';
+import {
+  roomUploadAtomFamily,
+  TUploadItem,
+  TUploadMetadata,
+} from '../../state/room/roomInputDrafts';
 
 type UploadCardRendererProps = {
   isEncrypted?: boolean;
-  uploadAtom: TUploadAtom;
+  fileItem: TUploadItem;
+  setMetadata: (metadata: TUploadMetadata) => void;
   onRemove: (file: TUploadContent) => void;
   onComplete?: (upload: UploadSuccess) => void;
 };
 export function UploadCardRenderer({
   isEncrypted,
-  uploadAtom,
+  fileItem,
+  setMetadata,
   onRemove,
   onComplete,
 }: UploadCardRendererProps) {
   const mx = useMatrixClient();
+  const uploadAtom = roomUploadAtomFamily(fileItem.file);
+  const { metadata } = fileItem;
   const { upload, startUpload, cancelUpload } = useBindUploadAtom(mx, uploadAtom, isEncrypted);
   const { file } = upload;
 
   if (upload.status === UploadStatus.Idle) startUpload();
+
+  const toggleSpoiler = useCallback(() => {
+    setMetadata({ ...metadata, markedAsSpoiler: !metadata.markedAsSpoiler });
+  }, [setMetadata, metadata]);
 
   const removeUpload = () => {
     cancelUpload();
@@ -52,6 +65,31 @@ export function UploadCardRenderer({
             >
               <Text size="B300">Retry</Text>
             </Chip>
+          )}
+          {file.type.startsWith('image') && (
+            <TooltipProvider
+              tooltip={
+                <Tooltip variant="SurfaceVariant">
+                  <Text>Mark as Spoiler</Text>
+                </Tooltip>
+              }
+              position="Top"
+              align="Center"
+            >
+              {(triggerRef) => (
+                <IconButton
+                  ref={triggerRef}
+                  onClick={toggleSpoiler}
+                  aria-label="Mark as Spoiler"
+                  variant="SurfaceVariant"
+                  radii="Pill"
+                  size="300"
+                  aria-pressed={metadata.markedAsSpoiler}
+                >
+                  <Icon src={Icons.EyeBlind} size="200" />
+                </IconButton>
+              )}
+            </TooltipProvider>
           )}
           <IconButton
             onClick={removeUpload}

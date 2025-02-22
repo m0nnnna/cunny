@@ -6,6 +6,11 @@ export type ListAction<T> =
       item: T | T[];
     }
   | {
+    type: 'REPLACE';
+    item: T;
+    replacement: T;
+    }
+  | {
       type: 'DELETE';
       item: T | T[];
     };
@@ -26,6 +31,10 @@ export const createListAtom = <T>() => {
       }
       if (action.type === 'PUT') {
         set(baseListAtom, [...items, ...newItems]);
+        return;
+      }
+      if (action.type === 'REPLACE') {
+        set(baseListAtom, items.map((item) => item === action.item ? action.replacement : item));
       }
     }
   );

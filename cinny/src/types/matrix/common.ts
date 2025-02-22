@@ -2,6 +2,8 @@ import { EncryptedAttachmentInfo } from 'browser-encrypt-attachment';
 import { MsgType } from 'matrix-js-sdk';
 
 export const MATRIX_BLUR_HASH_PROPERTY_NAME = 'xyz.amorgan.blurhash';
+export const MATRIX_SPOILER_PROPERTY_NAME = 'page.codeberg.everypizza.msc4193.spoiler';
+export const MATRIX_SPOILER_REASON_PROPERTY_NAME = 'page.codeberg.everypizza.msc4193.spoiler.reason';
 
 export type IImageInfo = {
   w?: number;
@@ -47,6 +49,8 @@ export type IImageContent = {
   url?: string;
   info?: IImageInfo & IThumbnailContent;
   file?: IEncryptedFile;
+  [MATRIX_SPOILER_PROPERTY_NAME]?: boolean;
+  [MATRIX_SPOILER_REASON_PROPERTY_NAME]?: string;
 };
 
 export type IVideoContent = {
@@ -56,6 +60,8 @@ export type IVideoContent = {
   url?: string;
   info?: IVideoInfo & IThumbnailContent;
   file?: IEncryptedFile;
+  [MATRIX_SPOILER_PROPERTY_NAME]?: boolean;
+  [MATRIX_SPOILER_REASON_PROPERTY_NAME]?: string;
 };
 
 export type IAudioContent = {

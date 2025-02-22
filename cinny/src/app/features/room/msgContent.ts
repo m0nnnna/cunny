@@ -1,6 +1,10 @@
 import { IContent, MatrixClient, MsgType } from 'matrix-js-sdk';
 import to from 'await-to-js';
-import { IThumbnailContent, MATRIX_BLUR_HASH_PROPERTY_NAME } from '../../../types/matrix/common';
+import {
+  IThumbnailContent,
+  MATRIX_BLUR_HASH_PROPERTY_NAME,
+  MATRIX_SPOILER_PROPERTY_NAME,
+} from '../../../types/matrix/common';
 import {
   getImageFileUrl,
   getThumbnail,
@@ -42,9 +46,9 @@ const generateThumbnailContent = async (
 export const getImageMsgContent = async (
   mx: MatrixClient,
   item: TUploadItem,
-  mxc: string,
+  mxc: string
 ): Promise<IContent> => {
-  const { file, originalFile, encInfo } = item;
+  const { file, originalFile, encInfo, metadata } = item;
   const [imgError, imgEl] = await to(loadImageElement(getImageFileUrl(originalFile)));
   if (imgError) console.warn(imgError);
 
@@ -52,6 +56,7 @@ export const getImageMsgContent = async (
     msgtype: MsgType.Image,
     filename: file.name,
     body: file.name,
+    [MATRIX_SPOILER_PROPERTY_NAME]: metadata.markedAsSpoiler,
   };
   if (imgEl) {
     const blurHash = encodeBlurHash(imgEl, 512, scaleYDimension(imgEl.width, 512, imgEl.height));
@@ -75,7 +80,7 @@ export const getImageMsgContent = async (
 export const getVideoMsgContent = async (
   mx: MatrixClient,
   item: TUploadItem,
-  mxc: string,
+  mxc: string
 ): Promise<IContent> => {
   const { file, originalFile, encInfo } = item;
 
