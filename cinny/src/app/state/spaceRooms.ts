@@ -23,32 +23,37 @@ const baseSpaceRoomsAtom = atomWithLocalStorage<Set<string>>(
 type SpaceRoomsAction =
   | {
       type: 'PUT';
-      roomId: string;
+      roomIds: string[];
     }
   | {
       type: 'DELETE';
-      roomId: string;
+      roomIds: string[];
     };
 
 export const spaceRoomsAtom = atom<Set<string>, [SpaceRoomsAction], undefined>(
   (get) => get(baseSpaceRoomsAtom),
   (get, set, action) => {
-    if (action.type === 'DELETE') {
+    const current = get(baseSpaceRoomsAtom);
+    const { type, roomIds } = action;
+
+    if (type === 'DELETE' && roomIds.find((roomId) => current.has(roomId))) {
       set(
         baseSpaceRoomsAtom,
-        produce(get(baseSpaceRoomsAtom), (draft) => {
-          draft.delete(action.roomId);
+        produce(current, (draft) => {
+          roomIds.forEach((roomId) => draft.delete(roomId));
         })
       );
       return;
     }
-    if (action.type === 'PUT') {
-      set(
-        baseSpaceRoomsAtom,
-        produce(get(baseSpaceRoomsAtom), (draft) => {
-          draft.add(action.roomId);
-        })
-      );
+    if (type === 'PUT') {
+      const newEntries = roomIds.filter((roomId) => !current.has(roomId));
+      if (newEntries.length > 0)
+        set(
+          baseSpaceRoomsAtom,
+          produce(current, (draft) => {
+            newEntries.forEach((roomId) => draft.add(roomId));
+          })
+        );
     }
   }
 );

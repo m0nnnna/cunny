@@ -5,9 +5,15 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { JoinRule, RestrictedAllowType, Room } from 'matrix-js-sdk';
 import { RoomJoinRulesEventContent } from 'matrix-js-sdk/lib/types';
+import { IHierarchyRoom } from 'matrix-js-sdk/lib/@types/spaces';
+import produce from 'immer';
 import { useSpace } from '../../hooks/useSpace';
 import { Page, PageContent, PageContentCenter, PageHeroSection } from '../../components/page';
-import { HierarchyItem, useSpaceHierarchy } from '../../hooks/useSpaceHierarchy';
+import {
+  HierarchyItem,
+  HierarchyItemSpace,
+  useSpaceHierarchy,
+} from '../../hooks/useSpaceHierarchy';
 import { VirtualTile } from '../../components/virtualizer';
 import { spaceRoomsAtom } from '../../state/spaceRooms';
 import { MembersDrawer } from '../room/MembersDrawer';
@@ -25,18 +31,15 @@ import {
   usePowerLevels,
   useRoomsPowerLevels,
 } from '../../hooks/usePowerLevels';
-import { RoomItemCard } from './RoomItem';
 import { mDirectAtom } from '../../state/mDirectList';
-import { SpaceItemCard } from './SpaceItem';
 import { makeLobbyCategoryId } from '../../state/closedLobbyCategories';
 import { useCategoryHandler } from '../../hooks/useCategoryHandler';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { allRoomsAtom } from '../../state/room-list/roomList';
 import { getCanonicalAliasOrRoomId } from '../../utils/matrix';
 import { getSpaceRoomPath } from '../../pages/pathUtils';
-import { HierarchyItemMenu } from './HierarchyItemMenu';
 import { StateEvent } from '../../../types/matrix/room';
-import { AfterItemDropTarget, CanDropCallback, useDnDMonitor } from './DnD';
+import { CanDropCallback, useDnDMonitor } from './DnD';
 import { ASCIILexicalTable, orderKeys } from '../../utils/ASCIILexicalTable';
 import { getStateEvent } from '../../utils/room';
 import { useClosedLobbyCategoriesAtom } from '../../state/hooks/closedLobbyCategories';
@@ -49,6 +52,7 @@ import { useOrphanSpaces } from '../../state/hooks/roomList';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { AccountDataEvent } from '../../../types/matrix/accountData';
 import { useRoomMembers } from '../../hooks/useRoomMembers';
+import { SpaceHierarchy } from './SpaceHierarchy';
 
 export function Lobby() {
   const navigate = useNavigate();
@@ -81,6 +85,8 @@ export function Lobby() {
     return new Set(sideSpaces);
   }, [sidebarItems]);
 
+  const [spacesItems, setSpacesItem] = useState<Map<string, IHierarchyRoom>>(() => new Map());
+
   useElementSizeObserver(
     useCallback(() => heroSectionRef.current, []),
     useCallback((w, height) => setHeroSectionHeight(height), [])
@@ -107,19 +113,20 @@ export function Lobby() {
   );
 
   const [draggingItem, setDraggingItem] = useState<HierarchyItem>();
-  const flattenHierarchy = useSpaceHierarchy(
+  const hierarchy = useSpaceHierarchy(
     space.roomId,
     spaceRooms,
     getRoom,
     useCallback(
       (childId) =>
-        closedCategories.has(makeLobbyCategoryId(space.roomId, childId)) || !!draggingItem?.space,
+        closedCategories.has(makeLobbyCategoryId(space.roomId, childId)) ||
+        (draggingItem ? 'space' in draggingItem : false),
       [closedCategories, space.roomId, draggingItem]
     )
   );
 
   const virtualizer = useVirtualizer({
-    count: flattenHierarchy.length,
+    count: hierarchy.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => 1,
     overscan: 2,
@@ -129,8 +136,17 @@ export function Lobby() {
 
   const roomsPowerLevels = useRoomsPowerLevels(
     useMemo(
-      () => flattenHierarchy.map((i) => mx.getRoom(i.roomId)).filter((r) => !!r) as Room[],
-      [mx, flattenHierarchy]
+      () =>
+        hierarchy
+          .flatMap((i) => {
+            const childRooms = Array.isArray(i.rooms)
+              ? i.rooms.map((r) => mx.getRoom(r.roomId))
+              : [];
+
+            return [mx.getRoom(i.space.roomId), ...childRooms];
+          })
+          .filter((r) => !!r) as Room[],
+      [mx, hierarchy]
     )
   );
 
@@ -142,8 +158,8 @@ export function Lobby() {
         return false;
       }
 
-      if (item.space) {
-        if (!container.item.space) return false;
+      if ('space' in item) {
+        if (!('space' in container.item)) return false;
         const containerSpaceId = space.roomId;
 
         if (
@@ -156,9 +172,8 @@ export function Lobby() {
         return true;
       }
 
-      const containerSpaceId = container.item.space
-        ? container.item.roomId
-        : container.item.parentId;
+      const containerSpaceId =
+        'space' in container.item ? container.item.roomId : container.item.parentId;
 
       const dropOutsideSpace = item.parentId !== containerSpaceId;
 
@@ -192,22 +207,22 @@ export function Lobby() {
   );
 
   const reorderSpace = useCallback(
-    (item: HierarchyItem, containerItem: HierarchyItem) => {
+    (item: HierarchyItemSpace, containerItem: HierarchyItem) => {
       if (!item.parentId) return;
 
-      const childItems = flattenHierarchy
-        .filter((i) => i.parentId && i.space)
+      const itemSpaces: HierarchyItemSpace[] = hierarchy
+        .map((i) => i.space)
         .filter((i) => i.roomId !== item.roomId);
 
-      const beforeIndex = childItems.findIndex((i) => i.roomId === containerItem.roomId);
+      const beforeIndex = itemSpaces.findIndex((i) => i.roomId === containerItem.roomId);
       const insertIndex = beforeIndex + 1;
 
-      childItems.splice(insertIndex, 0, {
+      itemSpaces.splice(insertIndex, 0, {
         ...item,
         content: { ...item.content, order: undefined },
       });
 
-      const currentOrders = childItems.map((i) => {
+      const currentOrders = itemSpaces.map((i) => {
         if (typeof i.content.order === 'string' && lex.has(i.content.order)) {
           return i.content.order;
         }
@@ -217,21 +232,21 @@ export function Lobby() {
       const newOrders = orderKeys(lex, currentOrders);
 
       newOrders?.forEach((orderKey, index) => {
-        const itm = childItems[index];
+        const itm = itemSpaces[index];
         if (!itm || !itm.parentId) return;
         const parentPL = roomsPowerLevels.get(itm.parentId);
         const canEdit = parentPL && canEditSpaceChild(parentPL);
         if (canEdit && orderKey !== currentOrders[index]) {
           mx.sendStateEvent(
             itm.parentId,
-            StateEvent.SpaceChild,
+            StateEvent.SpaceChild as any,
             { ...itm.content, order: orderKey },
             itm.roomId
           );
         }
       });
     },
-    [mx, flattenHierarchy, lex, roomsPowerLevels, canEditSpaceChild]
+    [mx, hierarchy, lex, roomsPowerLevels, canEditSpaceChild]
   );
 
   const reorderRoom = useCallback(
@@ -240,13 +255,12 @@ export function Lobby() {
       if (!item.parentId) {
         return;
       }
-      const containerParentId: string = containerItem.space
-        ? containerItem.roomId
-        : containerItem.parentId;
+      const containerParentId: string =
+        'space' in containerItem ? containerItem.roomId : containerItem.parentId;
       const itemContent = item.content;
 
       if (item.parentId !== containerParentId) {
-        mx.sendStateEvent(item.parentId, StateEvent.SpaceChild, {}, item.roomId);
+        mx.sendStateEvent(item.parentId, StateEvent.SpaceChild as any, {}, item.roomId);
       }
 
       if (
@@ -265,28 +279,29 @@ export function Lobby() {
           const allow =
             joinRuleContent.allow?.filter((allowRule) => allowRule.room_id !== item.parentId) ?? [];
           allow.push({ type: RestrictedAllowType.RoomMembership, room_id: containerParentId });
-          mx.sendStateEvent(itemRoom.roomId, StateEvent.RoomJoinRules, {
+          mx.sendStateEvent(itemRoom.roomId, StateEvent.RoomJoinRules as any, {
             ...joinRuleContent,
             allow,
           });
         }
       }
 
-      const childItems = flattenHierarchy
-        .filter((i) => i.parentId === containerParentId && !i.space)
-        .filter((i) => i.roomId !== item.roomId);
+      const itemSpaces = Array.from(
+        hierarchy?.find((i) => i.space.roomId === containerParentId)?.rooms ?? []
+      );
 
-      const beforeItem: HierarchyItem | undefined = containerItem.space ? undefined : containerItem;
-      const beforeIndex = childItems.findIndex((i) => i.roomId === beforeItem?.roomId);
+      const beforeItem: HierarchyItem | undefined =
+        'space' in containerItem ? undefined : containerItem;
+      const beforeIndex = itemSpaces.findIndex((i) => i.roomId === beforeItem?.roomId);
       const insertIndex = beforeIndex + 1;
 
-      childItems.splice(insertIndex, 0, {
+      itemSpaces.splice(insertIndex, 0, {
         ...item,
         parentId: containerParentId,
         content: { ...itemContent, order: undefined },
       });
 
-      const currentOrders = childItems.map((i) => {
+      const currentOrders = itemSpaces.map((i) => {
         if (typeof i.content.order === 'string' && lex.has(i.content.order)) {
           return i.content.order;
         }
@@ -296,18 +311,18 @@ export function Lobby() {
       const newOrders = orderKeys(lex, currentOrders);
 
       newOrders?.forEach((orderKey, index) => {
-        const itm = childItems[index];
+        const itm = itemSpaces[index];
         if (itm && orderKey !== currentOrders[index]) {
           mx.sendStateEvent(
             containerParentId,
-            StateEvent.SpaceChild,
+            StateEvent.SpaceChild as any,
             { ...itm.content, order: orderKey },
             itm.roomId
           );
         }
       });
     },
-    [mx, flattenHierarchy, lex]
+    [mx, hierarchy, lex]
   );
 
   useDnDMonitor(
@@ -318,7 +333,7 @@ export function Lobby() {
         if (!canDrop(item, container)) {
           return;
         }
-        if (item.space) {
+        if ('space' in item) {
           reorderSpace(item, container.item);
         } else {
           reorderRoom(item, container.item);
@@ -328,8 +343,16 @@ export function Lobby() {
     )
   );
 
-  const addSpaceRoom = useCallback(
-    (roomId: string) => setSpaceRooms({ type: 'PUT', roomId }),
+  const handleSpacesFound = useCallback(
+    (sItems: IHierarchyRoom[]) => {
+      setSpaceRooms({ type: 'PUT', roomIds: sItems.map((i) => i.room_id) });
+      setSpacesItem((current) => {
+        const newItems = produce(current, (draft) => {
+          sItems.forEach((item) => draft.set(item.room_id, item));
+        });
+        return current.size === newItems.size ? current : newItems;
+      });
+    },
     [setSpaceRooms]
   );
 
@@ -394,121 +417,44 @@ export function Lobby() {
                       <LobbyHero />
                     </PageHeroSection>
                     {vItems.map((vItem) => {
-                      const item = flattenHierarchy[vItem.index];
+                      const item = hierarchy[vItem.index];
                       if (!item) return null;
-                      const itemPowerLevel = roomsPowerLevels.get(item.roomId) ?? {};
-                      const userPLInItem = powerLevelAPI.getPowerLevel(
-                        itemPowerLevel,
-                        mx.getUserId() ?? undefined
-                      );
-                      const canInvite = powerLevelAPI.canDoAction(
-                        itemPowerLevel,
-                        'invite',
-                        userPLInItem
-                      );
-                      const isJoined = allJoinedRooms.has(item.roomId);
+                      const nextSpaceId = hierarchy[vItem.index + 1]?.space.roomId;
 
-                      const nextRoomId: string | undefined =
-                        flattenHierarchy[vItem.index + 1]?.roomId;
+                      const categoryId = makeLobbyCategoryId(space.roomId, item.space.roomId);
 
-                      const dragging =
-                        draggingItem?.roomId === item.roomId &&
-                        draggingItem.parentId === item.parentId;
-
-                      if (item.space) {
-                        const categoryId = makeLobbyCategoryId(space.roomId, item.roomId);
-                        const { parentId } = item;
-                        const parentPowerLevels = parentId
-                          ? roomsPowerLevels.get(parentId) ?? {}
-                          : undefined;
-
-                        return (
-                          <VirtualTile
-                            virtualItem={vItem}
-                            style={{
-                              paddingTop: vItem.index === 0 ? 0 : config.space.S500,
-                            }}
-                            ref={virtualizer.measureElement}
-                            key={vItem.index}
-                          >
-                            <SpaceItemCard
-                              item={item}
-                              joined={allJoinedRooms.has(item.roomId)}
-                              categoryId={categoryId}
-                              closed={closedCategories.has(categoryId) || !!draggingItem?.space}
-                              handleClose={handleCategoryClick}
-                              getRoom={getRoom}
-                              canEditChild={canEditSpaceChild(
-                                roomsPowerLevels.get(item.roomId) ?? {}
-                              )}
-                              canReorder={
-                                parentPowerLevels ? canEditSpaceChild(parentPowerLevels) : false
-                              }
-                              options={
-                                parentId &&
-                                parentPowerLevels && (
-                                  <HierarchyItemMenu
-                                    item={{ ...item, parentId }}
-                                    canInvite={canInvite}
-                                    joined={isJoined}
-                                    canEditChild={canEditSpaceChild(parentPowerLevels)}
-                                    pinned={sidebarSpaces.has(item.roomId)}
-                                    onTogglePin={togglePinToSidebar}
-                                  />
-                                )
-                              }
-                              before={item.parentId ? undefined : undefined}
-                              after={
-                                <AfterItemDropTarget
-                                  item={item}
-                                  nextRoomId={nextRoomId}
-                                  afterSpace
-                                  canDrop={canDrop}
-                                />
-                              }
-                              onDragging={setDraggingItem}
-                              data-dragging={dragging}
-                            />
-                          </VirtualTile>
-                        );
-                      }
-
-                      const parentPowerLevels = roomsPowerLevels.get(item.parentId) ?? {};
-                      const prevItem: HierarchyItem | undefined = flattenHierarchy[vItem.index - 1];
-                      const nextItem: HierarchyItem | undefined = flattenHierarchy[vItem.index + 1];
                       return (
                         <VirtualTile
                           virtualItem={vItem}
-                          style={{ paddingTop: config.space.S100 }}
+                          style={{
+                            paddingTop: vItem.index === 0 ? 0 : config.space.S500,
+                          }}
                           ref={virtualizer.measureElement}
                           key={vItem.index}
                         >
-                          <RoomItemCard
-                            item={item}
-                            onSpaceFound={addSpaceRoom}
-                            dm={mDirects.has(item.roomId)}
-                            firstChild={!prevItem || prevItem.space === true}
-                            lastChild={!nextItem || nextItem.space === true}
-                            onOpen={handleOpenRoom}
-                            getRoom={getRoom}
-                            canReorder={canEditSpaceChild(parentPowerLevels)}
-                            options={
-                              <HierarchyItemMenu
-                                item={item}
-                                canInvite={canInvite}
-                                joined={isJoined}
-                                canEditChild={canEditSpaceChild(parentPowerLevels)}
-                              />
+                          <SpaceHierarchy
+                            spaceItem={item.space}
+                            summary={spacesItems.get(item.space.roomId)}
+                            roomItems={item.rooms}
+                            allJoinedRooms={allJoinedRooms}
+                            mDirects={mDirects}
+                            roomsPowerLevels={roomsPowerLevels}
+                            canEditSpaceChild={canEditSpaceChild}
+                            categoryId={categoryId}
+                            closed={
+                              closedCategories.has(categoryId) ||
+                              (draggingItem ? 'space' in draggingItem : false)
                             }
-                            after={
-                              <AfterItemDropTarget
-                                item={item}
-                                nextRoomId={nextRoomId}
-                                canDrop={canDrop}
-                              />
-                            }
-                            data-dragging={dragging}
+                            handleClose={handleCategoryClick}
+                            draggingItem={draggingItem}
                             onDragging={setDraggingItem}
+                            canDrop={canDrop}
+                            nextSpaceId={nextSpaceId}
+                            getRoom={getRoom}
+                            pinned={sidebarSpaces.has(item.space.roomId)}
+                            togglePinToSidebar={togglePinToSidebar}
+                            onSpacesFound={handleSpacesFound}
+                            onOpenRoom={handleOpenRoom}
                           />
                         </VirtualTile>
                       );

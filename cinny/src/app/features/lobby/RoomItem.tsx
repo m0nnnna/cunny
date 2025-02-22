@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, ReactNode, useCallback, useEffect, useRef } from 'react';
+import React, { MouseEventHandler, ReactNode, useCallback, useRef } from 'react';
 import {
   Avatar,
   Badge,
@@ -20,23 +20,20 @@ import {
 } from 'folds';
 import FocusTrap from 'focus-trap-react';
 import { JoinRule, MatrixError, Room } from 'matrix-js-sdk';
+import { IHierarchyRoom } from 'matrix-js-sdk/lib/@types/spaces';
 import { RoomAvatar, RoomIcon } from '../../components/room-avatar';
 import { SequenceCard } from '../../components/sequence-card';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { HierarchyItem } from '../../hooks/useSpaceHierarchy';
 import { millify } from '../../plugins/millify';
-import {
-  HierarchyRoomSummaryLoader,
-  LocalRoomSummaryLoader,
-} from '../../components/RoomSummaryLoader';
+import { LocalRoomSummaryLoader } from '../../components/RoomSummaryLoader';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import { RoomTopicViewer } from '../../components/room-topic-viewer';
 import { onEnterOrSpace, stopPropagation } from '../../utils/keyboard';
-import { Membership, RoomType } from '../../../types/matrix/room';
+import { Membership } from '../../../types/matrix/room';
 import * as css from './RoomItem.css';
 import * as styleCss from './style.css';
 import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
-import { ErrorCode } from '../../cs-errorcode';
 import { getDirectRoomAvatarUrl, getRoomAvatarUrl } from '../../utils/room';
 import { ItemDraggableTarget, useDraggableItem } from './DnD';
 import { mxcUrlToHttp } from '../../utils/matrix';
@@ -125,13 +122,11 @@ function RoomProfileLoading() {
 
 type RoomProfileErrorProps = {
   roomId: string;
-  error: Error;
+  inaccessibleRoom: boolean;
   suggested?: boolean;
   via?: string[];
 };
-function RoomProfileError({ roomId, suggested, error, via }: RoomProfileErrorProps) {
-  const privateRoom = error.name === ErrorCode.M_FORBIDDEN;
-
+function RoomProfileError({ roomId, suggested, inaccessibleRoom, via }: RoomProfileErrorProps) {
   return (
     <Box grow="Yes" gap="300">
       <Avatar>
@@ -142,7 +137,7 @@ function RoomProfileError({ roomId, suggested, error, via }: RoomProfileErrorPro
           renderFallback={() => (
             <RoomIcon
               size="300"
-              joinRule={privateRoom ? JoinRule.Invite : JoinRule.Restricted}
+              joinRule={inaccessibleRoom ? JoinRule.Invite : JoinRule.Restricted}
               filled
             />
           )}
@@ -162,25 +157,18 @@ function RoomProfileError({ roomId, suggested, error, via }: RoomProfileErrorPro
           )}
         </Box>
         <Box gap="200" alignItems="Center">
-          {privateRoom && (
-            <>
-              <Badge variant="Secondary" fill="Soft" radii="Pill" outlined>
-                <Text size="L400">Private Room</Text>
-              </Badge>
-              <Line
-                variant="SurfaceVariant"
-                style={{ height: toRem(12) }}
-                direction="Vertical"
-                size="400"
-              />
-            </>
+          {inaccessibleRoom ? (
+            <Badge variant="Secondary" fill="Soft" radii="300" size="500">
+              <Text size="L400">Inaccessible</Text>
+            </Badge>
+          ) : (
+            <Text size="T200" truncate>
+              {roomId}
+            </Text>
           )}
-          <Text size="T200" truncate>
-            {roomId}
-          </Text>
         </Box>
       </Box>
-      {!privateRoom && <RoomJoinButton roomId={roomId} via={via} />}
+      {!inaccessibleRoom && <RoomJoinButton roomId={roomId} via={via} />}
     </Box>
   );
 }
@@ -288,23 +276,11 @@ function RoomProfile({
   );
 }
 
-function CallbackOnFoundSpace({
-  roomId,
-  onSpaceFound,
-}: {
-  roomId: string;
-  onSpaceFound: (roomId: string) => void;
-}) {
-  useEffect(() => {
-    onSpaceFound(roomId);
-  }, [roomId, onSpaceFound]);
-
-  return null;
-}
-
 type RoomItemCardProps = {
   item: HierarchyItem;
-  onSpaceFound: (roomId: string) => void;
+  loading: boolean;
+  error: Error | null;
+  summary: IHierarchyRoom | undefined;
   dm?: boolean;
   firstChild?: boolean;
   lastChild?: boolean;
@@ -320,10 +296,10 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
   (
     {
       item,
-      onSpaceFound,
+      loading,
+      error,
+      summary,
       dm,
-      firstChild,
-      lastChild,
       onOpen,
       options,
       before,
@@ -348,8 +324,6 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
     return (
       <SequenceCard
         className={css.RoomItemCard}
-        firstChild={firstChild}
-        lastChild={lastChild}
         variant="SurfaceVariant"
         gap="300"
         alignItems="Center"
@@ -367,7 +341,9 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
                   name={localSummary.name}
                   topic={localSummary.topic}
                   avatarUrl={
-                    dm ? getDirectRoomAvatarUrl(mx, room, 96, useAuthentication) : getRoomAvatarUrl(mx, room, 96, useAuthentication)
+                    dm
+                      ? getDirectRoomAvatarUrl(mx, room, 96, useAuthentication)
+                      : getRoomAvatarUrl(mx, room, 96, useAuthentication)
                   }
                   memberCount={localSummary.memberCount}
                   suggested={content.suggested}
@@ -395,46 +371,46 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
               )}
             </LocalRoomSummaryLoader>
           ) : (
-            <HierarchyRoomSummaryLoader roomId={roomId}>
-              {(summaryState) => (
-                <>
-                  {summaryState.status === AsyncStatus.Loading && <RoomProfileLoading />}
-                  {summaryState.status === AsyncStatus.Error && (
-                    <RoomProfileError
-                      roomId={roomId}
-                      error={summaryState.error}
-                      suggested={content.suggested}
-                      via={content.via}
-                    />
-                  )}
-                  {summaryState.status === AsyncStatus.Success && (
-                    <>
-                      {summaryState.data.room_type === RoomType.Space && (
-                        <CallbackOnFoundSpace
-                          roomId={summaryState.data.room_id}
-                          onSpaceFound={onSpaceFound}
-                        />
-                      )}
-                      <RoomProfile
+            <>
+              {!summary &&
+                (error ? (
+                  <RoomProfileError
+                    roomId={roomId}
+                    inaccessibleRoom={false}
+                    suggested={content.suggested}
+                    via={content.via}
+                  />
+                ) : (
+                  <>
+                    {loading && <RoomProfileLoading />}
+                    {!loading && (
+                      <RoomProfileError
                         roomId={roomId}
-                        name={summaryState.data.name || summaryState.data.canonical_alias || roomId}
-                        topic={summaryState.data.topic}
-                        avatarUrl={
-                          summaryState.data?.avatar_url
-                            ? mxcUrlToHttp(mx, summaryState.data.avatar_url, useAuthentication, 96, 96, 'crop') ??
-                            undefined
-                            : undefined
-                        }
-                        memberCount={summaryState.data.num_joined_members}
+                        inaccessibleRoom
                         suggested={content.suggested}
-                        joinRule={summaryState.data.join_rule}
-                        options={<RoomJoinButton roomId={roomId} via={content.via} />}
+                        via={content.via}
                       />
-                    </>
-                  )}
-                </>
+                    )}
+                  </>
+                ))}
+              {summary && (
+                <RoomProfile
+                  roomId={roomId}
+                  name={summary.name || summary.canonical_alias || roomId}
+                  topic={summary.topic}
+                  avatarUrl={
+                    summary?.avatar_url
+                      ? mxcUrlToHttp(mx, summary.avatar_url, useAuthentication, 96, 96, 'crop') ??
+                        undefined
+                      : undefined
+                  }
+                  memberCount={summary.num_joined_members}
+                  suggested={content.suggested}
+                  joinRule={summary.join_rule}
+                  options={<RoomJoinButton roomId={roomId} via={content.via} />}
+                />
               )}
-            </HierarchyRoomSummaryLoader>
+            </>
           )}
         </Box>
         {options}

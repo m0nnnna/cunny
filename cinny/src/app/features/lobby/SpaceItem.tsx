@@ -19,19 +19,16 @@ import {
 import FocusTrap from 'focus-trap-react';
 import classNames from 'classnames';
 import { MatrixError, Room } from 'matrix-js-sdk';
+import { IHierarchyRoom } from 'matrix-js-sdk/lib/@types/spaces';
 import { HierarchyItem } from '../../hooks/useSpaceHierarchy';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { RoomAvatar } from '../../components/room-avatar';
 import { nameInitials } from '../../utils/common';
-import {
-  HierarchyRoomSummaryLoader,
-  LocalRoomSummaryLoader,
-} from '../../components/RoomSummaryLoader';
+import { LocalRoomSummaryLoader } from '../../components/RoomSummaryLoader';
 import { getRoomAvatarUrl } from '../../utils/room';
 import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
 import * as css from './SpaceItem.css';
 import * as styleCss from './style.css';
-import { ErrorCode } from '../../cs-errorcode';
 import { useDraggableItem } from './DnD';
 import { openCreateRoom, openSpaceAddExisting } from '../../../client/action/navigation';
 import { stopPropagation } from '../../utils/keyboard';
@@ -53,18 +50,11 @@ function SpaceProfileLoading() {
   );
 }
 
-type UnknownPrivateSpaceProfileProps = {
+type InaccessibleSpaceProfileProps = {
   roomId: string;
-  name?: string;
-  avatarUrl?: string;
   suggested?: boolean;
 };
-function UnknownPrivateSpaceProfile({
-  roomId,
-  name,
-  avatarUrl,
-  suggested,
-}: UnknownPrivateSpaceProfileProps) {
+function InaccessibleSpaceProfile({ roomId, suggested }: InaccessibleSpaceProfileProps) {
   return (
     <Chip
       as="span"
@@ -75,11 +65,9 @@ function UnknownPrivateSpaceProfile({
         <Avatar size="200" radii="300">
           <RoomAvatar
             roomId={roomId}
-            src={avatarUrl}
-            alt={name}
             renderFallback={() => (
               <Text as="span" size="H6">
-                {nameInitials(name)}
+                U
               </Text>
             )}
           />
@@ -88,11 +76,11 @@ function UnknownPrivateSpaceProfile({
     >
       <Box alignItems="Center" gap="200">
         <Text size="H4" truncate>
-          {name || 'Unknown'}
+          Unknown
         </Text>
 
         <Badge variant="Secondary" fill="Soft" radii="Pill" outlined>
-          <Text size="L400">Private Space</Text>
+          <Text size="L400">Inaccessible</Text>
         </Badge>
         {suggested && (
           <Badge variant="Success" fill="Soft" radii="Pill" outlined>
@@ -104,20 +92,20 @@ function UnknownPrivateSpaceProfile({
   );
 }
 
-type UnknownSpaceProfileProps = {
+type UnjoinedSpaceProfileProps = {
   roomId: string;
   via?: string[];
   name?: string;
   avatarUrl?: string;
   suggested?: boolean;
 };
-function UnknownSpaceProfile({
+function UnjoinedSpaceProfile({
   roomId,
   via,
   name,
   avatarUrl,
   suggested,
-}: UnknownSpaceProfileProps) {
+}: UnjoinedSpaceProfileProps) {
   const mx = useMatrixClient();
 
   const [joinState, join] = useAsyncCallback<Room, MatrixError, []>(
@@ -376,6 +364,8 @@ function AddSpaceButton({ item }: { item: HierarchyItem }) {
 }
 
 type SpaceItemCardProps = {
+  summary: IHierarchyRoom | undefined;
+  loading?: boolean;
   item: HierarchyItem;
   joined?: boolean;
   categoryId: string;
@@ -393,6 +383,8 @@ export const SpaceItemCard = as<'div', SpaceItemCardProps>(
   (
     {
       className,
+      summary,
+      loading,
       joined,
       closed,
       categoryId,
@@ -451,37 +443,31 @@ export const SpaceItemCard = as<'div', SpaceItemCardProps>(
                 }
               </LocalRoomSummaryLoader>
             ) : (
-              <HierarchyRoomSummaryLoader roomId={roomId}>
-                {(summaryState) => (
-                  <>
-                    {summaryState.status === AsyncStatus.Loading && <SpaceProfileLoading />}
-                    {summaryState.status === AsyncStatus.Error &&
-                      (summaryState.error.name === ErrorCode.M_FORBIDDEN ? (
-                        <UnknownPrivateSpaceProfile roomId={roomId} suggested={content.suggested} />
-                      ) : (
-                        <UnknownSpaceProfile
-                          roomId={roomId}
-                          via={item.content.via}
-                          suggested={content.suggested}
-                        />
-                      ))}
-                    {summaryState.status === AsyncStatus.Success && (
-                      <UnknownSpaceProfile
-                        roomId={roomId}
-                        via={item.content.via}
-                        name={summaryState.data.name || summaryState.data.canonical_alias || roomId}
-                        avatarUrl={
-                          summaryState.data?.avatar_url
-                            ? mxcUrlToHttp(mx, summaryState.data.avatar_url, useAuthentication, 96, 96, 'crop') ??
-                            undefined
-                            : undefined
-                        }
-                        suggested={content.suggested}
-                      />
-                    )}
-                  </>
+              <>
+                {!summary &&
+                  (loading ? (
+                    <SpaceProfileLoading />
+                  ) : (
+                    <InaccessibleSpaceProfile
+                      roomId={item.roomId}
+                      suggested={item.content.suggested}
+                    />
+                  ))}
+                {summary && (
+                  <UnjoinedSpaceProfile
+                    roomId={roomId}
+                    via={item.content.via}
+                    name={summary.name || summary.canonical_alias || roomId}
+                    avatarUrl={
+                      summary?.avatar_url
+                        ? mxcUrlToHttp(mx, summary.avatar_url, useAuthentication, 96, 96, 'crop') ??
+                          undefined
+                        : undefined
+                    }
+                    suggested={content.suggested}
+                  />
                 )}
-              </HierarchyRoomSummaryLoader>
+              </>
             )}
           </Box>
           {canEditChild && (

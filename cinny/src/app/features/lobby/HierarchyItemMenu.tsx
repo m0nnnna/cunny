@@ -155,7 +155,7 @@ function SettingsMenuItem({
   disabled?: boolean;
 }) {
   const handleSettings = () => {
-    if (item.space) {
+    if ('space' in item) {
       openSpaceSettings(item.roomId);
     } else {
       toggleRoomSettings(item.roomId);
@@ -271,7 +271,7 @@ export function HierarchyItemMenu({
                             </Text>
                           </MenuItem>
                           {promptLeave &&
-                            (item.space ? (
+                            ('space' in item ? (
                               <LeaveSpacePrompt
                                 roomId={item.roomId}
                                 onDone={handleRequestClose}
