@@ -4,6 +4,7 @@ import {
   EventTimeline,
   EventTimelineSet,
   EventType,
+  IMentions,
   IPushRule,
   IPushRules,
   JoinRule,
@@ -430,3 +431,15 @@ export const getLatestEditableEvt = (
 export const reactionOrEditEvent = (mEvent: MatrixEvent) =>
   mEvent.getRelation()?.rel_type === RelationType.Annotation ||
   mEvent.getRelation()?.rel_type === RelationType.Replace;
+
+export const getMentionContent = (userIds: string[], room: boolean): IMentions => {
+  const mMentions: IMentions = {};
+  if (userIds.length > 0) {
+    mMentions.user_ids = userIds;
+  }
+  if (room) {
+    mMentions.room = true;
+  }
+
+  return mMentions;
+};

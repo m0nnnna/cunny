@@ -1,5 +1,5 @@
-import { Descendant, Text } from 'slate';
-
+import { Descendant, Editor, Text } from 'slate';
+import { MatrixClient } from 'matrix-js-sdk';
 import { sanitizeText } from '../../utils/sanitize';
 import { BlockType } from './types';
 import { CustomElement } from './slate';
@@ -11,6 +11,7 @@ import {
 } from '../../plugins/markdown';
 import { findAndReplace } from '../../utils/findAndReplace';
 import { sanitizeForRegex } from '../../utils/regex';
+import { getCanonicalAliasOrRoomId, isUserId } from '../../utils/matrix';
 
 export type OutputOptions = {
   allowTextFormatting?: boolean;
@@ -194,4 +195,37 @@ export const trimCommand = (cmdName: string, str: string) => {
   const match = str.match(cmdRegX);
   if (!match) return str;
   return str.slice(match[0].length);
+};
+
+export type MentionsData = {
+  room: boolean;
+  users: Set<string>;
+};
+export const getMentions = (mx: MatrixClient, roomId: string, editor: Editor): MentionsData => {
+  const mentionData: MentionsData = {
+    room: false,
+    users: new Set(),
+  };
+
+  const parseMentions = (node: Descendant): void => {
+    if (Text.isText(node)) return;
+    if (node.type === BlockType.CodeBlock) return;
+
+    if (node.type === BlockType.Mention) {
+      if (node.id === getCanonicalAliasOrRoomId(mx, roomId)) {
+        mentionData.room = true;
+      }
+      if (isUserId(node.id) && node.id !== mx.getUserId()) {
+        mentionData.users.add(node.id);
+      }
+
+      return;
+    }
+
+    node.children.forEach(parseMentions);
+  };
+
+  editor.children.forEach(parseMentions);
+
+  return mentionData;
 };

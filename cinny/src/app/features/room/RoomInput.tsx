@@ -53,6 +53,7 @@ import {
   isEmptyEditor,
   getBeginCommand,
   trimCommand,
+  getMentions,
 } from '../../components/editor';
 import { EmojiBoard, EmojiBoardTab } from '../../components/emoji-board';
 import { UseStateProvider } from '../../components/UseStateProvider';
@@ -102,12 +103,9 @@ import colorMXID from '../../../util/colorMXID';
 import {
   getAllParents,
   getMemberDisplayName,
-  parseReplyBody,
-  parseReplyFormattedBody,
+  getMentionContent,
   trimReplyFromBody,
-  trimReplyFromFormattedBody,
 } from '../../utils/room';
-import { sanitizeText } from '../../utils/sanitize';
 import { CommandAutocomplete } from './CommandAutocomplete';
 import { Command, SHRUG, TABLEFLIP, UNFLIP, useCommands } from '../../hooks/useCommands';
 import { mobileOrTablet } from '../../utils/user-agent';
@@ -268,7 +266,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
       uploadBoardHandlers.current?.handleSend();
 
       const commandName = getBeginCommand(editor);
-
       let plainText = toPlainText(editor.children, isMarkdown).trim();
       let customHtml = trimCustomHtml(
         toMatrixCustomHTML(editor.children, {
@@ -309,25 +306,22 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
       if (plainText === '') return;
 
-      let body = plainText;
-      let formattedBody = customHtml;
-      if (replyDraft) {
-        body = parseReplyBody(replyDraft.userId, trimReplyFromBody(replyDraft.body)) + body;
-        formattedBody =
-          parseReplyFormattedBody(
-            roomId,
-            replyDraft.userId,
-            replyDraft.eventId,
-            replyDraft.formattedBody
-              ? trimReplyFromFormattedBody(replyDraft.formattedBody)
-              : sanitizeText(replyDraft.body)
-          ) + formattedBody;
-      }
+      const body = plainText;
+      const formattedBody = customHtml;
+      const mentionData = getMentions(mx, roomId, editor);
 
       const content: IContent = {
         msgtype: msgType,
         body,
       };
+
+      if (replyDraft && replyDraft.userId !== mx.getUserId()) {
+        mentionData.users.add(replyDraft.userId);
+      }
+
+      const mMentions = getMentionContent(Array.from(mentionData.users), mentionData.room);
+      content['m.mentions'] = mMentions;
+
       if (replyDraft || !customHtmlEqualsPlainText(formattedBody, body)) {
         content.format = 'org.matrix.custom.html';
         content.formatted_body = formattedBody;
