@@ -228,20 +228,18 @@ export const useBindRoomToUnreadAtom = (
 
   useEffect(() => {
     const handleReceipt = (mEvent: MatrixEvent, room: Room) => {
-      if (mEvent.getType() === 'm.receipt') {
-        const myUserId = mx.getUserId();
-        if (!myUserId) return;
-        if (room.isSpaceRoom()) return;
-        const content = mEvent.getContent<ReceiptContent>();
+      const myUserId = mx.getUserId();
+      if (!myUserId) return;
+      if (room.isSpaceRoom()) return;
+      const content = mEvent.getContent<ReceiptContent>();
 
-        const isMyReceipt = Object.keys(content).find((eventId) =>
-          (Object.keys(content[eventId]) as ReceiptType[]).find(
-            (receiptType) => content[eventId][receiptType][myUserId]
-          )
-        );
-        if (isMyReceipt) {
-          setUnreadAtom({ type: 'DELETE', roomId: room.roomId });
-        }
+      const isMyReceipt = Object.keys(content).find((eventId) =>
+        (Object.keys(content[eventId]) as ReceiptType[]).find(
+          (receiptType) => content[eventId][receiptType][myUserId]
+        )
+      );
+      if (isMyReceipt) {
+        setUnreadAtom({ type: 'DELETE', roomId: room.roomId });
       }
     };
     mx.on(RoomEvent.Receipt, handleReceipt);

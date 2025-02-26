@@ -23,18 +23,21 @@ import { useNavToActivePathAtom } from '../../../state/hooks/navToActivePath';
 import { useDirectRooms } from '../direct/useDirectRooms';
 import { markAsRead } from '../../../../client/action/notifications';
 import { stopPropagation } from '../../../utils/keyboard';
+import { settingsAtom } from '../../../state/settings';
+import { useSetting } from '../../../state/hooks/settings';
 
 type DirectMenuProps = {
   requestClose: () => void;
 };
 const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ requestClose }, ref) => {
   const orphanRooms = useDirectRooms();
+  const [hideActivity] = useSetting(settingsAtom, 'hideActivity');
   const unread = useRoomsUnread(orphanRooms, roomToUnreadAtom);
   const mx = useMatrixClient();
 
   const handleMarkAsRead = () => {
     if (!unread) return;
-    orphanRooms.forEach((rId) => markAsRead(mx, rId));
+    orphanRooms.forEach((rId) => markAsRead(mx, rId, hideActivity));
     requestClose();
   };
 

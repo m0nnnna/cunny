@@ -671,6 +671,7 @@ export type MessageProps = {
   onReactionToggle: (targetEventId: string, key: string, shortcode?: string) => void;
   reply?: ReactNode;
   reactions?: ReactNode;
+  hideReadReceipts?: boolean;
 };
 export const Message = as<'div', MessageProps>(
   (
@@ -695,6 +696,7 @@ export const Message = as<'div', MessageProps>(
       onEditId,
       reply,
       reactions,
+      hideReadReceipts,
       children,
       ...props
     },
@@ -992,11 +994,13 @@ export const Message = as<'div', MessageProps>(
                               </Text>
                             </MenuItem>
                           )}
-                          <MessageReadReceiptItem
-                            room={room}
-                            eventId={mEvent.getId() ?? ''}
-                            onClose={closeMenu}
-                          />
+                          {!hideReadReceipts && (
+                            <MessageReadReceiptItem
+                              room={room}
+                              eventId={mEvent.getId() ?? ''}
+                              onClose={closeMenu}
+                            />
+                          )}
                           <MessageSourceCodeItem room={room} mEvent={mEvent} onClose={closeMenu} />
                           <MessageCopyLinkItem room={room} mEvent={mEvent} onClose={closeMenu} />
                           {canPinEvent && (
@@ -1071,9 +1075,23 @@ export type EventProps = {
   highlight: boolean;
   canDelete?: boolean;
   messageSpacing: MessageSpacing;
+  hideReadReceipts?: boolean;
 };
 export const Event = as<'div', EventProps>(
-  ({ className, room, mEvent, highlight, canDelete, messageSpacing, children, ...props }, ref) => {
+  (
+    {
+      className,
+      room,
+      mEvent,
+      highlight,
+      canDelete,
+      messageSpacing,
+      hideReadReceipts,
+      children,
+      ...props
+    },
+    ref
+  ) => {
     const mx = useMatrixClient();
     const [hover, setHover] = useState(false);
     const { hoverProps } = useHover({ onHoverChange: setHover });
@@ -1138,11 +1156,13 @@ export const Event = as<'div', EventProps>(
                     >
                       <Menu {...props} ref={ref}>
                         <Box direction="Column" gap="100" className={css.MessageMenuGroup}>
-                          <MessageReadReceiptItem
-                            room={room}
-                            eventId={mEvent.getId() ?? ''}
-                            onClose={closeMenu}
-                          />
+                          {!hideReadReceipts && (
+                            <MessageReadReceiptItem
+                              room={room}
+                              eventId={mEvent.getId() ?? ''}
+                              onClose={closeMenu}
+                            />
+                          )}
                           <MessageSourceCodeItem room={room} mEvent={mEvent} onClose={closeMenu} />
                           <MessageCopyLinkItem room={room} mEvent={mEvent} onClose={closeMenu} />
                         </Box>

@@ -1,5 +1,13 @@
+import { style } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
 import { DefaultReset, color, config, toRem } from 'folds';
+
+export const RoomViewFollowingPlaceholder = style([
+  DefaultReset,
+  {
+    height: toRem(28),
+  },
+]);
 
 export const RoomViewFollowing = recipe({
   base: [

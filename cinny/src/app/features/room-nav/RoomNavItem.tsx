@@ -39,6 +39,8 @@ import { getMatrixToRoom } from '../../plugins/matrix-to';
 import { getCanonicalAliasOrRoomId, isRoomAlias } from '../../utils/matrix';
 import { getViaServers } from '../../plugins/via-servers';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useSetting } from '../../state/hooks/settings';
+import { settingsAtom } from '../../state/settings';
 
 type RoomNavItemMenuProps = {
   room: Room;
@@ -47,13 +49,14 @@ type RoomNavItemMenuProps = {
 const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
   ({ room, requestClose }, ref) => {
     const mx = useMatrixClient();
+    const [hideActivity] = useSetting(settingsAtom, 'hideActivity');
     const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
     const powerLevels = usePowerLevels(room);
     const { getPowerLevel, canDoAction } = usePowerLevelsAPI(powerLevels);
     const canInvite = canDoAction('invite', getPowerLevel(mx.getUserId() ?? ''));
 
     const handleMarkAsRead = () => {
-      markAsRead(mx, room.roomId);
+      markAsRead(mx, room.roomId, hideActivity);
       requestClose();
     };
 

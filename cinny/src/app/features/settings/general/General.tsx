@@ -344,6 +344,7 @@ function Appearance() {
 function Editor() {
   const [enterForNewline, setEnterForNewline] = useSetting(settingsAtom, 'enterForNewline');
   const [isMarkdown, setIsMarkdown] = useSetting(settingsAtom, 'isMarkdown');
+  const [hideActivity, setHideActivity] = useSetting(settingsAtom, 'hideActivity');
 
   return (
     <Box direction="Column" gap="100">
@@ -361,6 +362,13 @@ function Editor() {
         <SettingTile
           title="Markdown Formatting"
           after={<Switch variant="Primary" value={isMarkdown} onChange={setIsMarkdown} />}
+        />
+      </SequenceCard>
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+        <SettingTile
+          title="Hide Typing & Read Receipts"
+          description="Turn off both typing status and read receipts to keep your activity private."
+          after={<Switch variant="Primary" value={hideActivity} onChange={setHideActivity} />}
         />
       </SequenceCard>
     </Box>
@@ -555,7 +563,13 @@ function Messages() {
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
         <SettingTile
           title="Disable Media Auto Load"
-          after={<Switch variant="Primary" value={!mediaAutoLoad} onChange={(v) => setMediaAutoLoad(!v)} />}
+          after={
+            <Switch
+              variant="Primary"
+              value={!mediaAutoLoad}
+              onChange={(v) => setMediaAutoLoad(!v)}
+            />
+          }
         />
       </SequenceCard>
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">

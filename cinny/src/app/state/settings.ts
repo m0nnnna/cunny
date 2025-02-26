@@ -17,6 +17,7 @@ export interface Settings {
   editorToolbar: boolean;
   twitterEmoji: boolean;
   pageZoom: number;
+  hideActivity: boolean;
 
   isPeopleDrawer: boolean;
   memberSortFilterIndex: number;
@@ -45,6 +46,7 @@ const defaultSettings: Settings = {
   editorToolbar: false,
   twitterEmoji: false,
   pageZoom: 100,
+  hideActivity: false,
 
   isPeopleDrawer: true,
   memberSortFilterIndex: 0,

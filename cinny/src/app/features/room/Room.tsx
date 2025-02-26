@@ -20,6 +20,7 @@ export function Room() {
   const mx = useMatrixClient();
 
   const [isDrawer] = useSetting(settingsAtom, 'isPeopleDrawer');
+  const [hideActivity] = useSetting(settingsAtom, 'hideActivity');
   const screenSize = useScreenSizeContext();
   const powerLevels = usePowerLevels(room);
   const members = useRoomMembers(mx, room.roomId);
@@ -29,10 +30,10 @@ export function Room() {
     useCallback(
       (evt) => {
         if (isKeyHotkey('escape', evt)) {
-          markAsRead(mx, room.roomId);
+          markAsRead(mx, room.roomId, hideActivity);
         }
       },
-      [mx, room.roomId]
+      [mx, room.roomId, hideActivity]
     )
   );
 

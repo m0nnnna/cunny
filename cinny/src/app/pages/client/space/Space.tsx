@@ -69,6 +69,8 @@ import { StateEvent } from '../../../../types/matrix/room';
 import { stopPropagation } from '../../../utils/keyboard';
 import { getMatrixToRoom } from '../../../plugins/matrix-to';
 import { getViaServers } from '../../../plugins/via-servers';
+import { useSetting } from '../../../state/hooks/settings';
+import { settingsAtom } from '../../../state/settings';
 
 type SpaceMenuProps = {
   room: Room;
@@ -76,6 +78,7 @@ type SpaceMenuProps = {
 };
 const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClose }, ref) => {
   const mx = useMatrixClient();
+  const [hideActivity] = useSetting(settingsAtom, 'hideActivity');
   const roomToParents = useAtomValue(roomToParentsAtom);
   const powerLevels = usePowerLevels(room);
   const { getPowerLevel, canDoAction } = usePowerLevelsAPI(powerLevels);
@@ -89,7 +92,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
   const unread = useRoomsUnread(allChild, roomToUnreadAtom);
 
   const handleMarkAsRead = () => {
-    allChild.forEach((childRoomId) => markAsRead(mx, childRoomId));
+    allChild.forEach((childRoomId) => markAsRead(mx, childRoomId, hideActivity));
     requestClose();
   };
 
