@@ -20,6 +20,7 @@ import { useKeyDown } from '../../hooks/useKeyDown';
 import { editableActiveElement } from '../../utils/dom';
 import navigation from '../../../client/state/navigation';
 
+const FN_KEYS_REGEX = /^F\d+$/;
 const shouldFocusMessageField = (evt: KeyboardEvent): boolean => {
   const { code } = evt;
   if (evt.metaKey || evt.altKey || evt.ctrlKey) {
@@ -27,7 +28,7 @@ const shouldFocusMessageField = (evt: KeyboardEvent): boolean => {
   }
 
   // do not focus on F keys
-  if (/^F\d+$/.test(code)) return false;
+  if (FN_KEYS_REGEX.test(code)) return false;
 
   // do not focus on numlock/scroll lock
   if (

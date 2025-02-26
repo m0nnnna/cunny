@@ -353,10 +353,14 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         }
         if (isKeyHotkey('escape', evt)) {
           evt.preventDefault();
+          if (autocompleteQuery) {
+            setAutocompleteQuery(undefined);
+            return;
+          }
           setReplyDraft(undefined);
         }
       },
-      [submit, setReplyDraft, enterForNewline]
+      [submit, setReplyDraft, enterForNewline, autocompleteQuery]
     );
 
     const handleKeyUp: KeyboardEventHandler = useCallback(
