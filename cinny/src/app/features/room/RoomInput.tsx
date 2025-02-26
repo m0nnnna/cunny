@@ -70,6 +70,7 @@ import { useFilePasteHandler } from '../../hooks/useFilePasteHandler';
 import { useFileDropZone } from '../../hooks/useFileDrop';
 import {
   TUploadItem,
+  TUploadMetadata,
   roomIdToMsgDraftAtomFamily,
   roomIdToReplyDraftAtomFamily,
   roomIdToUploadItemsAtomFamily,
@@ -218,6 +219,17 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         resetEditorHistory(editor);
       },
       [roomId, editor, setMsgDraft]
+    );
+
+    const handleFileMetadata = useCallback(
+      (fileItem: TUploadItem, metadata: TUploadMetadata) => {
+        setSelectedFiles({
+          type: 'REPLACE',
+          item: fileItem,
+          replacement: { ...fileItem, metadata },
+        });
+      },
+      [setSelectedFiles]
     );
 
     const handleRemoveUpload = useCallback(
@@ -433,13 +445,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                         key={index}
                         isEncrypted={!!fileItem.encInfo}
                         fileItem={fileItem}
-                        setMetadata={(metadata) =>
-                          setSelectedFiles({
-                            type: 'REPLACE',
-                            item: fileItem,
-                            replacement: { ...fileItem, metadata },
-                          })
-                        }
+                        setMetadata={handleFileMetadata}
                         onRemove={handleRemoveUpload}
                       />
                     ))}

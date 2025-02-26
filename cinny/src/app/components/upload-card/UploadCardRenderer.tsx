@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect } from 'react';
-import { Chip, Icon, IconButton, Icons, Text, Tooltip, TooltipProvider, color } from 'folds';
+import React, { useEffect } from 'react';
+import { Box, Chip, Icon, IconButton, Icons, Text, color, config, toRem } from 'folds';
 import { UploadCard, UploadCardError, UploadCardProgress } from './UploadCard';
 import { UploadStatus, UploadSuccess, useBindUploadAtom } from '../../state/upload';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
@@ -10,11 +10,60 @@ import {
   TUploadItem,
   TUploadMetadata,
 } from '../../state/room/roomInputDrafts';
+import { useObjectURL } from '../../hooks/useObjectURL';
+
+type ImagePreviewProps = { fileItem: TUploadItem; onSpoiler: (marked: boolean) => void };
+function ImagePreview({ fileItem, onSpoiler }: ImagePreviewProps) {
+  const { originalFile, metadata } = fileItem;
+  const fileUrl = useObjectURL(originalFile);
+
+  return fileUrl ? (
+    <Box
+      style={{
+        borderRadius: config.radii.R300,
+        overflow: 'hidden',
+        backgroundColor: 'black',
+        position: 'relative',
+      }}
+    >
+      <img
+        style={{
+          objectFit: 'contain',
+          width: '100%',
+          height: toRem(152),
+          filter: fileItem.metadata.markedAsSpoiler ? 'blur(44px)' : undefined,
+        }}
+        src={fileUrl}
+        alt={originalFile.name}
+      />
+      <Box
+        justifyContent="End"
+        style={{
+          position: 'absolute',
+          bottom: config.space.S100,
+          left: config.space.S100,
+          right: config.space.S100,
+        }}
+      >
+        <Chip
+          variant={metadata.markedAsSpoiler ? 'Warning' : 'Secondary'}
+          fill="Soft"
+          radii="Pill"
+          aria-pressed={metadata.markedAsSpoiler}
+          before={<Icon src={Icons.EyeBlind} size="50" />}
+          onClick={() => onSpoiler(!metadata.markedAsSpoiler)}
+        >
+          <Text size="B300">Spoiler</Text>
+        </Chip>
+      </Box>
+    </Box>
+  ) : null;
+}
 
 type UploadCardRendererProps = {
   isEncrypted?: boolean;
   fileItem: TUploadItem;
-  setMetadata: (metadata: TUploadMetadata) => void;
+  setMetadata: (fileItem: TUploadItem, metadata: TUploadMetadata) => void;
   onRemove: (file: TUploadContent) => void;
   onComplete?: (upload: UploadSuccess) => void;
 };
@@ -33,9 +82,9 @@ export function UploadCardRenderer({
 
   if (upload.status === UploadStatus.Idle) startUpload();
 
-  const toggleSpoiler = useCallback(() => {
-    setMetadata({ ...metadata, markedAsSpoiler: !metadata.markedAsSpoiler });
-  }, [setMetadata, metadata]);
+  const handleSpoiler = (marked: boolean) => {
+    setMetadata(fileItem, { ...metadata, markedAsSpoiler: marked });
+  };
 
   const removeUpload = () => {
     cancelUpload();
@@ -66,31 +115,6 @@ export function UploadCardRenderer({
               <Text size="B300">Retry</Text>
             </Chip>
           )}
-          {file.type.startsWith('image') && (
-            <TooltipProvider
-              tooltip={
-                <Tooltip variant="SurfaceVariant">
-                  <Text>Mark as Spoiler</Text>
-                </Tooltip>
-              }
-              position="Top"
-              align="Center"
-            >
-              {(triggerRef) => (
-                <IconButton
-                  ref={triggerRef}
-                  onClick={toggleSpoiler}
-                  aria-label="Mark as Spoiler"
-                  variant="SurfaceVariant"
-                  radii="Pill"
-                  size="300"
-                  aria-pressed={metadata.markedAsSpoiler}
-                >
-                  <Icon src={Icons.EyeBlind} size="200" />
-                </IconButton>
-              )}
-            </TooltipProvider>
-          )}
           <IconButton
             onClick={removeUpload}
             aria-label="Cancel Upload"
@@ -104,6 +128,9 @@ export function UploadCardRenderer({
       }
       bottom={
         <>
+          {fileItem.originalFile.type.startsWith('image') && (
+            <ImagePreview fileItem={fileItem} onSpoiler={handleSpoiler} />
+          )}
           {upload.status === UploadStatus.Idle && (
             <UploadCardProgress sentBytes={0} totalBytes={file.size} />
           )}
