@@ -31,8 +31,11 @@ export const TextViewerContent = style([
 export const TextViewerPre = style([
   DefaultReset,
   {
-    padding: config.space.S600,
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
   },
 ]);
+
+export const TextViewerPrePadding = style({
+  padding: config.space.S600,
+});

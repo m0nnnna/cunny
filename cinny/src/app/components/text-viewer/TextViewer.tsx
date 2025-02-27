@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-import React, { Suspense, lazy } from 'react';
+import React, { ComponentProps, HTMLAttributes, Suspense, forwardRef, lazy } from 'react';
 import classNames from 'classnames';
 import { Box, Chip, Header, Icon, IconButton, Icons, Scroll, Text, as } from 'folds';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -7,6 +7,29 @@ import * as css from './TextViewer.css';
 import { copyToClipboard } from '../../utils/dom';
 
 const ReactPrism = lazy(() => import('../../plugins/react-prism/ReactPrism'));
+
+type TextViewerContentProps = {
+  text: string;
+  langName: string;
+  size?: ComponentProps<typeof Text>['size'];
+} & HTMLAttributes<HTMLPreElement>;
+export const TextViewerContent = forwardRef<HTMLPreElement, TextViewerContentProps>(
+  ({ text, langName, size, className, ...props }, ref) => (
+    <Text
+      as="pre"
+      size={size}
+      className={classNames(css.TextViewerPre, `language-${langName}`, className)}
+      {...props}
+      ref={ref}
+    >
+      <ErrorBoundary fallback={<code>{text}</code>}>
+        <Suspense fallback={<code>{text}</code>}>
+          <ReactPrism>{(codeRef) => <code ref={codeRef}>{text}</code>}</ReactPrism>
+        </Suspense>
+      </ErrorBoundary>
+    </Text>
+  )
+);
 
 export type TextViewerProps = {
   name: string;
@@ -43,6 +66,7 @@ export const TextViewer = as<'div', TextViewerProps>(
             </Chip>
           </Box>
         </Header>
+
         <Box
           grow="Yes"
           className={css.TextViewerContent}
@@ -50,13 +74,11 @@ export const TextViewer = as<'div', TextViewerProps>(
           alignItems="Center"
         >
           <Scroll hideTrack variant="Background" visibility="Hover">
-            <Text as="pre" className={classNames(css.TextViewerPre, `language-${langName}`)}>
-              <ErrorBoundary fallback={<code>{text}</code>}>
-                <Suspense fallback={<code>{text}</code>}>
-                  <ReactPrism>{(codeRef) => <code ref={codeRef}>{text}</code>}</ReactPrism>
-                </Suspense>
-              </ErrorBoundary>
-            </Text>
+            <TextViewerContent
+              className={css.TextViewerPrePadding}
+              text={text}
+              langName={langName}
+            />
           </Scroll>
         </Box>
       </Box>
