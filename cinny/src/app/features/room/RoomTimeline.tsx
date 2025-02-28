@@ -117,6 +117,7 @@ import { useMentionClickHandler } from '../../hooks/useMentionClickHandler';
 import { useSpoilerClickHandler } from '../../hooks/useSpoilerClickHandler';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useIgnoredUsers } from '../../hooks/useIgnoredUsers';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
   ({ position, className, ...props }, ref) => (
@@ -434,6 +435,10 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
   const [encUrlPreview] = useSetting(settingsAtom, 'encUrlPreview');
   const showUrlPreview = room.hasEncryptionStateEvent() ? encUrlPreview : urlPreview;
   const [showHiddenEvents] = useSetting(settingsAtom, 'showHiddenEvents');
+
+  const ignoredUsersList = useIgnoredUsers();
+  const ignoredUsersSet = useMemo(() => new Set(ignoredUsersList), [ignoredUsersList]);
+
   const setReplyDraft = useSetAtom(roomIdToReplyDraftAtomFamily(room.roomId));
   const powerLevels = usePowerLevelsContext();
   const { canDoAction, canSendEvent, canSendStateEvent, getPowerLevel } =
@@ -1488,6 +1493,11 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
 
     if (!mEvent || !mEventId) return null;
 
+    const eventSender = mEvent.getSender();
+    if (eventSender && ignoredUsersSet.has(eventSender)) {
+      return null;
+    }
+
     if (!newDivider && readUptoEventIdRef.current) {
       newDivider = prevEvent?.getId() === readUptoEventIdRef.current;
     }
@@ -1498,9 +1508,9 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
     const collapsed =
       isPrevRendered &&
       !dayDivider &&
-      (!newDivider || mEvent.getSender() === mx.getUserId()) &&
+      (!newDivider || eventSender === mx.getUserId()) &&
       prevEvent !== undefined &&
-      prevEvent.getSender() === mEvent.getSender() &&
+      prevEvent.getSender() === eventSender &&
       prevEvent.getType() === mEvent.getType() &&
       minuteDifference(prevEvent.getTs(), mEvent.getTs()) < 2;
 
@@ -1519,7 +1529,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
     isPrevRendered = !!eventJSX;
 
     const newDividerJSX =
-      newDivider && eventJSX && mEvent.getSender() !== mx.getUserId() ? (
+      newDivider && eventJSX && eventSender !== mx.getUserId() ? (
         <MessageBase space={messageSpacing}>
           <TimelineDivider style={{ color: color.Success.Main }} variant="Inherit">
             <Badge as="span" size="500" variant="Success" fill="Solid" radii="300">

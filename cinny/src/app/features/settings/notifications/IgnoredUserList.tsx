@@ -1,17 +1,12 @@
-import React, { ChangeEventHandler, FormEventHandler, useCallback, useMemo, useState } from 'react';
+import React, { ChangeEventHandler, FormEventHandler, useCallback, useState } from 'react';
 import { Box, Button, Chip, Icon, IconButton, Icons, Input, Spinner, Text, config } from 'folds';
-import { useAccountData } from '../../../hooks/useAccountData';
-import { AccountDataEvent } from '../../../../types/matrix/accountData';
 import { SequenceCard } from '../../../components/sequence-card';
 import { SequenceCardStyle } from '../styles.css';
 import { SettingTile } from '../../../components/setting-tile';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { isUserId } from '../../../utils/matrix';
-
-type IgnoredUserListContent = {
-  ignored_users?: Record<string, object>;
-};
+import { useIgnoredUsers } from '../../../hooks/useIgnoredUsers';
 
 function IgnoreUserInput({ userList }: { userList: string[] }) {
   const mx = useMatrixClient();
@@ -129,12 +124,7 @@ function IgnoredUserChip({ userId, userList }: { userId: string; userList: strin
 }
 
 export function IgnoredUserList() {
-  const ignoredUserListEvt = useAccountData(AccountDataEvent.IgnoredUserList);
-  const ignoredUsers = useMemo(() => {
-    const ignoredUsersRecord =
-      ignoredUserListEvt?.getContent<IgnoredUserListContent>().ignored_users ?? {};
-    return Object.keys(ignoredUsersRecord);
-  }, [ignoredUserListEvt]);
+  const ignoredUsers = useIgnoredUsers();
 
   return (
     <Box direction="Column" gap="100">
