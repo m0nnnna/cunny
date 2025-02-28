@@ -1,0 +1,6 @@
+cinny.domain.tld {
+  @nativeRouter not file {path} /
+  rewrite @nativeRouter {http.matchers.file.relative}
+  root * /path/to/caddy/dist
+  file_server
+}
