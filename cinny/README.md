@@ -19,27 +19,22 @@ A Matrix client focusing primarily on simple, elegant and secure interface. The 
 <img align="center" src="https://raw.githubusercontent.com/cinnyapp/cinny-site/main/assets/preview2-light.png" height="380">
 
 ## Getting started
-* Web app is available at https://app.cinny.in and gets updated on each new release. The `dev` branch is continuously deployed at https://dev.cinny.in but keep in mind that it could have things broken.
+The web app is available at [app.cinny.in](https://app.cinny.in/) and gets updated on each new release. The `dev` branch is continuously deployed at [dev.cinny.in](https://dev.cinny.in) but keep in mind that it could have things broken.
 
-* You can also download our desktop app from [cinny-desktop repository](https://github.com/cinnyapp/cinny-desktop).
+You can also download our desktop app from the [cinny-desktop repository](https://github.com/cinnyapp/cinny-desktop).
 
-* To host Cinny on your own, download tarball of the app from [GitHub release](https://github.com/cinnyapp/cinny/releases/latest).
-You can serve the application with a webserver of your choice by simply copying `dist/` directory to the webroot. 
-To set default Homeserver on login, register and Explore Community page, place a customized [`config.json`](config.json) in webroot of your choice.
-You will also need to setup redirects to serve the assests. An example setting of redirects for netlify is done in [`netlify.toml`](netlify.toml). You can also set `hashRouter.enabled = true` in [`config.json`](config.json) if you have trouble setting redirects.
-To deploy on subdirectory, you need to rebuild the app youself after updating the `base` path in [`build.config.ts`](build.config.ts). For example, if you want to deploy on `https://cinny.in/app`, then change `base: '/app'`.
+## Self-hosting
+To host Cinny on your own, simply download the tarball from [GitHub releases](https://github.com/cinnyapp/cinny/releases/latest), and serve the files from `dist/` using your preferred webserver. Alternatively, you can just pull the docker image from [DockerHub](https://hub.docker.com/r/ajbura/cinny) or [GitHub Container Registry](https://github.com/cinnyapp/cinny/pkgs/container/cinny).
 
-* Alternatively you can just pull the [DockerHub image](https://hub.docker.com/r/ajbura/cinny) by:
-    ```
-    docker pull ajbura/cinny
-    ```
-    or [ghcr image](https://github.com/cinnyapp/cinny/pkgs/container/cinny) by:
-    ```
-    docker pull ghcr.io/cinnyapp/cinny:latest
-    ```
+* The default homeservers and explore pages are defined in [`config.json`](config.json).
 
-<details>
-<summary>PGP Public Key to verify tarball</summary>
+* You need to set up redirects to serve the assests. Example configurations; [netlify](netlify.toml), [nginx](contrib/nginx/cinny.domain.tld.conf), [caddy](contrib/caddy/caddyfile).
+    * If you have trouble configuring redirects you can [enable hash routing](config.json#L35) — the url in the browser will have a `/#/` between the domain and open channel (ie. `app.cinny.in/#/home/` instead of `app.cinny.in/home/`) but you won't have to configure your webserver.
+
+* To deploy on subdirectory, you need to rebuild the app youself after updating the `base` path in [`build.config.ts`](build.config.ts).
+    * For example, if you want to deploy on `https://cinny.in/app`, then set `base: '/app'`.
+
+<details><summary><b>PGP Public Key to verify tarball</b></summary>
 
 ```
 -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -87,8 +82,8 @@ mxFo+ioe/ABCufSmyqFye0psX3Sp
 </details>
 
 ## Local development
-> We recommend using a version manager as versions change very quickly. You will likely need to switch 
-between multiple Node.js versions based on the needs of different projects you're working on. [NVM on windows](https://github.com/coreybutler/nvm-windows#installation--upgrades) on Windows and [nvm](https://github.com/nvm-sh/nvm) on Linux/macOS are pretty good choices. Recommended nodejs version is Iron LTS (v20).
+> [!TIP]
+> We recommend using a version manager as versions change very quickly. You will likely need to switch between multiple Node.js versions based on the needs of different projects you're working on. [NVM on windows](https://github.com/coreybutler/nvm-windows#installation--upgrades) on Windows and [nvm](https://github.com/nvm-sh/nvm) on Linux/macOS are pretty good choices. Recommended nodejs version is Iron LTS (v20).
 
 Execute the following commands to start a development server:
 ```sh
