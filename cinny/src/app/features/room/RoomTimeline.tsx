@@ -1497,6 +1497,9 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
     if (eventSender && ignoredUsersSet.has(eventSender)) {
       return null;
     }
+    if (mEvent.isRedacted() && !showHiddenEvents) {
+      return null;
+    }
 
     if (!newDivider && readUptoEventIdRef.current) {
       newDivider = prevEvent?.getId() === readUptoEventIdRef.current;
