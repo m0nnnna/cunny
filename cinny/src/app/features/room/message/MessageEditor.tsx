@@ -305,8 +305,13 @@ export const MessageEditor = as<'div', MessageEditorProps>(
                             onEmojiSelect={handleEmoticonSelect}
                             onCustomEmojiSelect={handleEmoticonSelect}
                             requestClose={() => {
-                              setAnchor(undefined);
-                              if (!mobileOrTablet()) ReactEditor.focus(editor);
+                              setAnchor((v) => {
+                                if (v) {
+                                  if (!mobileOrTablet()) ReactEditor.focus(editor);
+                                  return undefined;
+                                }
+                                return v;
+                              });
                             }}
                           />
                         }
