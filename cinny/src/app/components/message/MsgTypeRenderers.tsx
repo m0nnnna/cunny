@@ -28,7 +28,7 @@ import {
 import { FALLBACK_MIMETYPE, getBlobSafeMimeType } from '../../utils/mimeTypes';
 import { parseGeoUri, scaleYDimension } from '../../utils/common';
 import { Attachment, AttachmentBox, AttachmentContent, AttachmentHeader } from './attachment';
-import { FileHeader } from './FileHeader';
+import { FileHeader, FileDownloadButton } from './FileHeader';
 
 export function MBadEncrypted() {
   return (
@@ -243,8 +243,24 @@ export function MVideo({ content, renderAsFile, renderVideoContent, outlined }: 
 
   const height = scaleYDimension(videoInfo.w || 400, 400, videoInfo.h || 400);
 
+  const filename = content.filename ?? content.body ?? 'Video';
+
   return (
     <Attachment outlined={outlined}>
+      <AttachmentHeader>
+        <FileHeader
+          body={filename}
+          mimeType={safeMimeType}
+          after={
+            <FileDownloadButton
+              filename={filename}
+              url={mxcUrl}
+              mimeType={safeMimeType}
+              encInfo={content.file}
+            />
+          }
+        />
+      </AttachmentHeader>
       <AttachmentBox
         style={{
           height: toRem(height < 48 ? 48 : height),
@@ -286,10 +302,22 @@ export function MAudio({ content, renderAsFile, renderAudioContent, outlined }: 
     return <BrokenContent />;
   }
 
+  const filename = content.filename ?? content.body ?? 'Audio';
   return (
     <Attachment outlined={outlined}>
       <AttachmentHeader>
-        <FileHeader body={content.filename ?? content.body ?? 'Audio'} mimeType={safeMimeType} />
+        <FileHeader
+          body={filename}
+          mimeType={safeMimeType}
+          after={
+            <FileDownloadButton
+              filename={filename}
+              url={mxcUrl}
+              mimeType={safeMimeType}
+              encInfo={content.file}
+            />
+          }
+        />
       </AttachmentHeader>
       <AttachmentBox>
         <AttachmentContent>
