@@ -26,6 +26,7 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { HTMLReactParserOptions } from 'html-react-parser';
 import { Opts as LinkifyOpts } from 'linkifyjs';
+import { useAtomValue } from 'jotai';
 import { Page, PageContent, PageContentCenter, PageHeader } from '../../../components/page';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getMxIdLocalPart, mxcUrlToHttp } from '../../../utils/matrix';
@@ -82,6 +83,7 @@ import { useSpoilerClickHandler } from '../../../hooks/useSpoilerClickHandler';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { BackRouteHandler } from '../../../components/BackRouteHandler';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { allRoomsAtom } from '../../../state/room-list/roomList';
 
 type RoomNotificationsGroup = {
   roomId: string;
@@ -94,9 +96,14 @@ type NotificationTimeline = {
 type LoadTimeline = (from?: string) => Promise<void>;
 type SilentReloadTimeline = () => Promise<void>;
 
-const groupNotifications = (notifications: INotification[]): RoomNotificationsGroup[] => {
+const groupNotifications = (
+  notifications: INotification[],
+  allowRooms: Set<string>
+): RoomNotificationsGroup[] => {
   const groups: RoomNotificationsGroup[] = [];
   notifications.forEach((notification) => {
+    if (!allowRooms.has(notification.room_id)) return;
+
     const groupIndex = groups.length - 1;
     const lastAddedGroup: RoomNotificationsGroup | undefined = groups[groupIndex];
     if (lastAddedGroup && notification.room_id === lastAddedGroup.roomId) {
@@ -116,6 +123,9 @@ const useNotificationTimeline = (
   onlyHighlight?: boolean
 ): [NotificationTimeline, LoadTimeline, SilentReloadTimeline] => {
   const mx = useMatrixClient();
+  const allRooms = useAtomValue(allRoomsAtom);
+  const allJoinedRooms = useMemo(() => new Set(allRooms), [allRooms]);
+
   const [notificationTimeline, setNotificationTimeline] = useState<NotificationTimeline>({
     groups: [],
   });
@@ -142,7 +152,7 @@ const useNotificationTimeline = (
         paginationLimit,
         onlyHighlight ? 'highlight' : undefined
       );
-      const groups = groupNotifications(data.notifications);
+      const groups = groupNotifications(data.notifications, allJoinedRooms);
 
       setNotificationTimeline((currentTimeline) => {
         if (currentTimeline.nextToken === from) {
@@ -154,7 +164,7 @@ const useNotificationTimeline = (
         return currentTimeline;
       });
     },
-    [paginationLimit, onlyHighlight, fetchNotifications]
+    [paginationLimit, onlyHighlight, fetchNotifications, allJoinedRooms]
   );
 
   /**
@@ -167,12 +177,12 @@ const useNotificationTimeline = (
       paginationLimit,
       onlyHighlight ? 'highlight' : undefined
     );
-    const groups = groupNotifications(data.notifications);
+    const groups = groupNotifications(data.notifications, allJoinedRooms);
     setNotificationTimeline({
       nextToken: data.next_token,
       groups,
     });
-  }, [paginationLimit, onlyHighlight, fetchNotifications]);
+  }, [paginationLimit, onlyHighlight, fetchNotifications, allJoinedRooms]);
 
   return [notificationTimeline, loadTimeline, silentReloadTimeline];
 };
