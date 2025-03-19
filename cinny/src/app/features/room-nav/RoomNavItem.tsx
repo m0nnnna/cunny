@@ -29,7 +29,7 @@ import { roomToUnreadAtom } from '../../state/room/roomToUnread';
 import { usePowerLevels, usePowerLevelsAPI } from '../../hooks/usePowerLevels';
 import { copyToClipboard } from '../../utils/dom';
 import { markAsRead } from '../../../client/action/notifications';
-import { openInviteUser, toggleRoomSettings } from '../../../client/action/navigation';
+import { openInviteUser } from '../../../client/action/navigation';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import { LeaveRoomPrompt } from '../../components/leave-room-prompt';
 import { useRoomTypingMember } from '../../hooks/useRoomTypingMembers';
@@ -41,6 +41,8 @@ import { getViaServers } from '../../plugins/via-servers';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
 import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
+import { useOpenRoomSettings } from '../../state/hooks/roomSettings';
+import { useSpaceOptionally } from '../../hooks/useSpace';
 
 type RoomNavItemMenuProps = {
   room: Room;
@@ -54,6 +56,8 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
     const powerLevels = usePowerLevels(room);
     const { getPowerLevel, canDoAction } = usePowerLevelsAPI(powerLevels);
     const canInvite = canDoAction('invite', getPowerLevel(mx.getUserId() ?? ''));
+    const openRoomSettings = useOpenRoomSettings();
+    const space = useSpaceOptionally();
 
     const handleMarkAsRead = () => {
       markAsRead(mx, room.roomId, hideActivity);
@@ -73,7 +77,7 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
     };
 
     const handleRoomSettings = () => {
-      toggleRoomSettings(room.roomId);
+      openRoomSettings(room.roomId, space?.roomId);
       requestClose();
     };
 

@@ -654,6 +654,7 @@ export function EmojiBoard({
   onCustomEmojiSelect,
   onStickerSelect,
   allowTextCustomEmoji,
+  addToRecentEmoji = true,
 }: {
   tab?: EmojiBoardTab;
   onTabChange?: (tab: EmojiBoardTab) => void;
@@ -664,6 +665,7 @@ export function EmojiBoard({
   onCustomEmojiSelect?: (mxc: string, shortcode: string) => void;
   onStickerSelect?: (mxc: string, shortcode: string, label: string) => void;
   allowTextCustomEmoji?: boolean;
+  addToRecentEmoji?: boolean;
 }) {
   const emojiTab = tab === EmojiBoardTab.Emoji;
   const stickerTab = tab === EmojiBoardTab.Sticker;
@@ -735,7 +737,9 @@ export function EmojiBoard({
     if (emojiInfo.type === EmojiType.Emoji) {
       onEmojiSelect?.(emojiInfo.data, emojiInfo.shortcode);
       if (!evt.altKey && !evt.shiftKey) {
-        addRecentEmoji(mx, emojiInfo.data);
+        if (addToRecentEmoji) {
+          addRecentEmoji(mx, emojiInfo.data);
+        }
         requestClose();
       }
     }

@@ -75,7 +75,6 @@ import {
 import {
   canEditEvent,
   decryptAllTimelineEvent,
-  getAllParents,
   getEditedEvent,
   getEventReactions,
   getLatestEditableEvt,
@@ -118,6 +117,7 @@ import { useSpoilerClickHandler } from '../../hooks/useSpoilerClickHandler';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
 import { useIgnoredUsers } from '../../hooks/useIgnoredUsers';
+import { useImagePackRooms } from '../../hooks/useImagePackRooms';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
   ({ position, className, ...props }, ref) => (
@@ -454,16 +454,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
   const mentionClickHandler = useMentionClickHandler(room.roomId);
   const spoilerClickHandler = useSpoilerClickHandler();
 
-  const imagePackRooms: Room[] = useMemo(() => {
-    const allParentSpaces = [room.roomId].concat(
-      Array.from(getAllParents(roomToParents, room.roomId))
-    );
-    return allParentSpaces.reduce<Room[]>((list, rId) => {
-      const r = mx.getRoom(rId);
-      if (r) list.push(r);
-      return list;
-    }, []);
-  }, [mx, room, roomToParents]);
+  const imagePackRooms: Room[] = useImagePackRooms(room.roomId, roomToParents);
 
   const [unreadInfo, setUnreadInfo] = useState(() => getRoomUnreadInfo(room, true));
   const readUptoEventIdRef = useRef<string>();

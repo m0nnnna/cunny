@@ -1,10 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { Box, Text, Icon, Icons, Chip, Button } from 'folds';
+import { Box, Text, Icon, Icons, Button, MenuItem } from 'folds';
 import { SequenceCard } from '../../../components/sequence-card';
 import { SequenceCardStyle } from '../styles.css';
 import { SettingTile } from '../../../components/setting-tile';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { useAccountDataCallback } from '../../../hooks/useAccountDataCallback';
+import { CutoutCard } from '../../../components/cutout-card';
 
 type AccountDataProps = {
   expand: boolean;
@@ -13,14 +14,15 @@ type AccountDataProps = {
 };
 export function AccountData({ expand, onExpandToggle, onSelect }: AccountDataProps) {
   const mx = useMatrixClient();
-  const [accountData, setAccountData] = useState(() => Array.from(mx.store.accountData.values()));
+  const [accountDataTypes, setAccountDataKeys] = useState(() =>
+    Array.from(mx.store.accountData.keys())
+  );
 
   useAccountDataCallback(
     mx,
-    useCallback(
-      () => setAccountData(Array.from(mx.store.accountData.values())),
-      [mx, setAccountData]
-    )
+    useCallback(() => {
+      setAccountDataKeys(Array.from(mx.store.accountData.keys()));
+    }, [mx])
   );
 
   return (
@@ -52,37 +54,45 @@ export function AccountData({ expand, onExpandToggle, onSelect }: AccountDataPro
           }
         />
         {expand && (
-          <SettingTile>
-            <Box direction="Column" gap="200">
-              <Text size="L400">Types</Text>
-              <Box gap="200" wrap="Wrap">
-                <Chip
-                  variant="Secondary"
-                  fill="Soft"
-                  radii="Pill"
-                  before={<Icon size="50" src={Icons.Plus} />}
-                  onClick={() => onSelect(null)}
-                >
+          <Box direction="Column" gap="100">
+            <Box justifyContent="SpaceBetween">
+              <Text size="L400">Events</Text>
+              <Text size="L400">Total: {accountDataTypes.length}</Text>
+            </Box>
+            <CutoutCard>
+              <MenuItem
+                variant="Surface"
+                fill="None"
+                size="300"
+                radii="0"
+                before={<Icon size="50" src={Icons.Plus} />}
+                onClick={() => onSelect(null)}
+              >
+                <Box grow="Yes">
                   <Text size="T200" truncate>
                     Add New
                   </Text>
-                </Chip>
-                {accountData.map((mEvent) => (
-                  <Chip
-                    key={mEvent.getType()}
-                    variant="Secondary"
-                    fill="Soft"
-                    radii="Pill"
-                    onClick={() => onSelect(mEvent.getType())}
-                  >
+                </Box>
+              </MenuItem>
+              {accountDataTypes.sort().map((type) => (
+                <MenuItem
+                  key={type}
+                  variant="Surface"
+                  fill="None"
+                  size="300"
+                  radii="0"
+                  after={<Icon size="50" src={Icons.ChevronRight} />}
+                  onClick={() => onSelect(type)}
+                >
+                  <Box grow="Yes">
                     <Text size="T200" truncate>
-                      {mEvent.getType()}
+                      {type}
                     </Text>
-                  </Chip>
-                ))}
-              </Box>
-            </Box>
-          </SettingTile>
+                  </Box>
+                </MenuItem>
+              ))}
+            </CutoutCard>
+          </Box>
         )}
       </SequenceCard>
     </Box>

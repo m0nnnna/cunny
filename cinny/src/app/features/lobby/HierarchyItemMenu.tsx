@@ -18,16 +18,14 @@ import {
 import { HierarchyItem } from '../../hooks/useSpaceHierarchy';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { MSpaceChildContent, StateEvent } from '../../../types/matrix/room';
-import {
-  openInviteUser,
-  openSpaceSettings,
-  toggleRoomSettings,
-} from '../../../client/action/navigation';
+import { openInviteUser, openSpaceSettings } from '../../../client/action/navigation';
 import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import { LeaveSpacePrompt } from '../../components/leave-space-prompt';
 import { LeaveRoomPrompt } from '../../components/leave-room-prompt';
 import { stopPropagation } from '../../utils/keyboard';
+import { useOpenRoomSettings } from '../../state/hooks/roomSettings';
+import { useSpaceOptionally } from '../../hooks/useSpace';
 
 type HierarchyItemWithParent = HierarchyItem & {
   parentId: string;
@@ -154,11 +152,14 @@ function SettingsMenuItem({
   requestClose: () => void;
   disabled?: boolean;
 }) {
+  const openRoomSettings = useOpenRoomSettings();
+  const space = useSpaceOptionally();
+
   const handleSettings = () => {
     if ('space' in item) {
       openSpaceSettings(item.roomId);
     } else {
-      toggleRoomSettings(item.roomId);
+      openRoomSettings(item.roomId, space?.roomId);
     }
     requestClose();
   };

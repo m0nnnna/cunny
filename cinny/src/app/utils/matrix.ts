@@ -18,8 +18,7 @@ import { AccountDataEvent } from '../../types/matrix/accountData';
 import { getStateEvent } from './room';
 import { StateEvent } from '../../types/matrix/room';
 
-export const matchMxId = (id: string): RegExpMatchArray | null =>
-  id.match(/^([@!$+#])(\S+):(\S+)$/);
+export const matchMxId = (id: string): RegExpMatchArray | null => id.match(/^([@!$+#])(.+):(\S+)$/);
 
 export const validMxId = (id: string): boolean => !!matchMxId(id);
 

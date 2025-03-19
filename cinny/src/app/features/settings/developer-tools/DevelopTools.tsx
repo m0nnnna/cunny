@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Box, Text, IconButton, Icon, Icons, Scroll, Switch, Button } from 'folds';
 import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
@@ -7,7 +7,10 @@ import { SettingTile } from '../../../components/setting-tile';
 import { useSetting } from '../../../state/hooks/settings';
 import { settingsAtom } from '../../../state/settings';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
-import { AccountDataEditor } from './AccountDataEditor';
+import {
+  AccountDataEditor,
+  AccountDataSubmitCallback,
+} from '../../../components/AccountDataEditor';
 import { copyToClipboard } from '../../../utils/dom';
 import { AccountData } from './AccountData';
 
@@ -20,10 +23,19 @@ export function DeveloperTools({ requestClose }: DeveloperToolsProps) {
   const [expand, setExpend] = useState(false);
   const [accountDataType, setAccountDataType] = useState<string | null>();
 
+  const submitAccountData: AccountDataSubmitCallback = useCallback(
+    async (type, content) => {
+      await mx.setAccountData(type, content);
+    },
+    [mx]
+  );
+
   if (accountDataType !== undefined) {
     return (
       <AccountDataEditor
         type={accountDataType ?? undefined}
+        content={accountDataType ? mx.getAccountData(accountDataType)?.getContent() : undefined}
+        submitChange={submitAccountData}
         requestClose={() => setAccountDataType(undefined)}
       />
     );

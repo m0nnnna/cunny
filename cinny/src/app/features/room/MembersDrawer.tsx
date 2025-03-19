@@ -11,13 +11,11 @@ import {
   Badge,
   Box,
   Chip,
-  ContainerColor,
   Header,
   Icon,
   IconButton,
   Icons,
   Input,
-  Menu,
   MenuItem,
   PopOut,
   RectCords,
@@ -30,13 +28,11 @@ import {
 } from 'folds';
 import { Room, RoomMember } from 'matrix-js-sdk';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import FocusTrap from 'focus-trap-react';
 import classNames from 'classnames';
 
 import { openProfileViewer } from '../../../client/action/navigation';
 import * as css from './MembersDrawer.css';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
-import { Membership } from '../../../types/matrix/room';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import {
   SearchItemStrGetter,
@@ -44,7 +40,7 @@ import {
   useAsyncSearch,
 } from '../../hooks/useAsyncSearch';
 import { useDebounce } from '../../hooks/useDebounce';
-import { usePowerLevelTags, PowerLevelTag } from '../../hooks/usePowerLevelTags';
+import { usePowerLevelTags, useFlattenPowerLevelTagMembers } from '../../hooks/usePowerLevelTags';
 import { TypingIndicator } from '../../components/typing-indicator';
 import { getMemberDisplayName, getMemberSearchStr } from '../../utils/room';
 import { getMxIdLocalPart } from '../../utils/matrix';
@@ -54,106 +50,12 @@ import { millify } from '../../plugins/millify';
 import { ScrollTopContainer } from '../../components/scroll-top-container';
 import { UserAvatar } from '../../components/user-avatar';
 import { useRoomTypingMember } from '../../hooks/useRoomTypingMembers';
-import { stopPropagation } from '../../utils/keyboard';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
-
-export const MembershipFilters = {
-  filterJoined: (m: RoomMember) => m.membership === Membership.Join,
-  filterInvited: (m: RoomMember) => m.membership === Membership.Invite,
-  filterLeaved: (m: RoomMember) =>
-    m.membership === Membership.Leave &&
-    m.events.member?.getStateKey() === m.events.member?.getSender(),
-  filterKicked: (m: RoomMember) =>
-    m.membership === Membership.Leave &&
-    m.events.member?.getStateKey() !== m.events.member?.getSender(),
-  filterBanned: (m: RoomMember) => m.membership === Membership.Ban,
-};
-
-export type MembershipFilterFn = (m: RoomMember) => boolean;
-
-export type MembershipFilter = {
-  name: string;
-  filterFn: MembershipFilterFn;
-  color: ContainerColor;
-};
-
-const useMembershipFilterMenu = (): MembershipFilter[] =>
-  useMemo(
-    () => [
-      {
-        name: 'Joined',
-        filterFn: MembershipFilters.filterJoined,
-        color: 'Background',
-      },
-      {
-        name: 'Invited',
-        filterFn: MembershipFilters.filterInvited,
-        color: 'Success',
-      },
-      {
-        name: 'Left',
-        filterFn: MembershipFilters.filterLeaved,
-        color: 'Secondary',
-      },
-      {
-        name: 'Kicked',
-        filterFn: MembershipFilters.filterKicked,
-        color: 'Warning',
-      },
-      {
-        name: 'Banned',
-        filterFn: MembershipFilters.filterBanned,
-        color: 'Critical',
-      },
-    ],
-    []
-  );
-
-export const SortFilters = {
-  filterAscending: (a: RoomMember, b: RoomMember) =>
-    a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1,
-  filterDescending: (a: RoomMember, b: RoomMember) =>
-    a.name.toLowerCase() > b.name.toLowerCase() ? -1 : 1,
-  filterNewestFirst: (a: RoomMember, b: RoomMember) =>
-    (b.events.member?.getTs() ?? 0) - (a.events.member?.getTs() ?? 0),
-  filterOldest: (a: RoomMember, b: RoomMember) =>
-    (a.events.member?.getTs() ?? 0) - (b.events.member?.getTs() ?? 0),
-};
-
-export type SortFilterFn = (a: RoomMember, b: RoomMember) => number;
-
-export type SortFilter = {
-  name: string;
-  filterFn: SortFilterFn;
-};
-
-const useSortFilterMenu = (): SortFilter[] =>
-  useMemo(
-    () => [
-      {
-        name: 'A to Z',
-        filterFn: SortFilters.filterAscending,
-      },
-      {
-        name: 'Z to A',
-        filterFn: SortFilters.filterDescending,
-      },
-      {
-        name: 'Newest',
-        filterFn: SortFilters.filterNewestFirst,
-      },
-      {
-        name: 'Oldest',
-        filterFn: SortFilters.filterOldest,
-      },
-    ],
-    []
-  );
-
-export type MembersFilterOptions = {
-  membershipFilter: MembershipFilter;
-  sortFilter: SortFilter;
-};
+import { useMembershipFilter, useMembershipFilterMenu } from '../../hooks/useMemberFilter';
+import { useMemberSort, useMemberSortMenu } from '../../hooks/useMemberSort';
+import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLevels';
+import { MembershipFilterMenu } from '../../components/MembershipFilterMenu';
+import { MemberSortMenu } from '../../components/MemberSortMenu';
 
 const SEARCH_OPTIONS: UseAsyncSearchOptions = {
   limit: 1000,
@@ -176,17 +78,19 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const scrollTopAnchorRef = useRef<HTMLDivElement>(null);
-  const getPowerLevelTag = usePowerLevelTags();
+  const powerLevels = usePowerLevelsContext();
+  const [, getPowerLevelTag] = usePowerLevelTags(room, powerLevels);
   const fetchingMembers = members.length < room.getJoinedMemberCount();
   const setPeopleDrawer = useSetSetting(settingsAtom, 'isPeopleDrawer');
 
   const membershipFilterMenu = useMembershipFilterMenu();
-  const sortFilterMenu = useSortFilterMenu();
+  const sortFilterMenu = useMemberSortMenu();
   const [sortFilterIndex, setSortFilterIndex] = useSetting(settingsAtom, 'memberSortFilterIndex');
   const [membershipFilterIndex, setMembershipFilterIndex] = useState(0);
+  const { getPowerLevel } = usePowerLevelsAPI(powerLevels);
 
-  const membershipFilter = membershipFilterMenu[membershipFilterIndex] ?? membershipFilterMenu[0];
-  const sortFilter = sortFilterMenu[sortFilterIndex] ?? sortFilterMenu[0];
+  const membershipFilter = useMembershipFilter(membershipFilterIndex, membershipFilterMenu);
+  const memberSort = useMemberSort(sortFilterIndex, sortFilterMenu);
 
   const typingMembers = useRoomTypingMember(room.roomId);
 
@@ -194,9 +98,9 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
     () =>
       members
         .filter(membershipFilter.filterFn)
-        .sort(sortFilter.filterFn)
+        .sort(memberSort.sortFn)
         .sort((a, b) => b.powerLevel - a.powerLevel),
-    [members, membershipFilter, sortFilter]
+    [members, membershipFilter, memberSort]
   );
 
   const [result, search, resetSearch] = useAsyncSearch(
@@ -208,19 +112,11 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
 
   const processMembers = result ? result.items : filteredMembers;
 
-  const PLTagOrRoomMember = useMemo(() => {
-    let prevTag: PowerLevelTag | undefined;
-    const tagOrMember: Array<PowerLevelTag | RoomMember> = [];
-    processMembers.forEach((m) => {
-      const plTag = getPowerLevelTag(m.powerLevel);
-      if (plTag !== prevTag) {
-        prevTag = plTag;
-        tagOrMember.push(plTag);
-      }
-      tagOrMember.push(m);
-    });
-    return tagOrMember;
-  }, [processMembers, getPowerLevelTag]);
+  const PLTagOrRoomMember = useFlattenPowerLevelTagMembers(
+    processMembers,
+    getPowerLevel,
+    getPowerLevelTag
+  );
 
   const virtualizer = useVirtualizer({
     count: PLTagOrRoomMember.length,
@@ -295,38 +191,11 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
                       align="Start"
                       offset={4}
                       content={
-                        <FocusTrap
-                          focusTrapOptions={{
-                            initialFocus: false,
-                            onDeactivate: () => setAnchor(undefined),
-                            clickOutsideDeactivates: true,
-                            isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                            isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                            escapeDeactivates: stopPropagation,
-                          }}
-                        >
-                          <Menu style={{ padding: config.space.S100 }}>
-                            {membershipFilterMenu.map((menuItem, index) => (
-                              <MenuItem
-                                key={menuItem.name}
-                                variant={
-                                  menuItem.name === membershipFilter.name
-                                    ? menuItem.color
-                                    : 'Surface'
-                                }
-                                aria-pressed={menuItem.name === membershipFilter.name}
-                                size="300"
-                                radii="300"
-                                onClick={() => {
-                                  setMembershipFilterIndex(index);
-                                  setAnchor(undefined);
-                                }}
-                              >
-                                <Text size="T300">{menuItem.name}</Text>
-                              </MenuItem>
-                            ))}
-                          </Menu>
-                        </FocusTrap>
+                        <MembershipFilterMenu
+                          selected={membershipFilterIndex}
+                          onSelect={setMembershipFilterIndex}
+                          requestClose={() => setAnchor(undefined)}
+                        />
                       }
                     >
                       <Chip
@@ -336,7 +205,7 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
                               evt.currentTarget.getBoundingClientRect()
                             )) as MouseEventHandler<HTMLButtonElement>
                         }
-                        variant={membershipFilter.color}
+                        variant="Background"
                         size="400"
                         radii="300"
                         before={<Icon src={Icons.Filter} size="50" />}
@@ -354,34 +223,11 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
                       align="End"
                       offset={4}
                       content={
-                        <FocusTrap
-                          focusTrapOptions={{
-                            initialFocus: false,
-                            onDeactivate: () => setAnchor(undefined),
-                            clickOutsideDeactivates: true,
-                            isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                            isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                            escapeDeactivates: stopPropagation,
-                          }}
-                        >
-                          <Menu style={{ padding: config.space.S100 }}>
-                            {sortFilterMenu.map((menuItem, index) => (
-                              <MenuItem
-                                key={menuItem.name}
-                                variant="Surface"
-                                aria-pressed={menuItem.name === sortFilter.name}
-                                size="300"
-                                radii="300"
-                                onClick={() => {
-                                  setSortFilterIndex(index);
-                                  setAnchor(undefined);
-                                }}
-                              >
-                                <Text size="T300">{menuItem.name}</Text>
-                              </MenuItem>
-                            ))}
-                          </Menu>
-                        </FocusTrap>
+                        <MemberSortMenu
+                          selected={sortFilterIndex}
+                          onSelect={setSortFilterIndex}
+                          requestClose={() => setAnchor(undefined)}
+                        />
                       }
                     >
                       <Chip
@@ -396,7 +242,7 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
                         radii="300"
                         after={<Icon src={Icons.Sort} size="50" />}
                       >
-                        <Text size="T200">{sortFilter.name}</Text>
+                        <Text size="T200">{memberSort.name}</Text>
                       </Chip>
                     </PopOut>
                   )}

@@ -44,7 +44,7 @@ import { useRoomUnread } from '../../state/hooks/unread';
 import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLevels';
 import { markAsRead } from '../../../client/action/notifications';
 import { roomToUnreadAtom } from '../../state/room/roomToUnread';
-import { openInviteUser, toggleRoomSettings } from '../../../client/action/navigation';
+import { openInviteUser } from '../../../client/action/navigation';
 import { copyToClipboard } from '../../utils/dom';
 import { LeaveRoomPrompt } from '../../components/leave-room-prompt';
 import { useRoomAvatar, useRoomName, useRoomTopic } from '../../hooks/useRoomMeta';
@@ -57,6 +57,7 @@ import { BackRouteHandler } from '../../components/BackRouteHandler';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
 import { useRoomPinnedEvents } from '../../hooks/useRoomPinnedEvents';
 import { RoomPinMenu } from './room-pin-menu';
+import { useOpenRoomSettings } from '../../state/hooks/roomSettings';
 
 type RoomMenuProps = {
   room: Room;
@@ -87,8 +88,10 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(({ room, requestClose
     requestClose();
   };
 
-  const handleRoomSettings = () => {
-    toggleRoomSettings(room.roomId);
+  const openSettings = useOpenRoomSettings();
+  const parentSpace = useSpaceOptionally();
+  const handleOpenSettings = () => {
+    openSettings(room.roomId, parentSpace?.roomId);
     requestClose();
   };
 
@@ -133,7 +136,7 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(({ room, requestClose
           </Text>
         </MenuItem>
         <MenuItem
-          onClick={handleRoomSettings}
+          onClick={handleOpenSettings}
           size="300"
           after={<Icon size="100" src={Icons.Setting} />}
           radii="300"

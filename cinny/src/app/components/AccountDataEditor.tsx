@@ -1,12 +1,4 @@
-import React, {
-  FormEventHandler,
-  KeyboardEventHandler,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { FormEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Text,
@@ -22,21 +14,19 @@ import {
   Scroll,
   config,
 } from 'folds';
-import { isKeyHotkey } from 'is-hotkey';
 import { MatrixError } from 'matrix-js-sdk';
-import * as css from './styles.css';
-import { useTextAreaIntentHandler } from '../../../hooks/useTextAreaIntent';
-import { Cursor, Intent, TextArea, TextAreaOperations } from '../../../plugins/text-area';
-import { GetTarget } from '../../../plugins/text-area/type';
-import { syntaxErrorPosition } from '../../../utils/dom';
-import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
-import { useMatrixClient } from '../../../hooks/useMatrixClient';
-import { Page, PageHeader } from '../../../components/page';
-import { useAlive } from '../../../hooks/useAlive';
-import { SequenceCard } from '../../../components/sequence-card';
-import { TextViewerContent } from '../../../components/text-viewer';
+import { Cursor } from '../plugins/text-area';
+import { syntaxErrorPosition } from '../utils/dom';
+import { AsyncStatus, useAsyncCallback } from '../hooks/useAsyncCallback';
+import { Page, PageHeader } from './page';
+import { useAlive } from '../hooks/useAlive';
+import { SequenceCard } from './sequence-card';
+import { TextViewerContent } from './text-viewer';
+import { useTextAreaCodeEditor } from '../hooks/useTextAreaCodeEditor';
 
 const EDITOR_INTENT_SPACE_COUNT = 2;
+
+export type AccountDataSubmitCallback = (type: string, content: object) => Promise<void>;
 
 type AccountDataInfo = {
   type: string;
@@ -46,45 +36,28 @@ type AccountDataInfo = {
 type AccountDataEditProps = {
   type: string;
   defaultContent: string;
+  submitChange: AccountDataSubmitCallback;
   onCancel: () => void;
   onSave: (info: AccountDataInfo) => void;
 };
-function AccountDataEdit({ type, defaultContent, onCancel, onSave }: AccountDataEditProps) {
-  const mx = useMatrixClient();
+function AccountDataEdit({
+  type,
+  defaultContent,
+  submitChange,
+  onCancel,
+  onSave,
+}: AccountDataEditProps) {
   const alive = useAlive();
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [jsonError, setJSONError] = useState<SyntaxError>();
 
-  const getTarget: GetTarget = useCallback(() => {
-    const target = textAreaRef.current;
-    if (!target) throw new Error('TextArea element not found!');
-    return target;
-  }, []);
-
-  const { textArea, operations, intent } = useMemo(() => {
-    const ta = new TextArea(getTarget);
-    const op = new TextAreaOperations(getTarget);
-    return {
-      textArea: ta,
-      operations: op,
-      intent: new Intent(EDITOR_INTENT_SPACE_COUNT, ta, op),
-    };
-  }, [getTarget]);
-
-  const intentHandler = useTextAreaIntentHandler(textArea, operations, intent);
-
-  const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (evt) => {
-    intentHandler(evt);
-    if (isKeyHotkey('escape', evt)) {
-      const cursor = Cursor.fromTextAreaElement(getTarget());
-      operations.deselect(cursor);
-    }
-  };
-
-  const [submitState, submit] = useAsyncCallback<object, MatrixError, [string, object]>(
-    useCallback((dataType, data) => mx.setAccountData(dataType, data), [mx])
+  const { handleKeyDown, operations, getTarget } = useTextAreaCodeEditor(
+    textAreaRef,
+    EDITOR_INTENT_SPACE_COUNT
   );
+
+  const [submitState, submit] = useAsyncCallback<void, MatrixError, [string, object]>(submitChange);
   const submitting = submitState.status === AsyncStatus.Loading;
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = (evt) => {
@@ -140,7 +113,9 @@ function AccountDataEdit({ type, defaultContent, onCancel, onSave }: AccountData
       as="form"
       onSubmit={handleSubmit}
       grow="Yes"
-      className={css.EditorContent}
+      style={{
+        padding: config.space.S400,
+      }}
       direction="Column"
       gap="400"
       aria-disabled={submitting}
@@ -174,6 +149,7 @@ function AccountDataEdit({ type, defaultContent, onCancel, onSave }: AccountData
             fill="Soft"
             size="400"
             radii="300"
+            type="button"
             onClick={onCancel}
             disabled={submitting}
           >
@@ -194,7 +170,9 @@ function AccountDataEdit({ type, defaultContent, onCancel, onSave }: AccountData
         <TextAreaComponent
           ref={textAreaRef}
           name="contentTextArea"
-          className={css.EditorTextArea}
+          style={{
+            fontFamily: 'monospace',
+          }}
           onKeyDown={handleKeyDown}
           defaultValue={defaultContent}
           resize="None"
@@ -221,7 +199,13 @@ type AccountDataViewProps = {
 };
 function AccountDataView({ type, defaultContent, onEdit }: AccountDataViewProps) {
   return (
-    <Box direction="Column" className={css.EditorContent} gap="400">
+    <Box
+      direction="Column"
+      style={{
+        padding: config.space.S400,
+      }}
+      gap="400"
+    >
       <Box shrink="No" gap="300" alignItems="End">
         <Box grow="Yes" direction="Column" gap="100">
           <Text size="L400">Account Data</Text>
@@ -259,15 +243,20 @@ function AccountDataView({ type, defaultContent, onEdit }: AccountDataViewProps)
 
 export type AccountDataEditorProps = {
   type?: string;
+  content?: object;
+  submitChange: AccountDataSubmitCallback;
   requestClose: () => void;
 };
 
-export function AccountDataEditor({ type, requestClose }: AccountDataEditorProps) {
-  const mx = useMatrixClient();
-
+export function AccountDataEditor({
+  type,
+  content,
+  submitChange,
+  requestClose,
+}: AccountDataEditorProps) {
   const [data, setData] = useState<AccountDataInfo>({
     type: type ?? '',
-    content: mx.getAccountData(type ?? '')?.getContent() ?? {},
+    content: content ?? {},
   });
 
   const [edit, setEdit] = useState(!type);
@@ -316,6 +305,7 @@ export function AccountDataEditor({ type, requestClose }: AccountDataEditorProps
           <AccountDataEdit
             type={data.type}
             defaultContent={contentJSONStr}
+            submitChange={submitChange}
             onCancel={closeEdit}
             onSave={handleSave}
           />

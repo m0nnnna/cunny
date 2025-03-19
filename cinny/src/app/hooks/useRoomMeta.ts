@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { RoomJoinRulesEventContent } from 'matrix-js-sdk/lib/types';
 import { Room, RoomEvent, RoomEventHandlerMap } from 'matrix-js-sdk';
 import { StateEvent } from '../../types/matrix/room';
 import { useStateEvent } from './useStateEvent';
@@ -38,4 +39,10 @@ export const useRoomTopic = (room: Room): string | undefined => {
   const topic = content && typeof content.topic === 'string' ? content.topic : undefined;
 
   return topic;
+};
+
+export const useRoomJoinRule = (room: Room): RoomJoinRulesEventContent | undefined => {
+  const mEvent = useStateEvent(room, StateEvent.RoomJoinRules);
+  const joinRuleContent = mEvent?.getContent<RoomJoinRulesEventContent>();
+  return joinRuleContent;
 };

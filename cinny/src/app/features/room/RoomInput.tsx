@@ -4,7 +4,6 @@ import React, {
   forwardRef,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -101,12 +100,7 @@ import {
   getVideoMsgContent,
 } from './msgContent';
 import colorMXID from '../../../util/colorMXID';
-import {
-  getAllParents,
-  getMemberDisplayName,
-  getMentionContent,
-  trimReplyFromBody,
-} from '../../utils/room';
+import { getMemberDisplayName, getMentionContent, trimReplyFromBody } from '../../utils/room';
 import { CommandAutocomplete } from './CommandAutocomplete';
 import { Command, SHRUG, TABLEFLIP, UNFLIP, useCommands } from '../../hooks/useCommands';
 import { mobileOrTablet } from '../../utils/user-agent';
@@ -114,6 +108,7 @@ import { useElementSizeObserver } from '../../hooks/useElementSizeObserver';
 import { ReplyLayout, ThreadIndicator } from '../../components/message';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useImagePackRooms } from '../../hooks/useImagePackRooms';
 
 interface RoomInputProps {
   editor: Editor;
@@ -142,14 +137,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
     );
     const uploadBoardHandlers = useRef<UploadBoardImperativeHandlers>();
 
-    const imagePackRooms: Room[] = useMemo(() => {
-      const allParentSpaces = [roomId].concat(Array.from(getAllParents(roomToParents, roomId)));
-      return allParentSpaces.reduce<Room[]>((list, rId) => {
-        const r = mx.getRoom(rId);
-        if (r) list.push(r);
-        return list;
-      }, []);
-    }, [mx, roomId, roomToParents]);
+    const imagePackRooms: Room[] = useImagePackRooms(roomId, roomToParents);
 
     const [toolbar, setToolbar] = useSetting(settingsAtom, 'editorToolbar');
     const [autocompleteQuery, setAutocompleteQuery] =
