@@ -37,7 +37,6 @@ import { useHomeRooms } from './useHomeRooms';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { VirtualTile } from '../../../components/virtualizer';
 import { RoomNavCategoryButton, RoomNavItem } from '../../../features/room-nav';
-import { muteChangesAtom } from '../../../state/room-list/mutedRoomList';
 import { makeNavCategoryId } from '../../../state/closedNavCategories';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import { useCategoryHandler } from '../../../hooks/useCategoryHandler';
@@ -50,6 +49,10 @@ import { useClosedNavCategoriesAtom } from '../../../state/hooks/closedNavCatego
 import { stopPropagation } from '../../../utils/keyboard';
 import { useSetting } from '../../../state/hooks/settings';
 import { settingsAtom } from '../../../state/settings';
+import {
+  getRoomNotificationMode,
+  useRoomsNotificationPreferencesContext,
+} from '../../../hooks/useRoomsNotificationPreferences';
 
 type HomeMenuProps = {
   requestClose: () => void;
@@ -199,8 +202,7 @@ export function Home() {
   useNavToActivePathMapper('home');
   const scrollRef = useRef<HTMLDivElement>(null);
   const rooms = useHomeRooms();
-  const muteChanges = useAtomValue(muteChangesAtom);
-  const mutedRooms = muteChanges.added;
+  const notificationPreferences = useRoomsNotificationPreferencesContext();
   const roomToUnread = useAtomValue(roomToUnreadAtom);
 
   const selectedRoomId = useSelectedRoom();
@@ -321,7 +323,10 @@ export function Home() {
                         room={room}
                         selected={selected}
                         linkPath={getHomeRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
-                        muted={mutedRooms.includes(roomId)}
+                        notificationMode={getRoomNotificationMode(
+                          notificationPreferences,
+                          room.roomId
+                        )}
                       />
                     </VirtualTile>
                   );

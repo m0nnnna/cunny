@@ -1,5 +1,5 @@
 import produce from 'immer';
-import { atom, useSetAtom, PrimitiveAtom, useAtomValue } from 'jotai';
+import { atom, useSetAtom } from 'jotai';
 import {
   IRoomTimelineData,
   MatrixClient,
@@ -11,7 +11,6 @@ import {
 import { ReceiptContent, ReceiptType } from 'matrix-js-sdk/lib/@types/read_receipts';
 import { useCallback, useEffect } from 'react';
 import {
-  MuteChanges,
   Membership,
   NotificationType,
   RoomToUnread,
@@ -25,11 +24,11 @@ import {
   getUnreadInfo,
   getUnreadInfos,
   isNotificationEvent,
-  roomHaveUnread,
 } from '../../utils/room';
 import { roomToParentsAtom } from './roomToParents';
 import { useStateEventCallback } from '../../hooks/useStateEventCallback';
 import { useSyncState } from '../../hooks/useSyncState';
+import { useRoomsNotificationPreferencesContext } from '../../hooks/useRoomsNotificationPreferences';
 
 export type RoomToUnreadAction =
   | {
@@ -167,13 +166,9 @@ export const roomToUnreadAtom = atom<RoomToUnread, [RoomToUnreadAction], undefin
   }
 );
 
-export const useBindRoomToUnreadAtom = (
-  mx: MatrixClient,
-  unreadAtom: typeof roomToUnreadAtom,
-  muteChangesAtom: PrimitiveAtom<MuteChanges>
-) => {
+export const useBindRoomToUnreadAtom = (mx: MatrixClient, unreadAtom: typeof roomToUnreadAtom) => {
   const setUnreadAtom = useSetAtom(unreadAtom);
-  const muteChanges = useAtomValue(muteChangesAtom);
+  const roomsNotificationPreferences = useRoomsNotificationPreferencesContext();
 
   useEffect(() => {
     setUnreadAtom({
@@ -249,16 +244,11 @@ export const useBindRoomToUnreadAtom = (
   }, [mx, setUnreadAtom]);
 
   useEffect(() => {
-    muteChanges.removed.forEach((roomId) => {
-      const room = mx.getRoom(roomId);
-      if (!room) return;
-      if (!roomHaveUnread(mx, room)) return;
-      setUnreadAtom({ type: 'PUT', unreadInfo: getUnreadInfo(room) });
+    setUnreadAtom({
+      type: 'RESET',
+      unreadInfos: getUnreadInfos(mx),
     });
-    muteChanges.added.forEach((roomId) => {
-      setUnreadAtom({ type: 'DELETE', roomId });
-    });
-  }, [mx, setUnreadAtom, muteChanges]);
+  }, [mx, setUnreadAtom, roomsNotificationPreferences]);
 
   useEffect(() => {
     const handleMembershipChange = (room: Room, membership: string) => {

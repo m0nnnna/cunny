@@ -45,7 +45,6 @@ import {
 import { useSpace } from '../../../hooks/useSpace';
 import { VirtualTile } from '../../../components/virtualizer';
 import { RoomNavCategoryButton, RoomNavItem } from '../../../features/room-nav';
-import { muteChangesAtom } from '../../../state/room-list/mutedRoomList';
 import { makeNavCategoryId } from '../../../state/closedNavCategories';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import { useCategoryHandler } from '../../../hooks/useCategoryHandler';
@@ -71,6 +70,10 @@ import { getMatrixToRoom } from '../../../plugins/matrix-to';
 import { getViaServers } from '../../../plugins/via-servers';
 import { useSetting } from '../../../state/hooks/settings';
 import { settingsAtom } from '../../../state/settings';
+import {
+  getRoomNotificationMode,
+  useRoomsNotificationPreferencesContext,
+} from '../../../hooks/useRoomsNotificationPreferences';
 
 type SpaceMenuProps = {
   room: Room;
@@ -269,8 +272,7 @@ export function Space() {
   const roomToUnread = useAtomValue(roomToUnreadAtom);
   const allRooms = useAtomValue(allRoomsAtom);
   const allJoinedRooms = useMemo(() => new Set(allRooms), [allRooms]);
-  const muteChanges = useAtomValue(muteChangesAtom);
-  const mutedRooms = muteChanges.added;
+  const notificationPreferences = useRoomsNotificationPreferencesContext();
 
   const selectedRoomId = useSelectedRoom();
   const lobbySelected = useSpaceLobbySelected(spaceIdOrAlias);
@@ -404,7 +406,7 @@ export function Space() {
                     showAvatar={mDirects.has(roomId)}
                     direct={mDirects.has(roomId)}
                     linkPath={getToLink(roomId)}
-                    muted={mutedRooms.includes(roomId)}
+                    notificationMode={getRoomNotificationMode(notificationPreferences, room.roomId)}
                   />
                 </VirtualTile>
               );

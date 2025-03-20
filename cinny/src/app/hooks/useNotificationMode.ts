@@ -7,6 +7,19 @@ export enum NotificationMode {
   NotifyLoud = 'NotifyLoud',
 }
 
+export const getNotificationMode = (actions: PushRuleAction[]): NotificationMode => {
+  const soundTweak = actions.find(
+    (action) => typeof action === 'object' && action.set_tweak === TweakName.Sound
+  );
+  const notify = actions.find(
+    (action) => typeof action === 'string' && action === PushRuleActionName.Notify
+  );
+
+  if (notify && soundTweak) return NotificationMode.NotifyLoud;
+  if (notify) return NotificationMode.Notify;
+  return NotificationMode.OFF;
+};
+
 export type NotificationModeOptions = {
   soundValue?: string;
   highlight?: boolean;
@@ -49,18 +62,7 @@ export const useNotificationModeActions = (
 };
 
 export const useNotificationActionsMode = (actions: PushRuleAction[]): NotificationMode => {
-  const mode: NotificationMode = useMemo(() => {
-    const soundTweak = actions.find(
-      (action) => typeof action === 'object' && action.set_tweak === TweakName.Sound
-    );
-    const notify = actions.find(
-      (action) => typeof action === 'string' && action === PushRuleActionName.Notify
-    );
-
-    if (notify && soundTweak) return NotificationMode.NotifyLoud;
-    if (notify) return NotificationMode.Notify;
-    return NotificationMode.OFF;
-  }, [actions]);
+  const mode: NotificationMode = useMemo(() => getNotificationMode(actions), [actions]);
 
   return mode;
 };
