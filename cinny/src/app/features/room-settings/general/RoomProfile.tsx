@@ -46,8 +46,8 @@ type RoomProfileEditProps = {
   canEditName: boolean;
   canEditTopic: boolean;
   avatar?: string;
-  name?: string;
-  topic?: string;
+  name: string;
+  topic: string;
   onClose: () => void;
 };
 export function RoomProfileEdit({
@@ -91,11 +91,7 @@ export function RoomProfileEdit({
 
   const [submitState, submit] = useAsyncCallback(
     useCallback(
-      async (
-        roomAvatarMxc?: string | null,
-        roomName?: string | null,
-        roomTopic?: string | null
-      ) => {
+      async (roomAvatarMxc?: string | null, roomName?: string, roomTopic?: string) => {
         if (roomAvatarMxc !== undefined) {
           await mx.sendStateEvent(room.roomId, StateEvent.RoomAvatar as any, {
             url: roomAvatarMxc,
@@ -125,10 +121,14 @@ export function RoomProfileEdit({
     const roomName = nameInput.value.trim();
     const roomTopic = topicTextArea.value.trim();
 
+    if (roomAvatar === avatar && roomName === name && roomTopic === topic) {
+      return;
+    }
+
     submit(
       roomAvatar === avatar ? undefined : roomAvatar || null,
-      roomName === name ? undefined : roomName || null,
-      roomTopic === topic ? undefined : roomTopic || null
+      roomName === name ? undefined : roomName,
+      roomTopic === topic ? undefined : roomTopic
     ).then(() => {
       if (alive()) {
         onClose();
@@ -299,8 +299,8 @@ export function RoomProfile({ powerLevels }: RoomProfileProps) {
             canEditName={canEditName}
             canEditTopic={canEditTopic}
             avatar={avatar}
-            name={name}
-            topic={topic}
+            name={name ?? ''}
+            topic={topic ?? ''}
             onClose={handleCloseEdit}
           />
         ) : (
