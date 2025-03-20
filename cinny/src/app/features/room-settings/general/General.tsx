@@ -8,6 +8,7 @@ import { RoomEncryption } from './RoomEncryption';
 import { RoomHistoryVisibility } from './RoomHistoryVisibility';
 import { RoomJoinRules } from './RoomJoinRules';
 import { RoomLocalAddresses, RoomPublishedAddresses } from './RoomAddress';
+import { RoomUpgrade } from './RoomUpgrade';
 
 type GeneralProps = {
   requestClose: () => void;
@@ -47,6 +48,10 @@ export function General({ requestClose }: GeneralProps) {
                 <Text size="L400">Addresses</Text>
                 <RoomPublishedAddresses powerLevels={powerLevels} />
                 <RoomLocalAddresses powerLevels={powerLevels} />
+              </Box>
+              <Box direction="Column" gap="100">
+                <Text size="L400">Advance Options</Text>
+                <RoomUpgrade powerLevels={powerLevels} requestClose={requestClose} />
               </Box>
             </Box>
           </PageContent>
