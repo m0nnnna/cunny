@@ -348,7 +348,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
     const handleKeyDown: KeyboardEventHandler = useCallback(
       (evt) => {
-        if (isKeyHotkey('mod+enter', evt) || (!enterForNewline && isKeyHotkey('enter', evt))) {
+        if ((isKeyHotkey('mod+enter', evt) || (!enterForNewline && isKeyHotkey('enter', evt))) && !evt.nativeEvent.isComposing) {
           evt.preventDefault();
           submit();
         }
