@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { CSSProperties, ReactNode } from 'react';
 import { Box, Chip, Icon, Icons, Text, toRem } from 'folds';
 import { IContent } from 'matrix-js-sdk';
 import { JUMBO_EMOJI_REG, URL_REG } from '../../utils/regex';
@@ -74,8 +74,9 @@ type MTextProps = {
   content: Record<string, unknown>;
   renderBody: (props: RenderBodyProps) => ReactNode;
   renderUrlsPreview?: (urls: string[]) => ReactNode;
+  style?: CSSProperties;
 };
-export function MText({ edited, content, renderBody, renderUrlsPreview }: MTextProps) {
+export function MText({ edited, content, renderBody, renderUrlsPreview, style }: MTextProps) {
   const { body, formatted_body: customBody } = content;
 
   if (typeof body !== 'string') return <BrokenContent />;
@@ -88,6 +89,7 @@ export function MText({ edited, content, renderBody, renderUrlsPreview }: MTextP
       <MessageTextBody
         preWrap={typeof customBody !== 'string'}
         jumboEmoji={JUMBO_EMOJI_REG.test(trimmedBody)}
+        style={style}
       >
         {renderBody({
           body: trimmedBody,

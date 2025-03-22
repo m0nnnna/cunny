@@ -2,6 +2,7 @@ import React from 'react';
 import { MsgType } from 'matrix-js-sdk';
 import { HTMLReactParserOptions } from 'html-react-parser';
 import { Opts } from 'linkifyjs';
+import { config } from 'folds';
 import {
   AudioContent,
   DownloadFile,
@@ -29,7 +30,7 @@ import { ImageViewer } from './image-viewer';
 import { PdfViewer } from './Pdf-viewer';
 import { TextViewer } from './text-viewer';
 import { testMatrixTo } from '../plugins/matrix-to';
-import {IImageContent} from "../../types/matrix/common";
+import { IImageContent } from '../../types/matrix/common';
 
 type RenderMessageContentProps = {
   displayName: string;
@@ -70,9 +71,10 @@ export function RenderMessageContent({
   };
   const renderCaption = () => {
     const content: IImageContent = getContent();
-    if(content.filename && content.filename !== content.body) {
+    if (content.filename && content.filename !== content.body) {
       return (
         <MText
+          style={{ marginTop: config.space.S200 }}
           edited={edited}
           content={content}
           renderBody={(props) => (
@@ -85,41 +87,40 @@ export function RenderMessageContent({
           )}
           renderUrlsPreview={urlPreview ? renderUrlsPreview : undefined}
         />
-      )
+      );
     }
     return null;
-  }
+  };
 
   const renderFile = () => (
     <>
       <MFile
         content={getContent()}
         renderFileContent={({ body, mimeType, info, encInfo, url }) => (
-            <FileContent
-              body={body}
-              mimeType={mimeType}
-              renderAsPdfFile={() => (
-                <ReadPdfFile
-                  body={body}
-                  mimeType={mimeType}
-                  url={url}
-                  encInfo={encInfo}
-                  renderViewer={(p) => <PdfViewer {...p} />}
-                />
-              )}
-              renderAsTextFile={() => (
-                <ReadTextFile
-                  body={body}
-                  mimeType={mimeType}
-                  url={url}
-                  encInfo={encInfo}
-                  renderViewer={(p) => <TextViewer {...p} />}
-                />
-              )}
-            >
-              <DownloadFile body={body} mimeType={mimeType} url={url} encInfo={encInfo} info={info} />
-            </FileContent>
-
+          <FileContent
+            body={body}
+            mimeType={mimeType}
+            renderAsPdfFile={() => (
+              <ReadPdfFile
+                body={body}
+                mimeType={mimeType}
+                url={url}
+                encInfo={encInfo}
+                renderViewer={(p) => <PdfViewer {...p} />}
+              />
+            )}
+            renderAsTextFile={() => (
+              <ReadTextFile
+                body={body}
+                mimeType={mimeType}
+                url={url}
+                encInfo={encInfo}
+                renderViewer={(p) => <TextViewer {...p} />}
+              />
+            )}
+          >
+            <DownloadFile body={body} mimeType={mimeType} url={url} encInfo={encInfo} info={info} />
+          </FileContent>
         )}
         outlined={outlineAttachment}
       />
@@ -188,12 +189,12 @@ export function RenderMessageContent({
         <MImage
           content={getContent()}
           renderImageContent={(props) => (
-              <ImageContent
-                  {...props}
-                  autoPlay={mediaAutoLoad}
-                  renderImage={(p) => <Image {...p} loading="lazy" />}
-                  renderViewer={(p) => <ImageViewer {...p} />}
-              />
+            <ImageContent
+              {...props}
+              autoPlay={mediaAutoLoad}
+              renderImage={(p) => <Image {...p} loading="lazy" />}
+              renderViewer={(p) => <ImageViewer {...p} />}
+            />
           )}
           outlined={outlineAttachment}
         />
@@ -218,13 +219,13 @@ export function RenderMessageContent({
               renderThumbnail={
                 mediaAutoLoad
                   ? () => (
-                    <ThumbnailContent
-                      info={info}
-                      renderImage={(src) => (
-                        <Image alt={body} title={body} src={src} loading="lazy" />
-                      )}
-                    />
-                  )
+                      <ThumbnailContent
+                        info={info}
+                        renderImage={(src) => (
+                          <Image alt={body} title={body} src={src} loading="lazy" />
+                        )}
+                      />
+                    )
                   : undefined
               }
               renderVideo={(p) => <Video {...p} />}
@@ -234,7 +235,6 @@ export function RenderMessageContent({
         />
         {renderCaption()}
       </>
-
     );
   }
 
@@ -251,7 +251,6 @@ export function RenderMessageContent({
         />
         {renderCaption()}
       </>
-
     );
   }
 
