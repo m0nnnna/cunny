@@ -38,6 +38,7 @@ import {
   Reply,
   Time,
   Username,
+  UsernameBold,
 } from '../../../components/message';
 import { UserAvatar } from '../../../components/user-avatar';
 import { getMxIdLocalPart, mxcUrlToHttp } from '../../../utils/matrix';
@@ -49,7 +50,6 @@ import {
   getStateEvent,
 } from '../../../utils/room';
 import { GetContentCallback, MessageEvent, StateEvent } from '../../../../types/matrix/room';
-import colorMXID from '../../../../util/colorMXID';
 import { useMentionClickHandler } from '../../../hooks/useMentionClickHandler';
 import { useSpoilerClickHandler } from '../../../hooks/useSpoilerClickHandler';
 import {
@@ -72,6 +72,15 @@ import { VirtualTile } from '../../../components/virtualizer';
 import { usePowerLevelsAPI, usePowerLevelsContext } from '../../../hooks/usePowerLevels';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { ContainerColor } from '../../../styles/ContainerColor.css';
+import {
+  getTagIconSrc,
+  useAccessibleTagColors,
+  usePowerLevelTags,
+} from '../../../hooks/usePowerLevelTags';
+import { useTheme } from '../../../hooks/useTheme';
+import { PowerIcon } from '../../../components/power';
+import colorMXID from '../../../../util/colorMXID';
+import { useIsDirectRoom } from '../../../hooks/useRoom';
 
 type PinnedMessageProps = {
   room: Room;
@@ -84,6 +93,14 @@ function PinnedMessage({ room, eventId, renderContent, onOpen, canPinEvent }: Pi
   const pinnedEvent = useRoomEvent(room, eventId);
   const useAuthentication = useMediaAuthentication();
   const mx = useMatrixClient();
+  const direct = useIsDirectRoom();
+  const [legacyUsernameColor] = useSetting(settingsAtom, 'legacyUsernameColor');
+
+  const powerLevels = usePowerLevelsContext();
+  const { getPowerLevel } = usePowerLevelsAPI(powerLevels);
+  const [powerLevelTags, getPowerLevelTag] = usePowerLevelTags(room, powerLevels);
+  const theme = useTheme();
+  const accessibleTagColors = useAccessibleTagColors(theme.kind, powerLevelTags);
 
   const [unpinState, unpin] = useAsyncCallback(
     useCallback(() => {
@@ -93,7 +110,7 @@ function PinnedMessage({ room, eventId, renderContent, onOpen, canPinEvent }: Pi
         pinned: content.pinned.filter((id) => id !== eventId),
       };
 
-      return mx.sendStateEvent(room.roomId, StateEvent.RoomPinnedEvents, newContent);
+      return mx.sendStateEvent(room.roomId, StateEvent.RoomPinnedEvents as any, newContent);
     }, [room, eventId, mx])
   );
 
@@ -148,6 +165,16 @@ function PinnedMessage({ room, eventId, renderContent, onOpen, canPinEvent }: Pi
   const displayName = getMemberDisplayName(room, sender) ?? getMxIdLocalPart(sender) ?? sender;
   const senderAvatarMxc = getMemberAvatarMxc(room, sender);
   const getContent = (() => pinnedEvent.getContent()) as GetContentCallback;
+
+  const senderPowerLevel = getPowerLevel(sender);
+  const powerLevelTag = getPowerLevelTag(senderPowerLevel);
+  const tagColor = powerLevelTag?.color ? accessibleTagColors?.get(powerLevelTag.color) : undefined;
+  const tagIconSrc = powerLevelTag?.icon
+    ? getTagIconSrc(mx, useAuthentication, powerLevelTag.icon)
+    : undefined;
+
+  const usernameColor = legacyUsernameColor || direct ? colorMXID(sender) : tagColor;
+
   return (
     <ModernLayout
       before={
@@ -170,11 +197,14 @@ function PinnedMessage({ room, eventId, renderContent, onOpen, canPinEvent }: Pi
     >
       <Box gap="300" justifyContent="SpaceBetween" alignItems="Center" grow="Yes">
         <Box gap="200" alignItems="Baseline">
-          <Username style={{ color: colorMXID(sender) }}>
-            <Text as="span" truncate>
-              <b>{displayName}</b>
-            </Text>
-          </Username>
+          <Box alignItems="Center" gap="200">
+            <Username style={{ color: usernameColor }}>
+              <Text as="span" truncate>
+                <UsernameBold>{displayName}</UsernameBold>
+              </Text>
+            </Username>
+            {tagIconSrc && <PowerIcon size="100" iconSrc={tagIconSrc} />}
+          </Box>
           <Time ts={pinnedEvent.getTs()} />
         </Box>
         {renderOptions()}
@@ -185,6 +215,10 @@ function PinnedMessage({ room, eventId, renderContent, onOpen, canPinEvent }: Pi
           replyEventId={pinnedEvent.replyEventId}
           threadRootId={pinnedEvent.threadRootId}
           onClick={handleOpenClick}
+          getPowerLevel={getPowerLevel}
+          getPowerLevelTag={getPowerLevelTag}
+          accessibleTagColors={accessibleTagColors}
+          legacyUsernameColor={legacyUsernameColor}
         />
       )}
       {renderContent(pinnedEvent.getType(), false, pinnedEvent, displayName, getContent)}

@@ -55,6 +55,8 @@ export function MessageSearch({
   const allRooms = useRooms(mx, allRoomsAtom, mDirects);
   const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
   const [urlPreview] = useSetting(settingsAtom, 'urlPreview');
+  const [legacyUsernameColor] = useSetting(settingsAtom, 'legacyUsernameColor');
+
   const searchInputRef = useRef<HTMLInputElement>(null);
   const scrollTopAnchorRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -297,6 +299,7 @@ export function MessageSearch({
                     mediaAutoLoad={mediaAutoLoad}
                     urlPreview={urlPreview}
                     onOpen={navigateRoom}
+                    legacyUsernameColor={legacyUsernameColor || mDirects.has(groupRoom.roomId)}
                   />
                 </VirtualTile>
               );

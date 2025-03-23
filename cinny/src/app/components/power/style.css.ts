@@ -3,13 +3,30 @@ import { recipe, RecipeVariants } from '@vanilla-extract/recipes';
 import { color, config, DefaultReset, toRem } from 'folds';
 
 export const PowerColorBadge = style({
-  display: 'inline-block',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
   flexShrink: 0,
   width: toRem(16),
   height: toRem(16),
-  backgroundColor: color.Surface.OnContainer,
   borderRadius: config.radii.Pill,
-  border: `${config.borderWidth.B300} solid ${color.Surface.ContainerLine}`,
+  border: `${config.borderWidth.B300} solid ${color.Secondary.ContainerLine}`,
+  position: 'relative',
+});
+
+export const PowerColorBadgeNone = style({
+  selectors: {
+    '&::before': {
+      content: '',
+      display: 'inline-block',
+      width: '100%',
+      height: config.borderWidth.B300,
+      backgroundColor: color.Critical.Main,
+
+      position: 'absolute',
+      transform: `rotateZ(-45deg)`,
+    },
+  },
 });
 
 const PowerIconSize = createVar();

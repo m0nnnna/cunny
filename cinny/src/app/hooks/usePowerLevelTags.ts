@@ -4,6 +4,8 @@ import { IPowerLevels } from './usePowerLevels';
 import { useStateEvent } from './useStateEvent';
 import { StateEvent } from '../../types/matrix/room';
 import { IImageInfo } from '../../types/matrix/common';
+import { ThemeKind } from './useTheme';
+import { accessibleColor } from '../plugins/color';
 
 export type PowerLevelTagIcon = {
   key?: string;
@@ -63,7 +65,7 @@ const DEFAULT_TAGS: PowerLevelTags = {
   },
   100: {
     name: 'Admin',
-    color: '#a000e4',
+    color: '#0088ff',
   },
   50: {
     name: 'Moderator',
@@ -71,9 +73,11 @@ const DEFAULT_TAGS: PowerLevelTags = {
   },
   0: {
     name: 'Member',
+    color: '#91cfdf',
   },
   [-1]: {
     name: 'Muted',
+    color: '#888888',
   },
 };
 
@@ -152,3 +156,24 @@ export const getTagIconSrc = (
   icon?.key?.startsWith('mxc://')
     ? mx.mxcUrlToHttp(icon.key, 96, 96, 'scale', undefined, undefined, useAuthentication) ?? '🌻'
     : icon?.key;
+
+export const useAccessibleTagColors = (
+  themeKind: ThemeKind,
+  powerLevelTags: PowerLevelTags
+): Map<string, string> => {
+  const accessibleColors: Map<string, string> = useMemo(() => {
+    const colors: Map<string, string> = new Map();
+
+    getPowers(powerLevelTags).forEach((power) => {
+      const tag = powerLevelTags[power];
+      const { color } = tag;
+      if (!color) return;
+
+      colors.set(color, accessibleColor(themeKind, color));
+    });
+
+    return colors;
+  }, [powerLevelTags, themeKind]);
+
+  return accessibleColors;
+};

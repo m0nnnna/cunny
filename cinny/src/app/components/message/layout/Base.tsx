@@ -24,6 +24,10 @@ export const Username = as<'span'>(({ as: AsUsername = 'span', className, ...pro
   <AsUsername className={classNames(css.Username, className)} {...props} ref={ref} />
 ));
 
+export const UsernameBold = as<'b'>(({ as: AsUsernameBold = 'b', className, ...props }, ref) => (
+  <AsUsernameBold className={classNames(css.UsernameBold, className)} {...props} ref={ref} />
+));
+
 export const MessageTextBody = as<'div', css.MessageTextBodyVariants & { notice?: boolean }>(
   ({ as: asComp = 'div', className, preWrap, jumboEmoji, emote, notice, ...props }, ref) => (
     <Text

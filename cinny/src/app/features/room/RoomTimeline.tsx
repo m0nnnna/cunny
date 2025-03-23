@@ -118,6 +118,8 @@ import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
 import { useIgnoredUsers } from '../../hooks/useIgnoredUsers';
 import { useImagePackRooms } from '../../hooks/useImagePackRooms';
+import { GetPowerLevelTag } from '../../hooks/usePowerLevelTags';
+import { useIsDirectRoom } from '../../hooks/useRoom';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
   ({ position, className, ...props }, ref) => (
@@ -220,6 +222,8 @@ type RoomTimelineProps = {
   eventId?: string;
   roomInputRef: RefObject<HTMLElement>;
   editor: Editor;
+  getPowerLevelTag: GetPowerLevelTag;
+  accessibleTagColors: Map<string, string>;
 };
 
 const PAGINATION_LIMIT = 80;
@@ -422,12 +426,21 @@ const getRoomUnreadInfo = (room: Room, scrollTo = false) => {
   };
 };
 
-export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimelineProps) {
+export function RoomTimeline({
+  room,
+  eventId,
+  roomInputRef,
+  editor,
+  getPowerLevelTag,
+  accessibleTagColors,
+}: RoomTimelineProps) {
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const [hideActivity] = useSetting(settingsAtom, 'hideActivity');
   const [messageLayout] = useSetting(settingsAtom, 'messageLayout');
   const [messageSpacing] = useSetting(settingsAtom, 'messageSpacing');
+  const [legacyUsernameColor] = useSetting(settingsAtom, 'legacyUsernameColor');
+  const direct = useIsDirectRoom();
   const [hideMembershipEvents] = useSetting(settingsAtom, 'hideMembershipEvents');
   const [hideNickAvatarEvents] = useSetting(settingsAtom, 'hideNickAvatarEvents');
   const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
@@ -443,11 +456,13 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
   const powerLevels = usePowerLevelsContext();
   const { canDoAction, canSendEvent, canSendStateEvent, getPowerLevel } =
     usePowerLevelsAPI(powerLevels);
+
   const myPowerLevel = getPowerLevel(mx.getUserId() ?? '');
   const canRedact = canDoAction('redact', myPowerLevel);
   const canSendReaction = canSendEvent(MessageEvent.Reaction, myPowerLevel);
   const canPinEvent = canSendStateEvent(StateEvent.RoomPinnedEvents, myPowerLevel);
   const [editId, setEditId] = useState<string>();
+
   const roomToParents = useAtomValue(roomToParentsAtom);
   const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
   const { navigateRoom } = useRoomNavigate();
@@ -996,6 +1011,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
           editedEvent?.getContent()['m.new_content'] ?? mEvent.getContent()) as GetContentCallback;
 
         const senderId = mEvent.getSender() ?? '';
+        const senderPowerLevel = getPowerLevel(mEvent.getSender());
         const senderDisplayName =
           getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
 
@@ -1029,6 +1045,10 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                   replyEventId={replyEventId}
                   threadRootId={threadRootId}
                   onClick={handleOpenReply}
+                  getPowerLevel={getPowerLevel}
+                  getPowerLevelTag={getPowerLevelTag}
+                  accessibleTagColors={accessibleTagColors}
+                  legacyUsernameColor={legacyUsernameColor || direct}
                 />
               )
             }
@@ -1045,6 +1065,9 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
               )
             }
             hideReadReceipts={hideActivity}
+            powerLevelTag={getPowerLevelTag(senderPowerLevel)}
+            accessibleTagColors={accessibleTagColors}
+            legacyUsernameColor={legacyUsernameColor || direct}
           >
             {mEvent.isRedacted() ? (
               <RedactedContent reason={mEvent.getUnsigned().redacted_because?.content.reason} />
@@ -1071,6 +1094,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
         const hasReactions = reactions && reactions.length > 0;
         const { replyEventId, threadRootId } = mEvent;
         const highlighted = focusItem?.index === item && focusItem.highlight;
+        const senderPowerLevel = getPowerLevel(mEvent.getSender());
 
         return (
           <Message
@@ -1102,6 +1126,10 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                   replyEventId={replyEventId}
                   threadRootId={threadRootId}
                   onClick={handleOpenReply}
+                  getPowerLevel={getPowerLevel}
+                  getPowerLevelTag={getPowerLevelTag}
+                  accessibleTagColors={accessibleTagColors}
+                  legacyUsernameColor={legacyUsernameColor || direct}
                 />
               )
             }
@@ -1118,6 +1146,9 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
               )
             }
             hideReadReceipts={hideActivity}
+            powerLevelTag={getPowerLevelTag(senderPowerLevel)}
+            accessibleTagColors={accessibleTagColors}
+            legacyUsernameColor={legacyUsernameColor || direct}
           >
             <EncryptedContent mEvent={mEvent}>
               {() => {
@@ -1181,6 +1212,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
         const reactions = reactionRelations && reactionRelations.getSortedAnnotationsByKey();
         const hasReactions = reactions && reactions.length > 0;
         const highlighted = focusItem?.index === item && focusItem.highlight;
+        const senderPowerLevel = getPowerLevel(mEvent.getSender());
 
         return (
           <Message
@@ -1215,6 +1247,9 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
               )
             }
             hideReadReceipts={hideActivity}
+            powerLevelTag={getPowerLevelTag(senderPowerLevel)}
+            accessibleTagColors={accessibleTagColors}
+            legacyUsernameColor={legacyUsernameColor || direct}
           >
             {mEvent.isRedacted() ? (
               <RedactedContent reason={mEvent.getUnsigned().redacted_because?.content.reason} />

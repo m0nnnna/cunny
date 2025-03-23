@@ -109,7 +109,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
           return null;
         }}
         element={
-          <>
+          <AuthRouteThemeManager>
             <ClientRoot>
               <ClientInitStorageAtom>
                 <ClientRoomsNotificationPreferences>
@@ -132,8 +132,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                 </ClientRoomsNotificationPreferences>
               </ClientInitStorageAtom>
             </ClientRoot>
-            <AuthRouteThemeManager />
-          </>
+          </AuthRouteThemeManager>
         }
       >
         <Route

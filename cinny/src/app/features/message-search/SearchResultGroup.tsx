@@ -25,6 +25,7 @@ import {
   Reply,
   Time,
   Username,
+  UsernameBold,
 } from '../../components/message';
 import { RenderMessageContent } from '../../components/RenderMessageContent';
 import { Image } from '../../components/media';
@@ -32,13 +33,21 @@ import { ImageViewer } from '../../components/image-viewer';
 import * as customHtmlCss from '../../styles/CustomHtml.css';
 import { RoomAvatar, RoomIcon } from '../../components/room-avatar';
 import { getMemberAvatarMxc, getMemberDisplayName, getRoomAvatarUrl } from '../../utils/room';
-import colorMXID from '../../../util/colorMXID';
 import { ResultItem } from './useMessageSearch';
 import { SequenceCard } from '../../components/sequence-card';
 import { UserAvatar } from '../../components/user-avatar';
 import { useMentionClickHandler } from '../../hooks/useMentionClickHandler';
 import { useSpoilerClickHandler } from '../../hooks/useSpoilerClickHandler';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { usePowerLevels, usePowerLevelsAPI } from '../../hooks/usePowerLevels';
+import {
+  getTagIconSrc,
+  useAccessibleTagColors,
+  usePowerLevelTags,
+} from '../../hooks/usePowerLevelTags';
+import { useTheme } from '../../hooks/useTheme';
+import { PowerIcon } from '../../components/power';
+import colorMXID from '../../../util/colorMXID';
 
 type SearchResultGroupProps = {
   room: Room;
@@ -47,6 +56,7 @@ type SearchResultGroupProps = {
   mediaAutoLoad?: boolean;
   urlPreview?: boolean;
   onOpen: (roomId: string, eventId: string) => void;
+  legacyUsernameColor?: boolean;
 };
 export function SearchResultGroup({
   room,
@@ -55,10 +65,17 @@ export function SearchResultGroup({
   mediaAutoLoad,
   urlPreview,
   onOpen,
+  legacyUsernameColor,
 }: SearchResultGroupProps) {
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const highlightRegex = useMemo(() => makeHighlightRegex(highlights), [highlights]);
+
+  const powerLevels = usePowerLevels(room);
+  const { getPowerLevel } = usePowerLevelsAPI(powerLevels);
+  const [powerLevelTags, getPowerLevelTag] = usePowerLevelTags(room, powerLevels);
+  const theme = useTheme();
+  const accessibleTagColors = useAccessibleTagColors(theme.kind, powerLevelTags);
 
   const mentionClickHandler = useMentionClickHandler(room.roomId);
   const spoilerClickHandler = useSpoilerClickHandler();
@@ -81,7 +98,15 @@ export function SearchResultGroup({
         handleSpoilerClick: spoilerClickHandler,
         handleMentionClick: mentionClickHandler,
       }),
-    [mx, room, linkifyOpts, highlightRegex, mentionClickHandler, spoilerClickHandler, useAuthentication]
+    [
+      mx,
+      room,
+      linkifyOpts,
+      highlightRegex,
+      mentionClickHandler,
+      spoilerClickHandler,
+      useAuthentication,
+    ]
   );
 
   const renderMatrixEvent = useMatrixEventRenderer<[IEventWithRoomId, string, GetContentCallback]>(
@@ -197,6 +222,17 @@ export function SearchResultGroup({
           const threadRootId =
             relation?.rel_type === RelationType.Thread ? relation.event_id : undefined;
 
+          const senderPowerLevel = getPowerLevel(event.sender);
+          const powerLevelTag = getPowerLevelTag(senderPowerLevel);
+          const tagColor = powerLevelTag?.color
+            ? accessibleTagColors?.get(powerLevelTag.color)
+            : undefined;
+          const tagIconSrc = powerLevelTag?.icon
+            ? getTagIconSrc(mx, useAuthentication, powerLevelTag.icon)
+            : undefined;
+
+          const usernameColor = legacyUsernameColor ? colorMXID(event.sender) : tagColor;
+
           return (
             <SequenceCard
               key={event.event_id}
@@ -212,7 +248,14 @@ export function SearchResultGroup({
                         userId={event.sender}
                         src={
                           senderAvatarMxc
-                            ? mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined
+                            ? mxcUrlToHttp(
+                                mx,
+                                senderAvatarMxc,
+                                useAuthentication,
+                                48,
+                                48,
+                                'crop'
+                              ) ?? undefined
                             : undefined
                         }
                         alt={displayName}
@@ -224,11 +267,14 @@ export function SearchResultGroup({
               >
                 <Box gap="300" justifyContent="SpaceBetween" alignItems="Center" grow="Yes">
                   <Box gap="200" alignItems="Baseline">
-                    <Username style={{ color: colorMXID(event.sender) }}>
-                      <Text as="span" truncate>
-                        <b>{displayName}</b>
-                      </Text>
-                    </Username>
+                    <Box alignItems="Center" gap="200">
+                      <Username style={{ color: usernameColor }}>
+                        <Text as="span" truncate>
+                          <UsernameBold>{displayName}</UsernameBold>
+                        </Text>
+                      </Username>
+                      {tagIconSrc && <PowerIcon size="100" iconSrc={tagIconSrc} />}
+                    </Box>
                     <Time ts={event.origin_server_ts} />
                   </Box>
                   <Box shrink="No" gap="200" alignItems="Center">
@@ -244,11 +290,14 @@ export function SearchResultGroup({
                 </Box>
                 {replyEventId && (
                   <Reply
-                    mx={mx}
                     room={room}
                     replyEventId={replyEventId}
                     threadRootId={threadRootId}
                     onClick={handleOpenClick}
+                    getPowerLevel={getPowerLevel}
+                    getPowerLevelTag={getPowerLevelTag}
+                    accessibleTagColors={accessibleTagColors}
+                    legacyUsernameColor={legacyUsernameColor}
                   />
                 )}
                 {renderMatrixEvent(event.type, false, event, displayName, getContent)}

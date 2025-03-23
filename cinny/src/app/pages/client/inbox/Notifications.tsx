@@ -53,8 +53,8 @@ import {
   Reply,
   Time,
   Username,
+  UsernameBold,
 } from '../../../components/message';
-import colorMXID from '../../../../util/colorMXID';
 import {
   factoryRenderLinkifyWithMention,
   getReactCustomHtmlParser,
@@ -84,6 +84,16 @@ import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { BackRouteHandler } from '../../../components/BackRouteHandler';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
 import { allRoomsAtom } from '../../../state/room-list/roomList';
+import { usePowerLevels, usePowerLevelsAPI } from '../../../hooks/usePowerLevels';
+import {
+  getTagIconSrc,
+  useAccessibleTagColors,
+  usePowerLevelTags,
+} from '../../../hooks/usePowerLevelTags';
+import { useTheme } from '../../../hooks/useTheme';
+import { PowerIcon } from '../../../components/power';
+import colorMXID from '../../../../util/colorMXID';
+import { mDirectAtom } from '../../../state/mDirectList';
 
 type RoomNotificationsGroup = {
   roomId: string;
@@ -194,6 +204,7 @@ type RoomNotificationsGroupProps = {
   urlPreview?: boolean;
   hideActivity: boolean;
   onOpen: (roomId: string, eventId: string) => void;
+  legacyUsernameColor?: boolean;
 };
 function RoomNotificationsGroupComp({
   room,
@@ -202,10 +213,18 @@ function RoomNotificationsGroupComp({
   urlPreview,
   hideActivity,
   onOpen,
+  legacyUsernameColor,
 }: RoomNotificationsGroupProps) {
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
+
+  const powerLevels = usePowerLevels(room);
+  const { getPowerLevel } = usePowerLevelsAPI(powerLevels);
+  const [powerLevelTags, getPowerLevelTag] = usePowerLevelTags(room, powerLevels);
+  const theme = useTheme();
+  const accessibleTagColors = useAccessibleTagColors(theme.kind, powerLevelTags);
+
   const mentionClickHandler = useMentionClickHandler(room.roomId);
   const spoilerClickHandler = useSpoilerClickHandler();
 
@@ -424,6 +443,17 @@ function RoomNotificationsGroupComp({
           const threadRootId =
             relation?.rel_type === RelationType.Thread ? relation.event_id : undefined;
 
+          const senderPowerLevel = getPowerLevel(event.sender);
+          const powerLevelTag = getPowerLevelTag(senderPowerLevel);
+          const tagColor = powerLevelTag?.color
+            ? accessibleTagColors?.get(powerLevelTag.color)
+            : undefined;
+          const tagIconSrc = powerLevelTag?.icon
+            ? getTagIconSrc(mx, useAuthentication, powerLevelTag.icon)
+            : undefined;
+
+          const usernameColor = legacyUsernameColor ? colorMXID(event.sender) : tagColor;
+
           return (
             <SequenceCard
               key={notification.event.event_id}
@@ -458,11 +488,14 @@ function RoomNotificationsGroupComp({
               >
                 <Box gap="300" justifyContent="SpaceBetween" alignItems="Center" grow="Yes">
                   <Box gap="200" alignItems="Baseline">
-                    <Username style={{ color: colorMXID(event.sender) }}>
-                      <Text as="span" truncate>
-                        <b>{displayName}</b>
-                      </Text>
-                    </Username>
+                    <Box alignItems="Center" gap="200">
+                      <Username style={{ color: usernameColor }}>
+                        <Text as="span" truncate>
+                          <UsernameBold>{displayName}</UsernameBold>
+                        </Text>
+                      </Username>
+                      {tagIconSrc && <PowerIcon size="100" iconSrc={tagIconSrc} />}
+                    </Box>
                     <Time ts={event.origin_server_ts} />
                   </Box>
                   <Box shrink="No" gap="200" alignItems="Center">
@@ -482,6 +515,10 @@ function RoomNotificationsGroupComp({
                     replyEventId={replyEventId}
                     threadRootId={threadRootId}
                     onClick={handleOpenClick}
+                    getPowerLevel={getPowerLevel}
+                    getPowerLevelTag={getPowerLevelTag}
+                    accessibleTagColors={accessibleTagColors}
+                    legacyUsernameColor={legacyUsernameColor}
                   />
                 )}
                 {renderMatrixEvent(event.type, false, event, displayName, getContent)}
@@ -511,7 +548,9 @@ export function Notifications() {
   const [hideActivity] = useSetting(settingsAtom, 'hideActivity');
   const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
   const [urlPreview] = useSetting(settingsAtom, 'urlPreview');
+  const [legacyUsernameColor] = useSetting(settingsAtom, 'legacyUsernameColor');
   const screenSize = useScreenSizeContext();
+  const mDirects = useAtomValue(mDirectAtom);
 
   const { navigateRoom } = useRoomNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -671,6 +710,9 @@ export function Notifications() {
                           urlPreview={urlPreview}
                           hideActivity={hideActivity}
                           onOpen={navigateRoom}
+                          legacyUsernameColor={
+                            legacyUsernameColor || mDirects.has(groupRoom.roomId)
+                          }
                         />
                       </VirtualTile>
                     );

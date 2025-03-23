@@ -1,8 +1,13 @@
-import { useEffect } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { configClass, varsClass } from 'folds';
-import { DarkTheme, LightTheme, ThemeKind, useSystemThemeKind, useThemes } from '../hooks/useTheme';
-import { useSetting } from '../state/hooks/settings';
-import { settingsAtom } from '../state/settings';
+import {
+  DarkTheme,
+  LightTheme,
+  ThemeContextProvider,
+  ThemeKind,
+  useActiveTheme,
+  useSystemThemeKind,
+} from '../hooks/useTheme';
 
 export function UnAuthRouteThemeManager() {
   const systemThemeKind = useSystemThemeKind();
@@ -21,38 +26,15 @@ export function UnAuthRouteThemeManager() {
   return null;
 }
 
-export function AuthRouteThemeManager() {
-  const systemThemeKind = useSystemThemeKind();
-  const themes = useThemes();
-  const [systemTheme] = useSetting(settingsAtom, 'useSystemTheme');
-  const [themeId] = useSetting(settingsAtom, 'themeId');
-  const [lightThemeId] = useSetting(settingsAtom, 'lightThemeId');
-  const [darkThemeId] = useSetting(settingsAtom, 'darkThemeId');
+export function AuthRouteThemeManager({ children }: { children: ReactNode }) {
+  const activeTheme = useActiveTheme();
 
-  // apply normal theme if system theme is disabled
   useEffect(() => {
-    if (!systemTheme) {
-      document.body.className = '';
-      document.body.classList.add(configClass, varsClass);
-      const selectedTheme = themes.find((theme) => theme.id === themeId) ?? LightTheme;
+    document.body.className = '';
+    document.body.classList.add(configClass, varsClass);
 
-      document.body.classList.add(...selectedTheme.classNames);
-    }
-  }, [systemTheme, themes, themeId]);
+    document.body.classList.add(...activeTheme.classNames);
+  }, [activeTheme]);
 
-  // apply preferred system theme if system theme is enabled
-  useEffect(() => {
-    if (systemTheme) {
-      document.body.className = '';
-      document.body.classList.add(configClass, varsClass);
-      const selectedTheme =
-        systemThemeKind === ThemeKind.Dark
-          ? themes.find((theme) => theme.id === darkThemeId) ?? DarkTheme
-          : themes.find((theme) => theme.id === lightThemeId) ?? LightTheme;
-
-      document.body.classList.add(...selectedTheme.classNames);
-    }
-  }, [systemTheme, systemThemeKind, themes, lightThemeId, darkThemeId]);
-
-  return null;
+  return <ThemeContextProvider value={activeTheme}>{children}</ThemeContextProvider>;
 }

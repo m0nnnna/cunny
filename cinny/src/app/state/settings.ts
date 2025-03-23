@@ -30,6 +30,7 @@ export interface Settings {
   urlPreview: boolean;
   encUrlPreview: boolean;
   showHiddenEvents: boolean;
+  legacyUsernameColor: boolean;
 
   showNotifications: boolean;
   isNotificationSounds: boolean;
@@ -59,6 +60,7 @@ const defaultSettings: Settings = {
   urlPreview: true,
   encUrlPreview: false,
   showHiddenEvents: false,
+  legacyUsernameColor: false,
 
   showNotifications: true,
   isNotificationSounds: true,

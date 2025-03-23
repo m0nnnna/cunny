@@ -9,7 +9,7 @@ type PowerColorBadgeProps = {
 export const PowerColorBadge = as<'span', PowerColorBadgeProps>(
   ({ as: AsPowerColorBadge = 'span', color, className, style, ...props }, ref) => (
     <AsPowerColorBadge
-      className={classNames(css.PowerColorBadge, className)}
+      className={classNames(css.PowerColorBadge, { [css.PowerColorBadgeNone]: !color }, className)}
       style={{
         backgroundColor: color,
         ...style,

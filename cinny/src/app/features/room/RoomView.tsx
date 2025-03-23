@@ -21,6 +21,8 @@ import { editableActiveElement } from '../../utils/dom';
 import navigation from '../../../client/state/navigation';
 import { settingsAtom } from '../../state/settings';
 import { useSetting } from '../../state/hooks/settings';
+import { useAccessibleTagColors, usePowerLevelTags } from '../../hooks/usePowerLevelTags';
+import { useTheme } from '../../hooks/useTheme';
 
 const FN_KEYS_REGEX = /^F\d+$/;
 const shouldFocusMessageField = (evt: KeyboardEvent): boolean => {
@@ -74,6 +76,10 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
     ? canSendEvent(EventType.RoomMessage, getPowerLevel(myUserId))
     : false;
 
+  const [powerLevelTags, getPowerLevelTag] = usePowerLevelTags(room, powerLevels);
+  const theme = useTheme();
+  const accessibleTagColors = useAccessibleTagColors(theme.kind, powerLevelTags);
+
   useKeyDown(
     window,
     useCallback(
@@ -103,6 +109,8 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
           eventId={eventId}
           roomInputRef={roomInputRef}
           editor={editor}
+          getPowerLevelTag={getPowerLevelTag}
+          accessibleTagColors={accessibleTagColors}
         />
         <RoomViewTyping room={room} />
       </Box>
@@ -123,6 +131,8 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
                   roomId={roomId}
                   fileDropContainerRef={roomViewRef}
                   ref={roomInputRef}
+                  getPowerLevelTag={getPowerLevelTag}
+                  accessibleTagColors={accessibleTagColors}
                 />
               )}
               {!canMessage && (

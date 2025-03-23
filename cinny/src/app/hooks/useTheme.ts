@@ -1,7 +1,9 @@
 import { lightTheme } from 'folds';
-import { useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { onDarkFontWeight, onLightFontWeight } from '../../config.css';
 import { butterTheme, darkTheme, silverTheme } from '../../colors.css';
+import { settingsAtom } from '../state/settings';
+import { useSetting } from '../state/hooks/settings';
 
 export enum ThemeKind {
   Light = 'light',
@@ -71,4 +73,38 @@ export const useSystemThemeKind = (): ThemeKind => {
   }, [darkModeQueryList, setThemeKind]);
 
   return themeKind;
+};
+
+export const useActiveTheme = (): Theme => {
+  const systemThemeKind = useSystemThemeKind();
+  const themes = useThemes();
+  const [systemTheme] = useSetting(settingsAtom, 'useSystemTheme');
+  const [themeId] = useSetting(settingsAtom, 'themeId');
+  const [lightThemeId] = useSetting(settingsAtom, 'lightThemeId');
+  const [darkThemeId] = useSetting(settingsAtom, 'darkThemeId');
+
+  if (!systemTheme) {
+    const selectedTheme = themes.find((theme) => theme.id === themeId) ?? LightTheme;
+
+    return selectedTheme;
+  }
+
+  const selectedTheme =
+    systemThemeKind === ThemeKind.Dark
+      ? themes.find((theme) => theme.id === darkThemeId) ?? DarkTheme
+      : themes.find((theme) => theme.id === lightThemeId) ?? LightTheme;
+
+  return selectedTheme;
+};
+
+const ThemeContext = createContext<Theme | null>(null);
+export const ThemeContextProvider = ThemeContext.Provider;
+
+export const useTheme = (): Theme => {
+  const theme = useContext(ThemeContext);
+  if (!theme) {
+    throw new Error('No theme provided!');
+  }
+
+  return theme;
 };

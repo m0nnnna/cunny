@@ -514,6 +514,10 @@ function SelectMessageSpacing() {
 }
 
 function Messages() {
+  const [legacyUsernameColor, setLegacyUsernameColor] = useSetting(
+    settingsAtom,
+    'legacyUsernameColor'
+  );
   const [hideMembershipEvents, setHideMembershipEvents] = useSetting(
     settingsAtom,
     'hideMembershipEvents'
@@ -535,6 +539,18 @@ function Messages() {
       </SequenceCard>
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
         <SettingTile title="Message Spacing" after={<SelectMessageSpacing />} />
+      </SequenceCard>
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+        <SettingTile
+          title="Legacy Username Color"
+          after={
+            <Switch
+              variant="Primary"
+              value={legacyUsernameColor}
+              onChange={setLegacyUsernameColor}
+            />
+          }
+        />
       </SequenceCard>
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
         <SettingTile
