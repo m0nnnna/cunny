@@ -102,8 +102,9 @@ export function getIdServer(userId) {
 
 export async function hasDevices(mx, userId) {
   try {
-    const usersDeviceMap = await mx.getUserDeviceInfo([userId, mx.getUserId()]);
-    return Object.values(usersDeviceMap)
+    const usersDeviceMap = await mx.getCrypto()?.getUserDeviceInfo([userId, mx.getUserId()], true);
+
+    return Array.from(usersDeviceMap.values())
       .every((deviceIdToDevices) => deviceIdToDevices.size > 0);
   } catch (e) {
     console.error("Error determining if it's possible to encrypt to all users: ", e);
