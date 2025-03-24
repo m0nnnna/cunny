@@ -241,7 +241,7 @@ function ProfileDisplayName({ profile, userId }: ProfileProps) {
   const disableSetDisplayname = capabilities['m.set_displayname']?.enabled === false;
 
   const defaultDisplayName = profile.displayName ?? getMxIdLocalPart(userId) ?? userId;
-  const [displayName, setDisplayName] = useState<string>();
+  const [displayName, setDisplayName] = useState<string>(defaultDisplayName);
 
   const [changeState, changeDisplayName] = useAsyncCallback(
     useCallback((name: string) => mx.setDisplayName(name), [mx])
