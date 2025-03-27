@@ -7,9 +7,10 @@ import {
   JoinRulesSwitcher,
   useRoomJoinRuleIcon,
   useRoomJoinRuleLabel,
+  useSpaceJoinRuleIcon,
 } from '../../../components/JoinRulesSwitcher';
 import { SequenceCard } from '../../../components/sequence-card';
-import { SequenceCardStyle } from '../styles.css';
+import { SequenceCardStyle } from '../../room-settings/styles.css';
 import { SettingTile } from '../../../components/setting-tile';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { useRoom } from '../../../hooks/useRoom';
@@ -60,6 +61,7 @@ export function RoomJoinRules({ powerLevels }: RoomJoinRulesProps) {
   }, [allowRestricted, allowKnock, space]);
 
   const icons = useRoomJoinRuleIcon();
+  const spaceIcons = useSpaceJoinRuleIcon();
   const labels = useRoomJoinRuleLabel();
 
   const [submitState, submit] = useAsyncCallback(
@@ -99,11 +101,15 @@ export function RoomJoinRules({ powerLevels }: RoomJoinRulesProps) {
       gap="400"
     >
       <SettingTile
-        title="Room Access"
-        description="Change how people can join the room."
+        title={room.isSpaceRoom() ? 'Space Access' : 'Room Access'}
+        description={
+          room.isSpaceRoom()
+            ? 'Change how people can join the space.'
+            : 'Change how people can join the room.'
+        }
         after={
           <JoinRulesSwitcher
-            icons={icons}
+            icons={room.isSpaceRoom() ? spaceIcons : icons}
             labels={labels}
             rules={joinRules}
             value={rule}

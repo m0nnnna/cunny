@@ -17,7 +17,7 @@ import Linkify from 'linkify-react';
 import classNames from 'classnames';
 import { JoinRule, MatrixError } from 'matrix-js-sdk';
 import { SequenceCard } from '../../../components/sequence-card';
-import { SequenceCardStyle } from '../styles.css';
+import { SequenceCardStyle } from '../../room-settings/styles.css';
 import { useRoom } from '../../../hooks/useRoom';
 import {
   useRoomAvatar,
@@ -198,7 +198,12 @@ export function RoomProfileEdit({
               src={avatarUrl}
               alt={name}
               renderFallback={() => (
-                <RoomIcon size="400" joinRule={joinRule?.join_rule ?? JoinRule.Invite} filled />
+                <RoomIcon
+                  space={room.isSpaceRoom()}
+                  size="400"
+                  joinRule={joinRule?.join_rule ?? JoinRule.Invite}
+                  filled
+                />
               )}
             />
           </Avatar>
@@ -338,7 +343,12 @@ export function RoomProfile({ powerLevels }: RoomProfileProps) {
                   src={avatarUrl}
                   alt={name}
                   renderFallback={() => (
-                    <RoomIcon size="400" joinRule={joinRule?.join_rule ?? JoinRule.Invite} filled />
+                    <RoomIcon
+                      space={room.isSpaceRoom()}
+                      size="400"
+                      joinRule={joinRule?.join_rule ?? JoinRule.Invite}
+                      filled
+                    />
                   )}
                 />
               </Avatar>

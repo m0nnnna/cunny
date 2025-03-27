@@ -82,7 +82,7 @@ import { useRoomsUnread } from '../../../state/hooks/unread';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import { markAsRead } from '../../../../client/action/notifications';
 import { copyToClipboard } from '../../../utils/dom';
-import { openInviteUser, openSpaceSettings } from '../../../../client/action/navigation';
+import { openInviteUser } from '../../../../client/action/navigation';
 import { stopPropagation } from '../../../utils/keyboard';
 import { getMatrixToRoom } from '../../../plugins/matrix-to';
 import { getViaServers } from '../../../plugins/via-servers';
@@ -90,6 +90,7 @@ import { getRoomAvatarUrl } from '../../../utils/room';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
 import { useSetting } from '../../../state/hooks/settings';
 import { settingsAtom } from '../../../state/settings';
+import { useOpenSpaceSettings } from '../../../state/hooks/spaceSettings';
 
 type SpaceMenuProps = {
   room: Room;
@@ -104,6 +105,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(
     const powerLevels = usePowerLevels(room);
     const { getPowerLevel, canDoAction } = usePowerLevelsAPI(powerLevels);
     const canInvite = canDoAction('invite', getPowerLevel(mx.getUserId() ?? ''));
+    const openSpaceSettings = useOpenSpaceSettings();
 
     const allChild = useSpaceChildren(
       allRoomsAtom,

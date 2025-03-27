@@ -1,47 +1,22 @@
 import { useMemo } from 'react';
-import { MessageEvent, StateEvent } from '../../../../types/matrix/room';
+import { StateEvent } from '../../../../types/matrix/room';
 import { PermissionGroup } from '../../common-settings/permissions';
 
 export const usePermissionGroups = (): PermissionGroup[] => {
   const groups: PermissionGroup[] = useMemo(() => {
     const messagesGroup: PermissionGroup = {
-      name: 'Messages',
+      name: 'Manage',
       items: [
         {
           location: {
-            key: MessageEvent.RoomMessage,
-          },
-          name: 'Send Messages',
-        },
-        {
-          location: {
-            key: MessageEvent.Sticker,
-          },
-          name: 'Send Stickers',
-        },
-        {
-          location: {
-            key: MessageEvent.Reaction,
-          },
-          name: 'Send Reactions',
-        },
-        {
-          location: {
-            notification: true,
-            key: 'room',
-          },
-          name: 'Ping @room',
-        },
-        {
-          location: {
             state: true,
-            key: StateEvent.RoomPinnedEvents,
+            key: StateEvent.SpaceChild,
           },
-          name: 'Pin Messages',
+          name: 'Manage space rooms',
         },
         {
           location: {},
-          name: 'Other Message Events',
+          name: 'Message Events',
         },
       ],
     };
@@ -70,45 +45,32 @@ export const usePermissionGroups = (): PermissionGroup[] => {
           },
           name: 'Ban',
         },
-        {
-          location: {
-            action: true,
-            key: 'redact',
-          },
-          name: 'Delete Others Messages',
-        },
-        {
-          location: {
-            key: MessageEvent.RoomRedaction,
-          },
-          name: 'Delete Self Messages',
-        },
       ],
     };
 
     const roomOverviewGroup: PermissionGroup = {
-      name: 'Room Overview',
+      name: 'Space Overview',
       items: [
         {
           location: {
             state: true,
             key: StateEvent.RoomAvatar,
           },
-          name: 'Room Avatar',
+          name: 'Space Avatar',
         },
         {
           location: {
             state: true,
             key: StateEvent.RoomName,
           },
-          name: 'Room Name',
+          name: 'Space Name',
         },
         {
           location: {
             state: true,
             key: StateEvent.RoomTopic,
           },
-          name: 'Room Topic',
+          name: 'Space Topic',
         },
       ],
     };
@@ -121,7 +83,7 @@ export const usePermissionGroups = (): PermissionGroup[] => {
             state: true,
             key: StateEvent.RoomJoinRules,
           },
-          name: 'Change Room Access',
+          name: 'Change Space Access',
         },
         {
           location: {
@@ -147,23 +109,9 @@ export const usePermissionGroups = (): PermissionGroup[] => {
         {
           location: {
             state: true,
-            key: StateEvent.RoomEncryption,
-          },
-          name: 'Enable Encryption',
-        },
-        {
-          location: {
-            state: true,
-            key: StateEvent.RoomHistoryVisibility,
-          },
-          name: 'History Visibility',
-        },
-        {
-          location: {
-            state: true,
             key: StateEvent.RoomTombstone,
           },
-          name: 'Upgrade Room',
+          name: 'Upgrade Space',
         },
         {
           location: {
@@ -183,13 +131,6 @@ export const usePermissionGroups = (): PermissionGroup[] => {
             key: StateEvent.RoomServerAcl,
           },
           name: 'Change Server ACLs',
-        },
-        {
-          location: {
-            state: true,
-            key: 'im.vector.modular.widgets',
-          },
-          name: 'Modify Widgets',
         },
       ],
     };

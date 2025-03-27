@@ -54,7 +54,7 @@ import { useSpaceJoinedHierarchy } from '../../../hooks/useSpaceHierarchy';
 import { allRoomsAtom } from '../../../state/room-list/roomList';
 import { PageNav, PageNavContent, PageNavHeader } from '../../../components/page';
 import { usePowerLevels, usePowerLevelsAPI } from '../../../hooks/usePowerLevels';
-import { openInviteUser, openSpaceSettings } from '../../../../client/action/navigation';
+import { openInviteUser } from '../../../../client/action/navigation';
 import { useRecursiveChildScopeFactory, useSpaceChildren } from '../../../state/hooks/roomList';
 import { roomToParentsAtom } from '../../../state/room/roomToParents';
 import { markAsRead } from '../../../../client/action/notifications';
@@ -74,6 +74,7 @@ import {
   getRoomNotificationMode,
   useRoomsNotificationPreferencesContext,
 } from '../../../hooks/useRoomsNotificationPreferences';
+import { useOpenSpaceSettings } from '../../../state/hooks/spaceSettings';
 
 type SpaceMenuProps = {
   room: Room;
@@ -86,6 +87,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
   const powerLevels = usePowerLevels(room);
   const { getPowerLevel, canDoAction } = usePowerLevelsAPI(powerLevels);
   const canInvite = canDoAction('invite', getPowerLevel(mx.getUserId() ?? ''));
+  const openSpaceSettings = useOpenSpaceSettings();
 
   const allChild = useSpaceChildren(
     allRoomsAtom,

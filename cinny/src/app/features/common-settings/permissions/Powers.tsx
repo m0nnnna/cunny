@@ -24,16 +24,16 @@ import { PowerColorBadge, PowerIcon } from '../../../components/power';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
 import { stopPropagation } from '../../../utils/keyboard';
-import { usePermissionGroups } from './usePermissionItems';
+import { PermissionGroup } from './types';
 
 type PeekPermissionsProps = {
   powerLevels: IPowerLevels;
   power: number;
+  permissionGroups: PermissionGroup[];
   children: (handleOpen: MouseEventHandler<HTMLButtonElement>, opened: boolean) => ReactNode;
 };
-function PeekPermissions({ powerLevels, power, children }: PeekPermissionsProps) {
+function PeekPermissions({ powerLevels, power, permissionGroups, children }: PeekPermissionsProps) {
   const [menuCords, setMenuCords] = useState<RectCords>();
-  const permissionGroups = usePermissionGroups();
 
   const handleOpen: MouseEventHandler<HTMLButtonElement> = (evt) => {
     setMenuCords(evt.currentTarget.getBoundingClientRect());
@@ -101,9 +101,10 @@ function PeekPermissions({ powerLevels, power, children }: PeekPermissionsProps)
 
 type PowersProps = {
   powerLevels: IPowerLevels;
+  permissionGroups: PermissionGroup[];
   onEdit?: () => void;
 };
-export function Powers({ powerLevels, onEdit }: PowersProps) {
+export function Powers({ powerLevels, permissionGroups, onEdit }: PowersProps) {
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const room = useRoom();
@@ -144,7 +145,12 @@ export function Powers({ powerLevels, onEdit }: PowersProps) {
               const tagIconSrc = tag.icon && getTagIconSrc(mx, useAuthentication, tag.icon);
 
               return (
-                <PeekPermissions key={power} powerLevels={powerLevels} power={power}>
+                <PeekPermissions
+                  key={power}
+                  powerLevels={powerLevels}
+                  power={power}
+                  permissionGroups={permissionGroups}
+                >
                   {(openMenu, opened) => (
                     <Chip
                       onClick={openMenu}

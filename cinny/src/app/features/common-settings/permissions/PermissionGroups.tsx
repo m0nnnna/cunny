@@ -12,7 +12,7 @@ import {
   PermissionLocation,
   usePowerLevelsAPI,
 } from '../../../hooks/usePowerLevels';
-import { usePermissionGroups } from './usePermissionItems';
+import { PermissionGroup } from './types';
 import { getPowers, usePowerLevelTags } from '../../../hooks/usePowerLevelTags';
 import { useRoom } from '../../../hooks/useRoom';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
@@ -27,8 +27,9 @@ const USER_DEFAULT_LOCATION: PermissionLocation = {
 
 type PermissionGroupsProps = {
   powerLevels: IPowerLevels;
+  permissionGroups: PermissionGroup[];
 };
-export function PermissionGroups({ powerLevels }: PermissionGroupsProps) {
+export function PermissionGroups({ powerLevels, permissionGroups }: PermissionGroupsProps) {
   const mx = useMatrixClient();
   const room = useRoom();
   const alive = useAlive();
@@ -39,8 +40,6 @@ export function PermissionGroups({ powerLevels }: PermissionGroupsProps) {
   );
   const [powerLevelTags, getPowerLevelTag] = usePowerLevelTags(room, powerLevels);
   const maxPower = useMemo(() => Math.max(...getPowers(powerLevelTags)), [powerLevelTags]);
-
-  const permissionGroups = usePermissionGroups();
 
   const [permissionUpdate, setPermissionUpdate] = useState<Map<PermissionLocation, number>>(
     new Map()

@@ -20,7 +20,7 @@ import FocusTrap from 'focus-trap-react';
 import { MatrixError } from 'matrix-js-sdk';
 import { RoomCreateEventContent, RoomTombstoneEventContent } from 'matrix-js-sdk/lib/types';
 import { SequenceCard } from '../../../components/sequence-card';
-import { SequenceCardStyle } from '../styles.css';
+import { SequenceCardStyle } from '../../room-settings/styles.css';
 import { SettingTile } from '../../../components/setting-tile';
 import { useRoom } from '../../../hooks/useRoom';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
@@ -39,7 +39,7 @@ type RoomUpgradeProps = {
 export function RoomUpgrade({ powerLevels, requestClose }: RoomUpgradeProps) {
   const mx = useMatrixClient();
   const room = useRoom();
-  const { navigateRoom } = useRoomNavigate();
+  const { navigateRoom, navigateSpace } = useRoomNavigate();
   const createContent = useStateEvent(
     room,
     StateEvent.RoomCreate
@@ -66,14 +66,22 @@ export function RoomUpgrade({ powerLevels, requestClose }: RoomUpgradeProps) {
   const handleOpenRoom = () => {
     if (replacementRoom) {
       requestClose();
-      navigateRoom(replacementRoom);
+      if (room.isSpaceRoom()) {
+        navigateSpace(replacementRoom);
+      } else {
+        navigateRoom(replacementRoom);
+      }
     }
   };
 
   const handleOpenOldRoom = () => {
     if (predecessorRoomId) {
       requestClose();
-      navigateRoom(predecessorRoomId, createContent.predecessor?.event_id);
+      if (room.isSpaceRoom()) {
+        navigateSpace(predecessorRoomId);
+      } else {
+        navigateRoom(predecessorRoomId, createContent.predecessor?.event_id);
+      }
     }
   };
 
@@ -110,10 +118,11 @@ export function RoomUpgrade({ powerLevels, requestClose }: RoomUpgradeProps) {
       gap="400"
     >
       <SettingTile
-        title="Upgrade Room"
+        title={room.isSpaceRoom() ? 'Upgrade Space' : 'Upgrade Room'}
         description={
           replacementRoom
-            ? tombstoneContent.body || 'This room has been replaced!'
+            ? tombstoneContent.body ||
+              `This ${room.isSpaceRoom() ? 'space' : 'room'} has been replaced!`
             : `Current room version: ${roomVersion}.`
         }
         after={
@@ -127,7 +136,7 @@ export function RoomUpgrade({ powerLevels, requestClose }: RoomUpgradeProps) {
                 radii="300"
                 onClick={handleOpenOldRoom}
               >
-                <Text size="B300">Old Room</Text>
+                <Text size="B300">{room.isSpaceRoom() ? 'Old Space' : 'Old Room'}</Text>
               </Button>
             )}
             {replacementRoom ? (
@@ -138,7 +147,7 @@ export function RoomUpgrade({ powerLevels, requestClose }: RoomUpgradeProps) {
                 radii="300"
                 onClick={handleOpenRoom}
               >
-                <Text size="B300">Open New Room</Text>
+                <Text size="B300">{room.isSpaceRoom() ? 'Open New Space' : 'Open New Room'}</Text>
               </Button>
             ) : (
               <Button
@@ -183,7 +192,7 @@ export function RoomUpgrade({ powerLevels, requestClose }: RoomUpgradeProps) {
                     size="500"
                   >
                     <Box grow="Yes">
-                      <Text size="H4">Room Upgrade</Text>
+                      <Text size="H4">{room.isSpaceRoom() ? 'Space Upgrade' : 'Room Upgrade'}</Text>
                     </Box>
                     <IconButton size="300" onClick={() => setPrompt(false)} radii="300">
                       <Icon src={Icons.Cross} />
@@ -203,7 +212,9 @@ export function RoomUpgrade({ powerLevels, requestClose }: RoomUpgradeProps) {
                       />
                     </Box>
                     <Button type="submit" variant="Secondary">
-                      <Text size="B400">Upgrade Room</Text>
+                      <Text size="B400">
+                        {room.isSpaceRoom() ? 'Upgrade Space' : 'Upgrade Room'}
+                      </Text>
                     </Button>
                   </Box>
                 </Dialog>

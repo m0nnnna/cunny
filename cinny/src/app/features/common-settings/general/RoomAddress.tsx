@@ -18,7 +18,7 @@ import { MatrixError } from 'matrix-js-sdk';
 import { IPowerLevels, powerLevelAPI } from '../../../hooks/usePowerLevels';
 import { SettingTile } from '../../../components/setting-tile';
 import { SequenceCard } from '../../../components/sequence-card';
-import { SequenceCardStyle } from '../styles.css';
+import { SequenceCardStyle } from '../../room-settings/styles.css';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { useRoom } from '../../../hooks/useRoom';
 import {
@@ -65,7 +65,7 @@ export function RoomPublishedAddresses({ powerLevels }: RoomPublishedAddressesPr
         title="Published Addresses"
         description={
           <span>
-            If room access is <b>Public</b>, Published addresses will be used to join by anyone.
+            If access is <b>Public</b>, Published addresses will be used to join by anyone.
           </span>
         }
       />

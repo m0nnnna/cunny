@@ -10,45 +10,45 @@ import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
 import { useRoomAvatar, useRoomJoinRule, useRoomName } from '../../hooks/useRoomMeta';
 import { mDirectAtom } from '../../state/mDirectList';
 import { RoomAvatar, RoomIcon } from '../../components/room-avatar';
-import { General } from './general';
-import { Members } from '../common-settings/members';
-import { EmojisStickers } from '../common-settings/emojis-stickers';
-import { Permissions } from './permissions';
-import { RoomSettingsPage } from '../../state/roomSettings';
+import { SpaceSettingsPage } from '../../state/spaceSettings';
 import { useRoom } from '../../hooks/useRoom';
+import { EmojisStickers } from '../common-settings/emojis-stickers';
+import { Members } from '../common-settings/members';
 import { DeveloperTools } from '../common-settings/developer-tools';
+import { General } from './general';
+import { Permissions } from './permissions';
 
-type RoomSettingsMenuItem = {
-  page: RoomSettingsPage;
+type SpaceSettingsMenuItem = {
+  page: SpaceSettingsPage;
   name: string;
   icon: IconSrc;
 };
 
-const useRoomSettingsMenuItems = (): RoomSettingsMenuItem[] =>
+const useSpaceSettingsMenuItems = (): SpaceSettingsMenuItem[] =>
   useMemo(
     () => [
       {
-        page: RoomSettingsPage.GeneralPage,
+        page: SpaceSettingsPage.GeneralPage,
         name: 'General',
         icon: Icons.Setting,
       },
       {
-        page: RoomSettingsPage.MembersPage,
+        page: SpaceSettingsPage.MembersPage,
         name: 'Members',
         icon: Icons.User,
       },
       {
-        page: RoomSettingsPage.PermissionsPage,
+        page: SpaceSettingsPage.PermissionsPage,
         name: 'Permissions',
         icon: Icons.Lock,
       },
       {
-        page: RoomSettingsPage.EmojisStickersPage,
+        page: SpaceSettingsPage.EmojisStickersPage,
         name: 'Emojis & Stickers',
         icon: Icons.Smile,
       },
       {
-        page: RoomSettingsPage.DeveloperToolsPage,
+        page: SpaceSettingsPage.DeveloperToolsPage,
         name: 'Developer Tools',
         icon: Icons.Terminal,
       },
@@ -56,11 +56,11 @@ const useRoomSettingsMenuItems = (): RoomSettingsMenuItem[] =>
     []
   );
 
-type RoomSettingsProps = {
-  initialPage?: RoomSettingsPage;
+type SpaceSettingsProps = {
+  initialPage?: SpaceSettingsPage;
   requestClose: () => void;
 };
-export function RoomSettings({ initialPage, requestClose }: RoomSettingsProps) {
+export function SpaceSettings({ initialPage, requestClose }: SpaceSettingsProps) {
   const room = useRoom();
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
@@ -75,11 +75,11 @@ export function RoomSettings({ initialPage, requestClose }: RoomSettingsProps) {
     : undefined;
 
   const screenSize = useScreenSizeContext();
-  const [activePage, setActivePage] = useState<RoomSettingsPage | undefined>(() => {
+  const [activePage, setActivePage] = useState<SpaceSettingsPage | undefined>(() => {
     if (initialPage) return initialPage;
-    return screenSize === ScreenSize.Mobile ? undefined : RoomSettingsPage.GeneralPage;
+    return screenSize === ScreenSize.Mobile ? undefined : SpaceSettingsPage.GeneralPage;
   });
-  const menuItems = useRoomSettingsMenuItems();
+  const menuItems = useSpaceSettingsMenuItems();
 
   const handlePageRequestClose = () => {
     if (screenSize === ScreenSize.Mobile) {
@@ -103,6 +103,7 @@ export function RoomSettings({ initialPage, requestClose }: RoomSettingsProps) {
                     alt={roomName}
                     renderFallback={() => (
                       <RoomIcon
+                        space
                         size="50"
                         joinRule={joinRuleContent?.join_rule ?? JoinRule.Invite}
                         filled
@@ -152,19 +153,19 @@ export function RoomSettings({ initialPage, requestClose }: RoomSettingsProps) {
         )
       }
     >
-      {activePage === RoomSettingsPage.GeneralPage && (
+      {activePage === SpaceSettingsPage.GeneralPage && (
         <General requestClose={handlePageRequestClose} />
       )}
-      {activePage === RoomSettingsPage.MembersPage && (
+      {activePage === SpaceSettingsPage.MembersPage && (
         <Members requestClose={handlePageRequestClose} />
       )}
-      {activePage === RoomSettingsPage.PermissionsPage && (
+      {activePage === SpaceSettingsPage.PermissionsPage && (
         <Permissions requestClose={handlePageRequestClose} />
       )}
-      {activePage === RoomSettingsPage.EmojisStickersPage && (
+      {activePage === SpaceSettingsPage.EmojisStickersPage && (
         <EmojisStickers requestClose={handlePageRequestClose} />
       )}
-      {activePage === RoomSettingsPage.DeveloperToolsPage && (
+      {activePage === SpaceSettingsPage.DeveloperToolsPage && (
         <DeveloperTools requestClose={handlePageRequestClose} />
       )}
     </PageRoot>

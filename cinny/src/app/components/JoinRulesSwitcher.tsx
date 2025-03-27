@@ -29,6 +29,17 @@ export const useRoomJoinRuleIcon = (): JoinRuleIcons =>
     }),
     []
   );
+export const useSpaceJoinRuleIcon = (): JoinRuleIcons =>
+  useMemo(
+    () => ({
+      [JoinRule.Invite]: Icons.SpaceLock,
+      [JoinRule.Knock]: Icons.SpaceLock,
+      [JoinRule.Restricted]: Icons.Space,
+      [JoinRule.Public]: Icons.SpaceGlobe,
+      [JoinRule.Private]: Icons.SpaceLock,
+    }),
+    []
+  );
 
 type JoinRuleLabels = Record<JoinRule, string>;
 export const useRoomJoinRuleLabel = (): JoinRuleLabels =>

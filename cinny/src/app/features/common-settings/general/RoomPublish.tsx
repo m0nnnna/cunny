@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, color, Spinner, Switch, Text } from 'folds';
 import { MatrixError } from 'matrix-js-sdk';
 import { SequenceCard } from '../../../components/sequence-card';
-import { SequenceCardStyle } from '../styles.css';
+import { SequenceCardStyle } from '../../room-settings/styles.css';
 import { SettingTile } from '../../../components/setting-tile';
 import { useRoom } from '../../../hooks/useRoom';
 import { useRoomDirectoryVisibility } from '../../../hooks/useRoomDirectoryVisibility';

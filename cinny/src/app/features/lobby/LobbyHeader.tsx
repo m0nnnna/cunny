@@ -26,7 +26,7 @@ import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { RoomAvatar } from '../../components/room-avatar';
 import { nameInitials } from '../../utils/common';
 import * as css from './LobbyHeader.css';
-import { openInviteUser, openSpaceSettings } from '../../../client/action/navigation';
+import { openInviteUser } from '../../../client/action/navigation';
 import { IPowerLevels, usePowerLevelsAPI } from '../../hooks/usePowerLevels';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import { LeaveSpacePrompt } from '../../components/leave-space-prompt';
@@ -35,6 +35,7 @@ import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 import { BackRouteHandler } from '../../components/BackRouteHandler';
 import { mxcUrlToHttp } from '../../utils/matrix';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useOpenSpaceSettings } from '../../state/hooks/spaceSettings';
 
 type LobbyMenuProps = {
   roomId: string;
@@ -46,6 +47,7 @@ const LobbyMenu = forwardRef<HTMLDivElement, LobbyMenuProps>(
     const mx = useMatrixClient();
     const { getPowerLevel, canDoAction } = usePowerLevelsAPI(powerLevels);
     const canInvite = canDoAction('invite', getPowerLevel(mx.getUserId() ?? ''));
+    const openSpaceSettings = useOpenSpaceSettings();
 
     const handleInvite = () => {
       openInviteUser(roomId);
@@ -132,7 +134,9 @@ export function LobbyHeader({ showProfile, powerLevels }: LobbyHeaderProps) {
 
   const name = useRoomName(space);
   const avatarMxc = useRoomAvatar(space);
-  const avatarUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined : undefined;
+  const avatarUrl = avatarMxc
+    ? mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+    : undefined;
 
   const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
     setMenuAnchor(evt.currentTarget.getBoundingClientRect());
