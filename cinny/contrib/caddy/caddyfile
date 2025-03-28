@@ -1,6 +1,6 @@
+# more info: https://caddyserver.com/docs/caddyfile/patterns#single-page-apps-spas
 cinny.domain.tld {
-  @nativeRouter not file {path} /
-  rewrite @nativeRouter {http.matchers.file.relative}
-  root * /path/to/caddy/dist
+  root * /path/to/cinny/dist
+  try_files {path} / index.html
   file_server
 }
