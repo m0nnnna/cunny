@@ -287,6 +287,13 @@ export function Members({ requestClose }: MembersProps) {
                   <Spinner />
                 </Box>
               )}
+
+              {!fetchingMembers && !result && flattenTagMembers.length === 0 && (
+                <Text style={{ padding: config.space.S300 }} align="Center">
+                  {`No "${membershipFilter.name}" Members`}
+                </Text>
+              )}
+
               <Box
                 style={{
                   position: 'relative',
