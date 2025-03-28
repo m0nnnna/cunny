@@ -4,8 +4,6 @@ import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
 
 import InviteUser from '../invite-user/InviteUser';
-import SpaceSettings from '../space-settings/SpaceSettings';
-import RoomSettings from '../room/RoomSettings';
 
 function Windows() {
   const [inviteUser, changeInviteUser] = useState({
@@ -30,16 +28,12 @@ function Windows() {
   }, []);
 
   return (
-    <>
-      <InviteUser
-        isOpen={inviteUser.isOpen}
-        roomId={inviteUser.roomId}
-        searchTerm={inviteUser.searchTerm}
-        onRequestClose={() => changeInviteUser({ isOpen: false, roomId: undefined })}
-      />
-      <SpaceSettings />
-      <RoomSettings />
-    </>
+    <InviteUser
+      isOpen={inviteUser.isOpen}
+      roomId={inviteUser.roomId}
+      searchTerm={inviteUser.searchTerm}
+      onRequestClose={() => changeInviteUser({ isOpen: false, roomId: undefined })}
+    />
   );
 }
 

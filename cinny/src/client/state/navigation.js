@@ -19,18 +19,8 @@ class Navigation extends EventEmitter {
 
   navigate(action) {
     const actions = {
-      [cons.actions.navigation.OPEN_SPACE_SETTINGS]: () => {
-        this.emit(cons.events.navigation.SPACE_SETTINGS_OPENED, action.roomId, action.tabText);
-      },
       [cons.actions.navigation.OPEN_SPACE_ADDEXISTING]: () => {
         this.emit(cons.events.navigation.SPACE_ADDEXISTING_OPENED, action.roomId, action.spaces);
-      },
-      [cons.actions.navigation.TOGGLE_ROOM_SETTINGS]: () => {
-        this.emit(
-          cons.events.navigation.ROOM_SETTINGS_TOGGLED,
-          action.roomId,
-          action.tabText
-        );
       },
       [cons.actions.navigation.OPEN_CREATE_ROOM]: () => {
         this.emit(
