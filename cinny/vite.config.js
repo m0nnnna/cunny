@@ -12,10 +12,6 @@ import buildConfig from './build.config';
 const copyFiles = {
   targets: [
     {
-      src: 'node_modules/@matrix-org/olm/olm.wasm',
-      dest: '',
-    },
-    {
       src: 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs',
       dest: '',
       rename: 'pdf.worker.min.js',
@@ -50,12 +46,6 @@ export default defineConfig({
   server: {
     port: 8080,
     host: true,
-    proxy: {
-      '^\\/.*?\\/olm\\.wasm$': {
-        target: 'http://localhost:8080',
-        rewrite: () => '/olm.wasm',
-      },
-    },
   },
   plugins: [
     topLevelAwait({
