@@ -255,7 +255,7 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
       },
       [Command.Kick]: {
         name: Command.Kick,
-        description: 'Kick user from room. Example: /kick userId1 userId2 [-r reason]',
+        description: 'Kick user from room. Example: /kick userId1 userId2 servername [-r reason]',
         exe: async (payload) => {
           const [content, flags] = splitPayloadContentAndFlags(payload);
           const users = parseUsers(content);
