@@ -439,15 +439,17 @@ function UnknownInvites({ invites, handleNavigate, compact }: UnknownInvitesProp
       <Box gap="200" justifyContent="SpaceBetween" alignItems="Center">
         <Text size="H4">Public</Text>
         <Box>
-          <Chip
-            variant="SurfaceVariant"
-            onClick={declineAll}
-            before={declining && <Spinner size="50" variant="Secondary" fill="Soft" />}
-            disabled={declining}
-            radii="Pill"
-          >
-            <Text size="T200">Decline All</Text>
-          </Chip>
+          {invites.length > 0 && (
+            <Chip
+              variant="SurfaceVariant"
+              onClick={declineAll}
+              before={declining && <Spinner size="50" variant="Secondary" fill="Soft" />}
+              disabled={declining}
+              radii="Pill"
+            >
+              <Text size="T200">Decline All</Text>
+            </Chip>
+          )}
         </Box>
       </Box>
       {invites.length > 0 ? (
