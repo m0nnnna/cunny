@@ -12,7 +12,7 @@ function addRoomToMDirect(mx, roomId, userId) {
   const mDirectsEvent = mx.getAccountData('m.direct');
   let userIdToRoomIds = {};
 
-  if (typeof mDirectsEvent !== 'undefined') userIdToRoomIds = mDirectsEvent.getContent();
+  if (typeof mDirectsEvent !== 'undefined') userIdToRoomIds = structuredClone(mDirectsEvent.getContent());
 
   // remove it from the lists of any others users
   // (it can only be a DM room for one person)
