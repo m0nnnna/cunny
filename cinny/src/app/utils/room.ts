@@ -5,6 +5,7 @@ import {
   EventTimelineSet,
   EventType,
   IMentions,
+  IPowerLevelsContent,
   IPushRule,
   IPushRules,
   JoinRule,
@@ -473,3 +474,43 @@ export const bannedInRooms = (mx: MatrixClient, rooms: string[], otherUserId: st
     const banned = room.hasMembershipState(otherUserId, Membership.Ban);
     return banned;
   });
+
+export const guessPerfectParent = (
+  mx: MatrixClient,
+  roomId: string,
+  parents: string[]
+): string | undefined => {
+  if (parents.length === 1) {
+    return parents[0];
+  }
+
+  const getSpecialUsers = (rId: string): string[] => {
+    const r = mx.getRoom(rId);
+    const powerLevels =
+      r && getStateEvent(r, StateEvent.RoomPowerLevels)?.getContent<IPowerLevelsContent>();
+
+    const { users_default: usersDefault, users } = powerLevels ?? {};
+    if (typeof users !== 'object') return [];
+
+    const defaultPower = typeof usersDefault === 'number' ? usersDefault : 0;
+    return Object.keys(users).filter((userId) => users[userId] > defaultPower);
+  };
+
+  let perfectParent: string | undefined;
+  let score = 0;
+
+  const roomSpecialUsers = getSpecialUsers(roomId);
+  parents.forEach((parentId) => {
+    const parentSpecialUsers = getSpecialUsers(parentId);
+    const matchedUsersCount = parentSpecialUsers.filter((userId) =>
+      roomSpecialUsers.includes(userId)
+    ).length;
+
+    if (matchedUsersCount > score) {
+      score = matchedUsersCount;
+      perfectParent = parentId;
+    }
+  });
+
+  return perfectParent;
+};
