@@ -50,7 +50,11 @@ export const getCanonicalAliasOrRoomId = (mx: MatrixClient, roomId: string): str
   const room = mx.getRoom(roomId);
   if (!room) return roomId;
   if (getStateEvent(room, StateEvent.RoomTombstone) !== undefined) return roomId;
-  return room.getCanonicalAlias() || roomId;
+  const alias = room.getCanonicalAlias();
+  if (alias && getCanonicalAliasRoomId(mx, alias) === roomId) {
+    return alias;
+  }
+  return roomId;
 };
 
 export const getImageInfo = (img: HTMLImageElement, fileOrBlob: File | Blob): IImageInfo => {
