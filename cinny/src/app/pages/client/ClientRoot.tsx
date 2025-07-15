@@ -25,7 +25,7 @@ import {
 } from '../../../client/initMatrix';
 import { getSecret } from '../../../client/state/auth';
 import { SplashScreen } from '../../components/splash-screen';
-import { CapabilitiesAndMediaConfigLoader } from '../../components/CapabilitiesAndMediaConfigLoader';
+import { ServerConfigsLoader } from '../../components/ServerConfigsLoader';
 import { CapabilitiesProvider } from '../../hooks/useCapabilities';
 import { MediaConfigProvider } from '../../hooks/useMediaConfig';
 import { MatrixClientProvider } from '../../hooks/useMatrixClient';
@@ -37,6 +37,7 @@ import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
 import { useSyncState } from '../../hooks/useSyncState';
 import { stopPropagation } from '../../utils/keyboard';
 import { SyncStatus } from './SyncStatus';
+import { AuthMetadataProvider } from '../../hooks/useAuthMetadata';
 
 function ClientRootLoading() {
   return (
@@ -207,18 +208,20 @@ export function ClientRoot({ children }: ClientRootProps) {
         <ClientRootLoading />
       ) : (
         <MatrixClientProvider value={mx}>
-          <CapabilitiesAndMediaConfigLoader>
-            {(capabilities, mediaConfig) => (
-              <CapabilitiesProvider value={capabilities ?? {}}>
-                <MediaConfigProvider value={mediaConfig ?? {}}>
-                  {children}
-                  <Windows />
-                  <Dialogs />
-                  <ReusableContextMenu />
+          <ServerConfigsLoader>
+            {(serverConfigs) => (
+              <CapabilitiesProvider value={serverConfigs.capabilities ?? {}}>
+                <MediaConfigProvider value={serverConfigs.mediaConfig ?? {}}>
+                  <AuthMetadataProvider value={serverConfigs.authMetadata}>
+                    {children}
+                    <Windows />
+                    <Dialogs />
+                    <ReusableContextMenu />
+                  </AuthMetadataProvider>
                 </MediaConfigProvider>
               </CapabilitiesProvider>
             )}
-          </CapabilitiesAndMediaConfigLoader>
+          </ServerConfigsLoader>
         </MatrixClientProvider>
       )}
     </SpecVersions>

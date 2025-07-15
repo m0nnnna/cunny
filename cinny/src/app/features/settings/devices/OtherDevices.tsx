@@ -11,6 +11,10 @@ import { useUIAMatrixError } from '../../../hooks/useUIAFlows';
 import { DeviceVerificationStatus } from '../../../components/DeviceVerificationStatus';
 import { VerifyOtherDeviceTile } from './Verification';
 import { VerificationStatus } from '../../../hooks/useDeviceVerificationStatus';
+import { useAuthMetadata } from '../../../hooks/useAuthMetadata';
+import { withSearchParam } from '../../../pages/pathUtils';
+import { useAccountManagementActions } from '../../../hooks/useAccountManagement';
+import { SettingTile } from '../../../components/setting-tile';
 
 type OtherDevicesProps = {
   devices: IMyDevice[];
@@ -20,7 +24,38 @@ type OtherDevicesProps = {
 export function OtherDevices({ devices, refreshDeviceList, showVerification }: OtherDevicesProps) {
   const mx = useMatrixClient();
   const crypto = mx.getCrypto();
+  const authMetadata = useAuthMetadata();
+  const accountManagementActions = useAccountManagementActions();
+
   const [deleted, setDeleted] = useState<Set<string>>(new Set());
+
+  const handleDashboardOIDC = useCallback(() => {
+    const authUrl = authMetadata?.account_management_uri ?? authMetadata?.issuer;
+    if (!authUrl) return;
+
+    window.open(
+      withSearchParam(authUrl, {
+        action: accountManagementActions.sessionsList,
+      }),
+      '_blank'
+    );
+  }, [authMetadata, accountManagementActions]);
+
+  const handleDeleteOIDC = useCallback(
+    (deviceId: string) => {
+      const authUrl = authMetadata?.account_management_uri ?? authMetadata?.issuer;
+      if (!authUrl) return;
+
+      window.open(
+        withSearchParam(authUrl, {
+          action: accountManagementActions.sessionEnd,
+          device_id: deviceId,
+        }),
+        '_blank'
+      );
+    },
+    [authMetadata, accountManagementActions]
+  );
 
   const handleToggleDelete = useCallback((deviceId: string) => {
     setDeleted((deviceIds) => {
@@ -70,6 +105,31 @@ export function OtherDevices({ devices, refreshDeviceList, showVerification }: O
     <>
       <Box direction="Column" gap="100">
         <Text size="L400">Others</Text>
+        {authMetadata && (
+          <SequenceCard
+            className={SequenceCardStyle}
+            variant="SurfaceVariant"
+            direction="Column"
+            gap="400"
+          >
+            <SettingTile
+              title="Device Dashboard"
+              description="Manage your devices on OIDC dashboard."
+              after={
+                <Button
+                  size="300"
+                  variant="Secondary"
+                  fill="Soft"
+                  radii="300"
+                  outlined
+                  onClick={handleDashboardOIDC}
+                >
+                  <Text size="B300">Open</Text>
+                </Button>
+              }
+            />
+          </SequenceCard>
+        )}
         {devices
           .sort((d1, d2) => {
             if (!d1.last_seen_ts || !d2.last_seen_ts) return 0;
@@ -89,12 +149,20 @@ export function OtherDevices({ devices, refreshDeviceList, showVerification }: O
                 refreshDeviceList={refreshDeviceList}
                 disabled={deleting}
                 options={
-                  <DeviceDeleteBtn
-                    deviceId={device.device_id}
-                    deleted={deleted.has(device.device_id)}
-                    onDeleteToggle={handleToggleDelete}
-                    disabled={deleting}
-                  />
+                  authMetadata ? (
+                    <DeviceDeleteBtn
+                      deviceId={device.device_id}
+                      deleted={false}
+                      onDeleteToggle={handleDeleteOIDC}
+                    />
+                  ) : (
+                    <DeviceDeleteBtn
+                      deviceId={device.device_id}
+                      deleted={deleted.has(device.device_id)}
+                      onDeleteToggle={handleToggleDelete}
+                      disabled={deleting}
+                    />
+                  )
                 }
               />
               {showVerification && crypto && (

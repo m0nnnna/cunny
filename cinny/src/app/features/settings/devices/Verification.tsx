@@ -32,6 +32,9 @@ import {
   DeviceVerificationSetup,
 } from '../../../components/DeviceVerificationSetup';
 import { stopPropagation } from '../../../utils/keyboard';
+import { useAuthMetadata } from '../../../hooks/useAuthMetadata';
+import { withSearchParam } from '../../../pages/pathUtils';
+import { useAccountManagementActions } from '../../../hooks/useAccountManagement';
 
 type VerificationStatusBadgeProps = {
   verificationStatus: VerificationStatus;
@@ -252,6 +255,8 @@ export function EnableVerification({ visible }: EnableVerificationProps) {
 
 export function DeviceVerificationOptions() {
   const [menuCords, setMenuCords] = useState<RectCords>();
+  const authMetadata = useAuthMetadata();
+  const accountManagementActions = useAccountManagementActions();
 
   const [reset, setReset] = useState(false);
 
@@ -265,6 +270,18 @@ export function DeviceVerificationOptions() {
 
   const handleReset = () => {
     setMenuCords(undefined);
+
+    if (authMetadata) {
+      const authUrl = authMetadata.account_management_uri ?? authMetadata.issuer;
+      window.open(
+        withSearchParam(authUrl, {
+          action: accountManagementActions.crossSigningReset,
+        }),
+        '_blank'
+      );
+      return;
+    }
+
     setReset(true);
   };
 
