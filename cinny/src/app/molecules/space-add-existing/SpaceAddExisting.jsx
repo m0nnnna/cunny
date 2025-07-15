@@ -5,7 +5,7 @@ import './SpaceAddExisting.scss';
 
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
-import { joinRuleToIconSrc, getIdServer } from '../../../util/matrixUtil';
+import { joinRuleToIconSrc } from '../../../util/matrixUtil';
 import { Debounce } from '../../../util/common';
 
 import Text from '../../atoms/text/Text';
@@ -21,7 +21,6 @@ import Dialog from '../dialog/Dialog';
 import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
 import SearchIC from '../../../../public/res/ic/outlined/search.svg';
 
-import { useStore } from '../../hooks/useStore';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { useDirects, useRooms, useSpaces } from '../../state/hooks/roomList';
 import { allRoomsAtom } from '../../state/room-list/roomList';
@@ -73,9 +72,6 @@ function SpaceAddExistingContent({ roomId, spaces: onlySpaces }) {
     await rateLimitedActions(selected, async (rId) => {
       const room = mx.getRoom(rId);
       const via = getViaServers(room);
-      if (via.length === 0) {
-        via.push(getIdServer(rId));
-      }
 
       await mx.sendStateEvent(
         roomId,

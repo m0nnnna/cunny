@@ -23,9 +23,9 @@ const DOMAIN_REGEX = /\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\b/;
 
 export const isServerName = (serverName: string): boolean => DOMAIN_REGEX.test(serverName);
 
-export const matchMxId = (id: string): RegExpMatchArray | null => id.match(/^([@!$+#])(.+):(\S+)$/);
+const matchMxId = (id: string): RegExpMatchArray | null => id.match(/^([@$+#])(.+):(\S+)$/);
 
-export const validMxId = (id: string): boolean => !!matchMxId(id);
+const validMxId = (id: string): boolean => !!matchMxId(id);
 
 export const getMxIdServer = (userId: string): string | undefined => matchMxId(userId)?.[3];
 
@@ -33,7 +33,7 @@ export const getMxIdLocalPart = (userId: string): string | undefined => matchMxI
 
 export const isUserId = (id: string): boolean => validMxId(id) && id.startsWith('@');
 
-export const isRoomId = (id: string): boolean => validMxId(id) && id.startsWith('!');
+export const isRoomId = (id: string): boolean => id.startsWith('!');
 
 export const isRoomAlias = (id: string): boolean => validMxId(id) && id.startsWith('#');
 

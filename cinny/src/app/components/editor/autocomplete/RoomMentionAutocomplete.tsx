@@ -9,7 +9,7 @@ import { getDirectRoomAvatarUrl } from '../../../utils/room';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { AutocompleteQuery } from './autocompleteQuery';
 import { AutocompleteMenu } from './AutocompleteMenu';
-import { getMxIdServer, validMxId } from '../../../utils/matrix';
+import { getMxIdServer, isRoomAlias } from '../../../utils/matrix';
 import { UseAsyncSearchOptions, useAsyncSearch } from '../../../hooks/useAsyncSearch';
 import { onTabPress } from '../../../utils/keyboard';
 import { useKeyDown } from '../../../hooks/useKeyDown';
@@ -22,7 +22,7 @@ import { getViaServers } from '../../../plugins/via-servers';
 type MentionAutoCompleteHandler = (roomAliasOrId: string, name: string) => void;
 
 const roomAliasFromQueryText = (mx: MatrixClient, text: string) =>
-  validMxId(`#${text}`)
+  isRoomAlias(`#${text}`)
     ? `#${text}`
     : `#${text}${text.endsWith(':') ? '' : ':'}${getMxIdServer(mx.getUserId() ?? '')}`;
 

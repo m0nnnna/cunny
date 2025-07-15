@@ -15,7 +15,7 @@ import {
 import { onTabPress } from '../../../utils/keyboard';
 import { createMentionElement, moveCursor, replaceWithElement } from '../utils';
 import { useKeyDown } from '../../../hooks/useKeyDown';
-import { getMxIdLocalPart, getMxIdServer, validMxId } from '../../../utils/matrix';
+import { getMxIdLocalPart, getMxIdServer, isUserId } from '../../../utils/matrix';
 import { getMemberDisplayName, getMemberSearchStr } from '../../../utils/room';
 import { UserAvatar } from '../../user-avatar';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
@@ -24,7 +24,7 @@ import { Membership } from '../../../../types/matrix/room';
 type MentionAutoCompleteHandler = (userId: string, name: string) => void;
 
 const userIdFromQueryText = (mx: MatrixClient, text: string) =>
-  validMxId(`@${text}`)
+  isUserId(`@${text}`)
     ? `@${text}`
     : `@${text}${text.endsWith(':') ? '' : ':'}${getMxIdServer(mx.getUserId() ?? '')}`;
 

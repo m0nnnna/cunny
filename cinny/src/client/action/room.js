@@ -93,11 +93,8 @@ function convertToRoom(mx, roomId) {
  * @param {string[]} via
  */
 async function join(mx, roomIdOrAlias, isDM = false, via = undefined) {
-  const roomIdParts = roomIdOrAlias.split(':');
-  const viaServers = via || [roomIdParts[1]];
-
   try {
-    const resultRoom = await mx.joinRoom(roomIdOrAlias, { viaServers });
+    const resultRoom = await mx.joinRoom(roomIdOrAlias, { viaServers: via });
 
     if (isDM) {
       const targetUserId = guessDMRoomTargetId(mx.getRoom(resultRoom.roomId), mx.getUserId());
