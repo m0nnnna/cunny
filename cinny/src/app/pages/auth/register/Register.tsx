@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Box, Text, color } from 'folds';
 import { Link, useSearchParams } from 'react-router-dom';
+import { SSOAction } from 'matrix-js-sdk';
 import { useAuthServer } from '../../../hooks/useAuthServer';
 import { RegisterFlowStatus, useAuthFlows } from '../../../hooks/useAuthFlows';
 import { useParsedLoginFlows } from '../../../hooks/useParsedLoginFlows';
@@ -83,6 +84,7 @@ export function Register() {
           <SSOLogin
             providers={sso.identity_providers}
             redirectUrl={ssoRedirectUrl}
+            action={SSOAction.REGISTER}
             saveScreenSpace={registerFlows.status === RegisterFlowStatus.FlowRequired}
           />
           <span data-spacing-node />
