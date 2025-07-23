@@ -1,5 +1,13 @@
 /* eslint-disable jsx-a11y/alt-text */
-import React, { ComponentPropsWithoutRef, ReactEventHandler, Suspense, lazy } from 'react';
+import React, {
+  ComponentPropsWithoutRef,
+  ReactEventHandler,
+  Suspense,
+  lazy,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import {
   Element,
   Text as DOMText,
@@ -9,10 +17,11 @@ import {
 } from 'html-react-parser';
 import { MatrixClient } from 'matrix-js-sdk';
 import classNames from 'classnames';
-import { Scroll, Text } from 'folds';
+import { Icon, IconButton, Icons, Scroll, Text } from 'folds';
 import { IntermediateRepresentation, Opts as LinkifyOpts, OptFn } from 'linkifyjs';
 import Linkify from 'linkify-react';
 import { ErrorBoundary } from 'react-error-boundary';
+import { ChildNode } from 'domhandler';
 import * as css from '../styles/CustomHtml.css';
 import {
   getMxIdLocalPart,
@@ -31,7 +40,8 @@ import {
   testMatrixTo,
 } from './matrix-to';
 import { onEnterOrSpace } from '../utils/keyboard';
-import { tryDecodeURIComponent } from '../utils/dom';
+import { copyToClipboard, tryDecodeURIComponent } from '../utils/dom';
+import { useTimeoutToggle } from '../hooks/useTimeoutToggle';
 
 const ReactPrism = lazy(() => import('./react-prism/ReactPrism'));
 
@@ -195,6 +205,82 @@ export const highlightText = (
     );
   });
 
+export function CodeBlock(children: ChildNode[], opts: HTMLReactParserOptions) {
+  const LINE_LIMIT = 14;
+
+  /**
+   * Recursively extracts and concatenates all text content from an array of ChildNode objects.
+   *
+   * @param {ChildNode[]} nodes - An array of ChildNode objects to extract text from.
+   * @returns {string} The concatenated plain text content of all descendant text nodes.
+   */
+  const extractTextFromChildren = useCallback((nodes: ChildNode[]): string => {
+    let text = '';
+
+    nodes.forEach((node) => {
+      if (node.type === 'text') {
+        text += node.data;
+      } else if (node instanceof Element && node.children) {
+        text += extractTextFromChildren(node.children);
+      }
+    });
+
+    return text;
+  }, []);
+
+  const [copied, setCopied] = useTimeoutToggle();
+  const collapsible = useMemo(
+    () => extractTextFromChildren(children).split('\n').length > LINE_LIMIT,
+    [children, extractTextFromChildren]
+  );
+  const [collapsed, setCollapsed] = useState(collapsible);
+
+  const handleCopy = useCallback(() => {
+    copyToClipboard(extractTextFromChildren(children));
+    setCopied();
+  }, [children, extractTextFromChildren, setCopied]);
+
+  const toggleCollapse = useCallback(() => {
+    setCollapsed((prev) => !prev);
+  }, []);
+
+  return (
+    <>
+      <div className={css.CodeBlockControls}>
+        <IconButton
+          variant="Secondary" // Needs a better copy icon
+          size="300"
+          radii="300"
+          onClick={handleCopy}
+          aria-label="Copy Code Block"
+        >
+          <Icon src={copied ? Icons.Check : Icons.File} size="50" />
+        </IconButton>
+        {collapsible && (
+          <IconButton
+            variant="Secondary"
+            size="300"
+            radii="300"
+            onClick={toggleCollapse}
+            aria-expanded={!collapsed}
+            aria-pressed={!collapsed}
+            aria-controls="code-block-content"
+            aria-label={collapsed ? 'Show Full Code Block' : 'Show Code Block Preview'}
+            style={collapsed ? { visibility: 'visible' } : {}}
+          >
+            <Icon src={collapsed ? Icons.ChevronBottom : Icons.ChevronTop} size="50" />
+          </IconButton>
+        )}
+      </div>
+      <Scroll direction="Both" variant="Secondary" size="300" visibility="Hover" hideTrack>
+        <div id="code-block-content" className={css.CodeBlockInternal({ collapsed })}>
+          {domToReact(children, opts)}
+        </div>
+      </Scroll>
+    </>
+  );
+}
+
 export const getReactCustomHtmlParser = (
   mx: MatrixClient,
   roomId: string | undefined,
@@ -271,15 +357,7 @@ export const getReactCustomHtmlParser = (
         if (name === 'pre') {
           return (
             <Text {...props} as="pre" className={css.CodeBlock}>
-              <Scroll
-                direction="Horizontal"
-                variant="Secondary"
-                size="300"
-                visibility="Hover"
-                hideTrack
-              >
-                <div className={css.CodeBlockInternal}>{domToReact(children, opts)}</div>
-              </Scroll>
+              {CodeBlock(children, opts)}
             </Text>
           );
         }

@@ -85,10 +85,35 @@ export const CodeBlock = style([
   MarginSpaced,
   {
     fontStyle: 'normal',
+    position: 'relative',
   },
 ]);
-export const CodeBlockInternal = style({
-  padding: `${config.space.S200} ${config.space.S200} 0`,
+export const CodeBlockInternal = recipe({
+  base: {
+    padding: `${config.space.S200} ${config.space.S200} 0`,
+    minWidth: toRem(100),
+  },
+  variants: {
+    collapsed: {
+      true: {
+        maxHeight: `calc(${config.lineHeight.T400} * 9.6)`,
+      },
+    },
+  },
+});
+export const CodeBlockControls = style({
+  position: 'absolute',
+  top: config.space.S200,
+  right: config.space.S200,
+  visibility: 'hidden',
+  selectors: {
+    [`${CodeBlock}:hover &`]: {
+      visibility: 'visible',
+    },
+    [`${CodeBlock}:focus-within &`]: {
+      visibility: 'visible',
+    },
+  },
 });
 
 export const List = style([
