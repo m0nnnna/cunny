@@ -669,7 +669,10 @@ export type MessageProps = {
   messageSpacing: MessageSpacing;
   onUserClick: MouseEventHandler<HTMLButtonElement>;
   onUsernameClick: MouseEventHandler<HTMLButtonElement>;
-  onReplyClick: MouseEventHandler<HTMLButtonElement>;
+  onReplyClick: (
+    ev: Parameters<MouseEventHandler<HTMLButtonElement>>[0],
+    startThread?: boolean
+  ) => void;
   onEditId?: (eventId?: string) => void;
   onReactionToggle: (targetEventId: string, key: string, shortcode?: string) => void;
   reply?: ReactNode;
@@ -859,6 +862,8 @@ export const Message = as<'div', MessageProps>(
       }, 100);
     };
 
+    const isThreadedMessage = mEvent.threadRootId !== undefined;
+
     return (
       <MessageBase
         className={classNames(css.MessageBase, className)}
@@ -921,6 +926,17 @@ export const Message = as<'div', MessageProps>(
                 >
                   <Icon src={Icons.ReplyArrow} size="100" />
                 </IconButton>
+                {!isThreadedMessage && (
+                  <IconButton
+                    onClick={(ev) => onReplyClick(ev, true)}
+                    data-event-id={mEvent.getId()}
+                    variant="SurfaceVariant"
+                    size="300"
+                    radii="300"
+                  >
+                    <Icon src={Icons.ThreadPlus} size="100" />
+                  </IconButton>
+                )}
                 {canEditEvent(mx, mEvent) && onEditId && (
                   <IconButton
                     onClick={() => onEditId(mEvent.getId())}
@@ -1000,6 +1016,27 @@ export const Message = as<'div', MessageProps>(
                               Reply
                             </Text>
                           </MenuItem>
+                          {!isThreadedMessage && (
+                            <MenuItem
+                              size="300"
+                              after={<Icon src={Icons.ThreadPlus} size="100" />}
+                              radii="300"
+                              data-event-id={mEvent.getId()}
+                              onClick={(evt: any) => {
+                                onReplyClick(evt, true);
+                                closeMenu();
+                              }}
+                            >
+                              <Text
+                                className={css.MessageMenuItemText}
+                                as="span"
+                                size="T300"
+                                truncate
+                              >
+                                Reply in Thread
+                              </Text>
+                            </MenuItem>
+                          )}
                           {canEditEvent(mx, mEvent) && onEditId && (
                             <MenuItem
                               size="300"
