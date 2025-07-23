@@ -294,9 +294,14 @@ export const getDirectRoomAvatarUrl = (
   useAuthentication = false
 ): string | undefined => {
   const mxcUrl = room.getAvatarFallbackMember()?.getMxcAvatarUrl();
-  return mxcUrl
-    ? mx.mxcUrlToHttp(mxcUrl, size, size, 'crop', undefined, false, useAuthentication) ?? undefined
-    : undefined;
+
+  if (!mxcUrl) {
+    return getRoomAvatarUrl(mx, room, size, useAuthentication);
+  }
+
+  return (
+    mx.mxcUrlToHttp(mxcUrl, size, size, 'crop', undefined, false, useAuthentication) ?? undefined
+  );
 };
 
 export const trimReplyFromBody = (body: string): string => {
