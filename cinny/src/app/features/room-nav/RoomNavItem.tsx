@@ -89,8 +89,8 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
     };
 
     return (
-      <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
-        <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+      <Menu ref={ref} style={{ minWidth: toRem(200) }}>
+        <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
           <MenuItem
             onClick={handleMarkAsRead}
             size="300"
@@ -125,7 +125,7 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
           </RoomNotificationModeSwitcher>
         </Box>
         <Line variant="Surface" size="300" />
-        <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+        <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
           <MenuItem
             onClick={handleInvite}
             variant="Primary"
@@ -161,7 +161,7 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
           </MenuItem>
         </Box>
         <Line variant="Surface" size="300" />
-        <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+        <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
           <UseStateProvider initial={false}>
             {(promptLeave, setPromptLeave) => (
               <>

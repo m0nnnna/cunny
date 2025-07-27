@@ -60,7 +60,7 @@ type ThemeSelectorProps = {
 const ThemeSelector = as<'div', ThemeSelectorProps>(
   ({ themeNames, themes, selected, onSelect, ...props }, ref) => (
     <Menu {...props} ref={ref}>
-      <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+      <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
         {themes.map((theme) => (
           <MenuItem
             key={theme.id}
@@ -781,7 +781,7 @@ function SelectMessageLayout() {
             }}
           >
             <Menu>
-              <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+              <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
                 {messageLayoutItems.map((item) => (
                   <MenuItem
                     key={item.layout}
@@ -850,7 +850,7 @@ function SelectMessageSpacing() {
             }}
           >
             <Menu>
-              <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+              <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
                 {messageSpacingItems.map((item) => (
                   <MenuItem
                     key={item.spacing}

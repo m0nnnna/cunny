@@ -78,7 +78,7 @@ export function ManualVerificationMethodSwitcher({
             }}
           >
             <Menu>
-              <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+              <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
                 <MenuItem
                   size="300"
                   variant="Surface"

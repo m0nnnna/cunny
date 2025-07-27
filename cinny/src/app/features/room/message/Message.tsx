@@ -22,6 +22,7 @@ import {
   as,
   color,
   config,
+  toRem,
 } from 'folds';
 import React, {
   FormEventHandler,
@@ -94,10 +95,10 @@ export const MessageQuickReactions = as<'div', MessageQuickReactionsProps>(
     return (
       <>
         <Box
-          style={{ padding: config.space.S200 }}
+          style={{ padding: config.space.S300 }}
           alignItems="Center"
           justifyContent="Center"
-          gap="200"
+          gap="300"
           {...props}
           ref={ref}
         >
@@ -972,7 +973,7 @@ export const Message = as<'div', MessageProps>(
                         escapeDeactivates: stopPropagation,
                       }}
                     >
-                      <Menu>
+                      <Menu style={{ minWidth: toRem(200) }}>
                         {canSendReaction && (
                           <MessageQuickReactions
                             onReaction={(key, shortcode) => {
@@ -1169,6 +1170,7 @@ export const Event = as<'div', EventProps>(
       hideReadReceipts,
       showDeveloperTools,
       children,
+      style,
       ...props
     },
     ref
@@ -1235,7 +1237,7 @@ export const Event = as<'div', EventProps>(
                         escapeDeactivates: stopPropagation,
                       }}
                     >
-                      <Menu {...props} ref={ref}>
+                      <Menu style={{ minWidth: toRem(200), ...style }} {...props} ref={ref}>
                         <Box direction="Column" gap="100" className={css.MessageMenuGroup}>
                           {!hideReadReceipts && (
                             <MessageReadReceiptItem

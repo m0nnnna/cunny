@@ -70,7 +70,7 @@ export function RoomNotificationModeSwitcher({
   return (
     <PopOut
       anchor={menuCords}
-      offset={5}
+      offset={8}
       position="Right"
       align="Start"
       content={
@@ -86,7 +86,7 @@ export function RoomNotificationModeSwitcher({
           }}
         >
           <Menu>
-            <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+            <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
               {modes.map((mode) => (
                 <MenuItem
                   key={mode}

@@ -271,7 +271,7 @@ function AddRoomButton({ item }: { item: HierarchyItem }) {
             escapeDeactivates: stopPropagation,
           }}
         >
-          <Menu style={{ padding: config.space.S100 }}>
+          <Menu style={{ padding: config.space.S200 }}>
             <MenuItem
               size="300"
               radii="300"
@@ -333,7 +333,7 @@ function AddSpaceButton({ item }: { item: HierarchyItem }) {
             escapeDeactivates: stopPropagation,
           }}
         >
-          <Menu style={{ padding: config.space.S100 }}>
+          <Menu style={{ padding: config.space.S200 }}>
             <MenuItem
               size="300"
               radii="300"

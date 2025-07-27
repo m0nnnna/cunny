@@ -43,8 +43,8 @@ const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ requestClose }, re
   };
 
   return (
-    <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
-      <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+    <Menu ref={ref} style={{ minWidth: toRem(200) }}>
+      <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
         <MenuItem
           onClick={handleMarkAsRead}
           size="300"

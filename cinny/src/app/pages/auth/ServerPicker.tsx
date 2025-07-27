@@ -108,10 +108,10 @@ export function ServerPicker({
                 }}
               >
                 <Menu>
-                  <Header size="300" style={{ padding: `0 ${config.space.S200}` }}>
+                  <Header size="400" style={{ padding: `0 ${config.space.S300}` }}>
                     <Text size="L400">Homeserver List</Text>
                   </Header>
-                  <div style={{ padding: config.space.S100, paddingTop: 0 }}>
+                  <div style={{ padding: config.space.S200, paddingTop: 0 }}>
                     {serverList?.map((serverName) => (
                       <MenuItem
                         key={serverName}

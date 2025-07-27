@@ -155,7 +155,7 @@ export function HeadingBlockButton() {
             escapeDeactivates: stopPropagation,
           }}
         >
-          <Menu style={{ padding: config.space.S100 }}>
+          <Menu style={{ padding: config.space.S200 }}>
             <Box gap="100">
               <TooltipProvider
                 tooltip={<BtnTooltip text="Heading 1" shortCode={`${modKey} + 1`} />}

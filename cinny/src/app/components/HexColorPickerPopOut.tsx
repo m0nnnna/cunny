@@ -30,7 +30,7 @@ export function HexColorPickerPopOut({ picker, onRemove, children }: HexColorPic
         >
           <Menu
             style={{
-              padding: config.space.S100,
+              padding: config.space.S200,
               borderRadius: config.radii.R500,
               overflow: 'initial',
             }}

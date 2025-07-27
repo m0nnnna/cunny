@@ -203,12 +203,8 @@ export function BackupRestoreTile({ crypto }: BackupRestoreTileProps) {
                   escapeDeactivates: stopPropagation,
                 }}
               >
-                <Menu
-                  style={{
-                    padding: config.space.S100,
-                  }}
-                >
-                  <Box direction="Column" gap="100">
+                <Menu style={{ padding: config.space.S200 }}>
+                  <Box direction="Column" gap="200">
                     <Box direction="Column" gap="200">
                       <InfoCard
                         variant="SurfaceVariant"

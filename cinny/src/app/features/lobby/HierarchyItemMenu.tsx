@@ -234,9 +234,9 @@ export function HierarchyItemMenu({
                 escapeDeactivates: stopPropagation,
               }}
             >
-              <Menu style={{ maxWidth: toRem(150), width: '100vw' }}>
+              <Menu style={{ minWidth: toRem(200) }}>
                 {joined && (
-                  <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+                  <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
                     {onTogglePin && (
                       <MenuItem
                         size="300"
@@ -296,7 +296,7 @@ export function HierarchyItemMenu({
                   <Line size="300" variant="Surface" direction="Horizontal" />
                 )}
                 {canEditChild && (
-                  <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+                  <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
                     <SuggestMenuItem item={item} requestClose={handleRequestClose} />
                     <RemoveMenuItem item={item} requestClose={handleRequestClose} />
                   </Box>

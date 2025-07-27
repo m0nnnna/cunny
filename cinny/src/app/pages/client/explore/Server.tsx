@@ -193,7 +193,7 @@ function ThirdPartyProtocolsSelector({
             <Box
               direction="Column"
               gap="100"
-              style={{ padding: config.space.S100, minWidth: toRem(100) }}
+              style={{ padding: config.space.S200, minWidth: toRem(100) }}
             >
               <Text style={{ padding: config.space.S100 }} size="L400" truncate>
                 Protocols
@@ -313,11 +313,11 @@ function LimitButton({ limit, onLimitChange }: LimitButtonProps) {
                     step={1}
                     outlined
                     type="number"
-                    radii="400"
+                    radii="300"
                     aria-label="Per Page Item Limit"
                   />
                 </Box>
-                <Button type="submit" size="300" variant="Primary" radii="400">
+                <Button type="submit" size="300" variant="Primary" radii="300">
                   <Text size="B300">Change Limit</Text>
                 </Button>
               </Box>

@@ -92,7 +92,7 @@ export function NotificationModeSwitcher({ pushRule, onChange }: NotificationMod
             }}
           >
             <Menu>
-              <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+              <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
                 {modes.map((mode) => (
                   <MenuItem
                     key={mode}

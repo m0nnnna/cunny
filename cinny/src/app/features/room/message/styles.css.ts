@@ -30,7 +30,7 @@ export const MessageQuickReaction = style({
 });
 
 export const MessageMenuGroup = style({
-  padding: config.space.S100,
+  padding: config.space.S200,
 });
 
 export const MessageMenuItemText = style({

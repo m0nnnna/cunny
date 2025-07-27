@@ -23,7 +23,7 @@ export function MemberSortMenu({ selected, onSelect, requestClose }: MemberSortM
         escapeDeactivates: stopPropagation,
       }}
     >
-      <Menu style={{ padding: config.space.S100 }}>
+      <Menu style={{ padding: config.space.S200 }}>
         {memberSortMenu.map((menuItem, index) => (
           <MenuItem
             key={menuItem.name}
