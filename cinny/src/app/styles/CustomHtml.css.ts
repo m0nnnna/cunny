@@ -41,16 +41,19 @@ export const BlockQuote = style([
 ]);
 
 const BaseCode = style({
-  fontFamily: 'monospace',
-  color: color.Secondary.OnContainer,
-  background: color.Secondary.Container,
-  border: `${config.borderWidth.B300} solid ${color.Secondary.ContainerLine}`,
+  color: color.SurfaceVariant.OnContainer,
+  background: color.SurfaceVariant.Container,
+  border: `${config.borderWidth.B300} solid ${color.SurfaceVariant.ContainerLine}`,
   borderRadius: config.radii.R300,
+});
+const CodeFont = style({
+  fontFamily: 'monospace',
 });
 
 export const Code = style([
   DefaultReset,
   BaseCode,
+  CodeFont,
   {
     padding: `0 ${config.space.S100}`,
   },
@@ -86,34 +89,31 @@ export const CodeBlock = style([
   {
     fontStyle: 'normal',
     position: 'relative',
+    overflow: 'hidden',
   },
 ]);
-export const CodeBlockInternal = recipe({
-  base: {
-    padding: `${config.space.S200} ${config.space.S200} 0`,
-    minWidth: toRem(100),
-  },
-  variants: {
-    collapsed: {
-      true: {
-        maxHeight: `calc(${config.lineHeight.T400} * 9.6)`,
-      },
-    },
-  },
+export const CodeBlockHeader = style({
+  padding: `0 ${config.space.S200} 0 ${config.space.S300}`,
+  borderBottomWidth: config.borderWidth.B300,
+  gap: config.space.S200,
 });
-export const CodeBlockControls = style({
-  position: 'absolute',
-  top: config.space.S200,
-  right: config.space.S200,
-  visibility: 'hidden',
-  selectors: {
-    [`${CodeBlock}:hover &`]: {
-      visibility: 'visible',
-    },
-    [`${CodeBlock}:focus-within &`]: {
-      visibility: 'visible',
-    },
+export const CodeBlockInternal = style([
+  CodeFont,
+  {
+    padding: `${config.space.S200} ${config.space.S200} 0`,
+    minWidth: toRem(200),
   },
+]);
+
+export const CodeBlockBottomShadow = style({
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  pointerEvents: 'none',
+
+  height: config.space.S400,
+  background: `linear-gradient(to top, #00000022, #00000000)`,
 });
 
 export const List = style([

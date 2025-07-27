@@ -157,12 +157,12 @@ export function RenderElement({ attributes, element, children }: RenderElementPr
         <Text as="pre" className={css.CodeBlock} {...attributes}>
           <Scroll
             direction="Horizontal"
-            variant="Secondary"
+            variant="SurfaceVariant"
             size="300"
             visibility="Hover"
             hideTrack
           >
-            <div className={css.CodeBlockInternal()}>{children}</div>
+            <div className={css.CodeBlockInternal}>{children}</div>
           </Scroll>
         </Text>
       );
