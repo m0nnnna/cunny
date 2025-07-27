@@ -102,6 +102,9 @@ function PinnedMessage({ room, eventId, renderContent, onOpen, canPinEvent }: Pi
   const theme = useTheme();
   const accessibleTagColors = useAccessibleTagColors(theme.kind, powerLevelTags);
 
+  const [hour24Clock] = useSetting(settingsAtom, 'hour24Clock');
+  const [dateFormatString] = useSetting(settingsAtom, 'dateFormatString');
+
   const [unpinState, unpin] = useAsyncCallback(
     useCallback(() => {
       const pinEvent = getStateEvent(room, StateEvent.RoomPinnedEvents);
@@ -205,7 +208,11 @@ function PinnedMessage({ room, eventId, renderContent, onOpen, canPinEvent }: Pi
             </Username>
             {tagIconSrc && <PowerIcon size="100" iconSrc={tagIconSrc} />}
           </Box>
-          <Time ts={pinnedEvent.getTs()} />
+          <Time
+            ts={pinnedEvent.getTs()}
+            hour24Clock={hour24Clock}
+            dateFormatString={dateFormatString}
+          />
         </Box>
         {renderOptions()}
       </Box>

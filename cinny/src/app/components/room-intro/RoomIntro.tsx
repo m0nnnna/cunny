@@ -15,6 +15,8 @@ import { nameInitials } from '../../utils/common';
 import { useRoomAvatar, useRoomName, useRoomTopic } from '../../hooks/useRoomMeta';
 import { mDirectAtom } from '../../state/mDirectList';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useSetting } from '../../state/hooks/settings';
+import { settingsAtom } from '../../state/settings';
 
 export type RoomIntroProps = {
   room: Room;
@@ -43,6 +45,8 @@ export const RoomIntro = as<'div', RoomIntroProps>(({ room, ...props }, ref) => 
     useCallback(async (roomId: string) => mx.joinRoom(roomId), [mx])
   );
 
+  const [hour24Clock] = useSetting(settingsAtom, 'hour24Clock');
+
   return (
     <Box direction="Column" grow="Yes" gap="500" {...props} ref={ref}>
       <Box>
@@ -67,7 +71,7 @@ export const RoomIntro = as<'div', RoomIntroProps>(({ room, ...props }, ref) => 
             <Text size="T200" priority="300">
               {'Created by '}
               <b>@{creatorName}</b>
-              {` on ${timeDayMonthYear(ts)} ${timeHourMinute(ts)}`}
+              {` on ${timeDayMonthYear(ts)} ${timeHourMinute(ts, hour24Clock)}`}
             </Text>
           )}
         </Box>

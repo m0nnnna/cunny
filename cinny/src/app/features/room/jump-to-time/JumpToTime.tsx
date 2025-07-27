@@ -29,6 +29,8 @@ import { useRoom } from '../../../hooks/useRoom';
 import { StateEvent } from '../../../../types/matrix/room';
 import { getToday, getYesterday, timeDayMonthYear, timeHourMinute } from '../../../utils/time';
 import { DatePicker, TimePicker } from '../../../components/time-date';
+import { useSetting } from '../../../state/hooks/settings';
+import { settingsAtom } from '../../../state/settings';
 
 type JumpToTimeProps = {
   onCancel: () => void;
@@ -44,6 +46,8 @@ export function JumpToTime({ onCancel, onSubmit }: JumpToTimeProps) {
   const yesterdayTs = getYesterday();
   const createTs = useMemo(() => createStateEvent?.getTs() ?? 0, [createStateEvent]);
   const [ts, setTs] = useState(() => Date.now());
+
+  const [hour24Clock] = useSetting(settingsAtom, 'hour24Clock');
 
   const [timePickerCords, setTimePickerCords] = useState<RectCords>();
   const [datePickerCords, setDatePickerCords] = useState<RectCords>();
@@ -125,7 +129,7 @@ export function JumpToTime({ onCancel, onSubmit }: JumpToTimeProps) {
                       after={<Icon size="50" src={Icons.ChevronBottom} />}
                       onClick={handleTimePicker}
                     >
-                      <Text size="B300">{timeHourMinute(ts)}</Text>
+                      <Text size="B300">{timeHourMinute(ts, hour24Clock)}</Text>
                     </Chip>
                     <PopOut
                       anchor={timePickerCords}
