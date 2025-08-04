@@ -27,7 +27,7 @@ export function MembershipFilterMenu({
         escapeDeactivates: stopPropagation,
       }}
     >
-      <Menu style={{ padding: config.space.S200 }}>
+      <Menu style={{ padding: config.space.S100 }}>
         {membershipFilterMenu.map((menuItem, index) => (
           <MenuItem
             key={menuItem.name}

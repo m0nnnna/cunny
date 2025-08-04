@@ -74,7 +74,8 @@ function OrderButton({ order, onChange }: OrderButtonProps) {
             <Header size="300" variant="Surface" style={{ padding: `0 ${config.space.S300}` }}>
               <Text size="L400">Sort by</Text>
             </Header>
-            <div style={{ padding: config.space.S200, paddingTop: 0 }}>
+            <Line variant="Surface" size="300" />
+            <div style={{ padding: config.space.S100 }}>
               <MenuItem
                 onClick={() => setOrder()}
                 variant="Surface"
@@ -290,7 +291,7 @@ function SelectRoomButton({ roomList, selectedRooms, onChange }: SelectRoomButto
                 </Box>
               </Scroll>
               <Line variant="Surface" size="300" />
-              <Box shrink="No" direction="Column" gap="200" style={{ padding: config.space.S200 }}>
+              <Box shrink="No" direction="Column" gap="100" style={{ padding: config.space.S200 }}>
                 <Button size="300" variant="Secondary" radii="300" onClick={handleSave}>
                   {localSelected && localSelected.length > 0 ? (
                     <Text size="B300">Save ({localSelected.length})</Text>

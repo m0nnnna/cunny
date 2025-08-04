@@ -315,7 +315,7 @@ export function DeviceVerificationOptions() {
             }}
           >
             <Menu>
-              <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
+              <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
                 <MenuItem
                   variant="Critical"
                   onClick={handleReset}

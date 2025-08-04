@@ -273,7 +273,7 @@ export const RoomCard = as<'div', RoomCardProps>(
             variant="Secondary"
             size="300"
             disabled={joining}
-            before={joining && <Spinner size="50" variant="Secondary" fill="Solid" />}
+            before={joining && <Spinner size="50" variant="Secondary" fill="Soft" />}
           >
             <Text size="B300" truncate>
               {joining ? 'Joining' : 'Join'}

@@ -109,7 +109,7 @@ export function JoinRulesSwitcher<T extends ExtendedJoinRules[]>({
           }}
         >
           <Menu>
-            <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
+            <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
               {rules.map((rule) => (
                 <MenuItem
                   key={rule}

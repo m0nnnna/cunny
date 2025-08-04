@@ -91,7 +91,7 @@ function ClientRootOptions({ mx }: { mx?: MatrixClient }) {
             }}
           >
             <Menu>
-              <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
+              <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
                 {mx && (
                   <MenuItem onClick={() => clearCacheAndReload(mx)} size="300" radii="300">
                     <Text as="span" size="T300" truncate>

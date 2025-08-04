@@ -33,7 +33,7 @@ export function UsageSelector({ selected, onChange }: UsageSelectorProps) {
   );
 
   return (
-    <Box direction="Column" gap="100" style={{ padding: config.space.S200 }}>
+    <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
       {allUsages.map((usage) => (
         <MenuItem
           key={getUsageStr(usage)}

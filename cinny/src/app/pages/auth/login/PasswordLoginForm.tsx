@@ -59,11 +59,11 @@ function UsernameHint({ server }: { server: string }) {
           }}
         >
           <Menu>
-            <Header size="400" style={{ padding: `0 ${config.space.S400}` }}>
+            <Header size="300" style={{ padding: `0 ${config.space.S200}` }}>
               <Text size="L400">Hint</Text>
             </Header>
             <Box
-              style={{ padding: config.space.S400, paddingTop: 0 }}
+              style={{ padding: config.space.S200, paddingTop: 0 }}
               direction="Column"
               tabIndex={0}
               gap="100"

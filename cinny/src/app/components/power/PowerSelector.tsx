@@ -16,14 +16,13 @@ export const PowerSelector = forwardRef<HTMLDivElement, PowerSelectorProps>(
       ref={ref}
       style={{
         maxHeight: '75vh',
-        maxWidth: toRem(200),
-        width: '100vw',
+        maxWidth: toRem(300),
         display: 'flex',
       }}
     >
       <Box grow="Yes">
         <Scroll size="0" hideTrack visibility="Hover">
-          <div style={{ padding: config.space.S200 }}>
+          <div style={{ padding: config.space.S100 }}>
             {getPowers(powerLevelTags).map((power) => {
               const selected = value === power;
               const tag = powerLevelTags[power];

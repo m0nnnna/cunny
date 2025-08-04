@@ -63,7 +63,7 @@ function PeekPermissions({ powerLevels, power, permissionGroups, children }: Pee
           >
             <Box grow="Yes" tabIndex={0}>
               <Scroll size="0" hideTrack visibility="Hover">
-                <Box style={{ padding: config.space.S400 }} direction="Column" gap="400">
+                <Box style={{ padding: config.space.S200 }} direction="Column" gap="400">
                   {permissionGroups.map((group, groupIndex) => (
                     <Box key={groupIndex} direction="Column" gap="100">
                       <Text size="L400">{group.name}</Text>

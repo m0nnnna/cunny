@@ -38,16 +38,9 @@ export const ReplyLayout = as<'div', ReplyLayoutProps>(
 );
 
 export const ThreadIndicator = as<'div'>(({ ...props }, ref) => (
-  <Box
-    shrink="No"
-    className={css.ThreadIndicator}
-    alignItems="Center"
-    gap="100"
-    {...props}
-    ref={ref}
-  >
-    <Icon size="50" src={Icons.Thread} />
-    <Text size="L400">Thread</Text>
+  <Box className={css.ThreadIndicator} alignItems="Center" {...props} ref={ref}>
+    <Icon className={css.ThreadIndicatorIcon} src={Icons.Message} />
+    <Text size="T200">Threaded reply</Text>
   </Box>
 ));
 
@@ -104,7 +97,7 @@ export const Reply = as<'div', ReplyProps>(
     const bodyJSX = body ? scaleSystemEmoji(trimReplyFromBody(body)) : fallbackBody;
 
     return (
-      <Box direction="Row" gap="200" alignItems="Center" {...props} ref={ref}>
+      <Box direction="Column" alignItems="Start" {...props} ref={ref}>
         {threadRootId && (
           <ThreadIndicator as="button" data-event-id={threadRootId} onClick={onClick} />
         )}
