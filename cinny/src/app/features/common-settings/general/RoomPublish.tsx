@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, color, Spinner, Switch, Text } from 'folds';
-import { MatrixError } from 'matrix-js-sdk';
+import { JoinRule, MatrixError } from 'matrix-js-sdk';
+import { RoomJoinRulesEventContent } from 'matrix-js-sdk/lib/types';
 import { SequenceCard } from '../../../components/sequence-card';
 import { SequenceCardStyle } from '../../room-settings/styles.css';
 import { SettingTile } from '../../../components/setting-tile';
@@ -10,6 +11,8 @@ import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { IPowerLevels, powerLevelAPI } from '../../../hooks/usePowerLevels';
 import { StateEvent } from '../../../../types/matrix/room';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
+import { useStateEvent } from '../../../hooks/useStateEvent';
+import { ExtendedJoinRules } from '../../../components/JoinRulesSwitcher';
 
 type RoomPublishProps = {
   powerLevels: IPowerLevels;
@@ -23,6 +26,9 @@ export function RoomPublish({ powerLevels }: RoomPublishProps) {
     StateEvent.RoomCanonicalAlias,
     userPowerLevel
   );
+  const joinRuleEvent = useStateEvent(room, StateEvent.RoomJoinRules);
+  const content = joinRuleEvent?.getContent<RoomJoinRulesEventContent>();
+  const rule: ExtendedJoinRules = (content?.join_rule as ExtendedJoinRules) ?? JoinRule.Invite;
 
   const { visibilityState, setVisibility } = useRoomDirectoryVisibility(room.roomId);
 
@@ -30,6 +36,8 @@ export function RoomPublish({ powerLevels }: RoomPublishProps) {
 
   const loading =
     visibilityState.status === AsyncStatus.Loading || toggleState.status === AsyncStatus.Loading;
+  const validRule =
+    rule === JoinRule.Public || rule === JoinRule.Knock || rule === 'knock_restricted';
 
   return (
     <SequenceCard
@@ -47,7 +55,7 @@ export function RoomPublish({ powerLevels }: RoomPublishProps) {
               <Switch
                 value={visibilityState.data}
                 onChange={toggleVisibility}
-                disabled={!canEditCanonical}
+                disabled={!canEditCanonical || !validRule}
               />
             )}
           </Box>
