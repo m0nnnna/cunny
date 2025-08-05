@@ -4,13 +4,14 @@ import { UploadCard, UploadCardError, UploadCardProgress } from './UploadCard';
 import { UploadStatus, UploadSuccess, useBindUploadAtom } from '../../state/upload';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { TUploadContent } from '../../utils/matrix';
-import { getFileTypeIcon } from '../../utils/common';
+import { bytesToSize, getFileTypeIcon } from '../../utils/common';
 import {
   roomUploadAtomFamily,
   TUploadItem,
   TUploadMetadata,
 } from '../../state/room/roomInputDrafts';
 import { useObjectURL } from '../../hooks/useObjectURL';
+import { useMediaConfig } from '../../hooks/useMediaConfig';
 
 type ImagePreviewProps = { fileItem: TUploadItem; onSpoiler: (marked: boolean) => void };
 function ImagePreview({ fileItem, onSpoiler }: ImagePreviewProps) {
@@ -75,12 +76,18 @@ export function UploadCardRenderer({
   onComplete,
 }: UploadCardRendererProps) {
   const mx = useMatrixClient();
+  const mediaConfig = useMediaConfig();
+  const allowSize = mediaConfig['m.upload.size'] || Infinity;
+
   const uploadAtom = roomUploadAtomFamily(fileItem.file);
   const { metadata } = fileItem;
   const { upload, startUpload, cancelUpload } = useBindUploadAtom(mx, uploadAtom, isEncrypted);
   const { file } = upload;
+  const fileSizeExceeded = file.size >= allowSize;
 
-  if (upload.status === UploadStatus.Idle) startUpload();
+  if (upload.status === UploadStatus.Idle && !fileSizeExceeded) {
+    startUpload();
+  }
 
   const handleSpoiler = (marked: boolean) => {
     setMetadata(fileItem, { ...metadata, markedAsSpoiler: marked });
@@ -131,7 +138,7 @@ export function UploadCardRenderer({
           {fileItem.originalFile.type.startsWith('image') && (
             <ImagePreview fileItem={fileItem} onSpoiler={handleSpoiler} />
           )}
-          {upload.status === UploadStatus.Idle && (
+          {upload.status === UploadStatus.Idle && !fileSizeExceeded && (
             <UploadCardProgress sentBytes={0} totalBytes={file.size} />
           )}
           {upload.status === UploadStatus.Loading && (
@@ -140,6 +147,15 @@ export function UploadCardRenderer({
           {upload.status === UploadStatus.Error && (
             <UploadCardError>
               <Text size="T200">{upload.error.message}</Text>
+            </UploadCardError>
+          )}
+          {upload.status === UploadStatus.Idle && fileSizeExceeded && (
+            <UploadCardError>
+              <Text size="T200">
+                The file size exceeds the limit. Maximum allowed size is{' '}
+                <b>{bytesToSize(allowSize)}</b>, but the uploaded file is{' '}
+                <b>{bytesToSize(file.size)}</b>.
+              </Text>
             </UploadCardError>
           )}
         </>
