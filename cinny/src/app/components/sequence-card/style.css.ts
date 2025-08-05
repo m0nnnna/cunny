@@ -3,6 +3,7 @@ import { RecipeVariants, recipe } from '@vanilla-extract/recipes';
 import { config } from 'folds';
 
 const outlinedWidth = createVar('0');
+const radii = createVar(config.radii.R400);
 export const SequenceCard = recipe({
   base: {
     vars: {
@@ -13,33 +14,59 @@ export const SequenceCard = recipe({
     borderBottomWidth: 0,
     selectors: {
       '&:first-child, :not(&) + &': {
-        borderTopLeftRadius: config.radii.R400,
-        borderTopRightRadius: config.radii.R400,
+        borderTopLeftRadius: [radii],
+        borderTopRightRadius: [radii],
       },
       '&:last-child, &:not(:has(+&))': {
-        borderBottomLeftRadius: config.radii.R400,
-        borderBottomRightRadius: config.radii.R400,
+        borderBottomLeftRadius: [radii],
+        borderBottomRightRadius: [radii],
         borderBottomWidth: outlinedWidth,
       },
       [`&[data-first-child="true"]`]: {
-        borderTopLeftRadius: config.radii.R400,
-        borderTopRightRadius: config.radii.R400,
+        borderTopLeftRadius: [radii],
+        borderTopRightRadius: [radii],
       },
       [`&[data-first-child="false"]`]: {
         borderTopLeftRadius: 0,
         borderTopRightRadius: 0,
       },
       [`&[data-last-child="true"]`]: {
-        borderBottomLeftRadius: config.radii.R400,
-        borderBottomRightRadius: config.radii.R400,
+        borderBottomLeftRadius: [radii],
+        borderBottomRightRadius: [radii],
       },
       [`&[data-last-child="false"]`]: {
         borderBottomLeftRadius: 0,
         borderBottomRightRadius: 0,
       },
+
+      'button&': {
+        cursor: 'pointer',
+      },
     },
   },
   variants: {
+    radii: {
+      '0': {
+        vars: {
+          [radii]: config.radii.R0,
+        },
+      },
+      '300': {
+        vars: {
+          [radii]: config.radii.R300,
+        },
+      },
+      '400': {
+        vars: {
+          [radii]: config.radii.R400,
+        },
+      },
+      '500': {
+        vars: {
+          [radii]: config.radii.R500,
+        },
+      },
+    },
     outlined: {
       true: {
         vars: {
@@ -47,6 +74,9 @@ export const SequenceCard = recipe({
         },
       },
     },
+  },
+  defaultVariants: {
+    radii: '400',
   },
 });
 export type SequenceCardVariants = RecipeVariants<typeof SequenceCard>;

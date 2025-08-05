@@ -220,14 +220,12 @@ export function Lobby() {
       () =>
         hierarchy
           .flatMap((i) => {
-            const childRooms = Array.isArray(i.rooms)
-              ? i.rooms.map((r) => mx.getRoom(r.roomId))
-              : [];
+            const childRooms = Array.isArray(i.rooms) ? i.rooms.map((r) => getRoom(r.roomId)) : [];
 
-            return [mx.getRoom(i.space.roomId), ...childRooms];
+            return [getRoom(i.space.roomId), ...childRooms];
           })
           .filter((r) => !!r) as Room[],
-      [mx, hierarchy]
+      [hierarchy, getRoom]
     )
   );
 

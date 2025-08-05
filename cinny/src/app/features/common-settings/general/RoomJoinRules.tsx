@@ -27,6 +27,11 @@ import {
 } from '../../../state/hooks/roomList';
 import { allRoomsAtom } from '../../../state/room-list/roomList';
 import { roomToParentsAtom } from '../../../state/room/roomToParents';
+import {
+  knockRestrictedSupported,
+  knockSupported,
+  restrictedSupported,
+} from '../../../utils/matrix';
 
 type RestrictedRoomAllowContent = {
   room_id: string;
@@ -39,10 +44,9 @@ type RoomJoinRulesProps = {
 export function RoomJoinRules({ powerLevels }: RoomJoinRulesProps) {
   const mx = useMatrixClient();
   const room = useRoom();
-  const roomVersion = parseInt(room.getVersion(), 10);
-  const allowKnockRestricted = roomVersion >= 10;
-  const allowRestricted = roomVersion >= 8;
-  const allowKnock = roomVersion >= 7;
+  const allowKnockRestricted = knockRestrictedSupported(room.getVersion());
+  const allowRestricted = restrictedSupported(room.getVersion());
+  const allowKnock = knockSupported(room.getVersion());
 
   const roomIdToParents = useAtomValue(roomToParentsAtom);
   const space = useSpaceOptionally();

@@ -19,7 +19,8 @@ import {
   SettingsTab,
   UnverifiedTab,
 } from './sidebar';
-import { openCreateRoom, openSearch } from '../../../client/action/navigation';
+import { openSearch } from '../../../client/action/navigation';
+import { CreateTab } from './sidebar/CreateTab';
 
 export function SidebarNav() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -37,20 +38,7 @@ export function SidebarNav() {
             <SidebarStackSeparator />
             <SidebarStack>
               <ExploreTab />
-              <SidebarItem>
-                <SidebarItemTooltip tooltip="Create Space">
-                  {(triggerRef) => (
-                    <SidebarAvatar
-                      as="button"
-                      ref={triggerRef}
-                      outlined
-                      onClick={() => openCreateRoom(true)}
-                    >
-                      <Icon src={Icons.Plus} />
-                    </SidebarAvatar>
-                  )}
-                </SidebarItemTooltip>
-              </SidebarItem>
+              <CreateTab />
             </SidebarStack>
           </Scroll>
         }

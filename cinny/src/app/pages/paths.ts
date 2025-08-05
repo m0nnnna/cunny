@@ -74,6 +74,8 @@ export type ExploreServerPathSearchParams = {
 };
 export const EXPLORE_SERVER_PATH = `/explore/${_SERVER_PATH}`;
 
+export const CREATE_PATH = '/create';
+
 export const _NOTIFICATIONS_PATH = 'notifications/';
 export const _INVITES_PATH = 'invites/';
 export const INBOX_PATH = '/inbox/';

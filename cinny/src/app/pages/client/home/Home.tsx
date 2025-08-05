@@ -29,10 +29,18 @@ import {
   NavItemContent,
   NavLink,
 } from '../../../components/nav';
-import { getExplorePath, getHomeRoomPath, getHomeSearchPath } from '../../pathUtils';
+import {
+  getExplorePath,
+  getHomeCreatePath,
+  getHomeRoomPath,
+  getHomeSearchPath,
+} from '../../pathUtils';
 import { getCanonicalAliasOrRoomId } from '../../../utils/matrix';
 import { useSelectedRoom } from '../../../hooks/router/useSelectedRoom';
-import { useHomeSearchSelected } from '../../../hooks/router/useHomeSelected';
+import {
+  useHomeCreateSelected,
+  useHomeSearchSelected,
+} from '../../../hooks/router/useHomeSelected';
 import { useHomeRooms } from './useHomeRooms';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { VirtualTile } from '../../../components/virtualizer';
@@ -41,7 +49,7 @@ import { makeNavCategoryId } from '../../../state/closedNavCategories';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import { useCategoryHandler } from '../../../hooks/useCategoryHandler';
 import { useNavToActivePathMapper } from '../../../hooks/useNavToActivePathMapper';
-import { openCreateRoom, openJoinAlias } from '../../../../client/action/navigation';
+import { openJoinAlias } from '../../../../client/action/navigation';
 import { PageNav, PageNavHeader, PageNavContent } from '../../../components/page';
 import { useRoomsUnread } from '../../../state/hooks/unread';
 import { markAsRead } from '../../../../client/action/notifications';
@@ -174,7 +182,7 @@ function HomeEmpty() {
         }
         options={
           <>
-            <Button onClick={() => openCreateRoom()} variant="Secondary" size="300">
+            <Button onClick={() => navigate(getHomeCreatePath())} variant="Secondary" size="300">
               <Text size="B300" truncate>
                 Create Room
               </Text>
@@ -204,8 +212,10 @@ export function Home() {
   const rooms = useHomeRooms();
   const notificationPreferences = useRoomsNotificationPreferencesContext();
   const roomToUnread = useAtomValue(roomToUnreadAtom);
+  const navigate = useNavigate();
 
   const selectedRoomId = useSelectedRoom();
+  const createRoomSelected = useHomeCreateSelected();
   const searchSelected = useHomeSearchSelected();
   const noRoomToDisplay = rooms.length === 0;
   const [closedCategories, setClosedCategories] = useAtom(useClosedNavCategoriesAtom());
@@ -242,8 +252,8 @@ export function Home() {
         <PageNavContent scrollRef={scrollRef}>
           <Box direction="Column" gap="300">
             <NavCategory>
-              <NavItem variant="Background" radii="400">
-                <NavButton onClick={() => openCreateRoom()}>
+              <NavItem variant="Background" radii="400" aria-selected={createRoomSelected}>
+                <NavButton onClick={() => navigate(getHomeCreatePath())}>
                   <NavItemContent>
                     <Box as="span" grow="Yes" alignItems="Center" gap="200">
                       <Avatar size="200" radii="400">

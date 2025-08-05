@@ -1,6 +1,6 @@
 import { ComplexStyleRule } from '@vanilla-extract/css';
 import { RecipeVariants, recipe } from '@vanilla-extract/recipes';
-import { ContainerColor as TContainerColor, DefaultReset, color } from 'folds';
+import { ContainerColor as TContainerColor, DefaultReset, color, config } from 'folds';
 
 const getVariant = (variant: TContainerColor): ComplexStyleRule => ({
   vars: {
@@ -8,6 +8,20 @@ const getVariant = (variant: TContainerColor): ComplexStyleRule => ({
     borderColor: color[variant].ContainerLine,
     outlineColor: color[variant].ContainerLine,
     color: color[variant].OnContainer,
+  },
+  selectors: {
+    'button&[aria-pressed=true]': {
+      backgroundColor: color[variant].ContainerActive,
+    },
+    'button&:hover, &:focus-visible': {
+      backgroundColor: color[variant].ContainerHover,
+    },
+    'button&:active': {
+      backgroundColor: color[variant].ContainerActive,
+    },
+    'button&[disabled]': {
+      opacity: config.opacity.Disabled,
+    },
   },
 });
 

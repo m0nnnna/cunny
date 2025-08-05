@@ -28,6 +28,7 @@ import {
   _ROOM_PATH,
   _SEARCH_PATH,
   _SERVER_PATH,
+  CREATE_PATH,
 } from './paths';
 import { isAuthenticated } from '../../client/state/auth';
 import {
@@ -61,6 +62,10 @@ import { AutoRestoreBackupOnVerification } from '../components/BackupRestore';
 import { RoomSettingsRenderer } from '../features/room-settings';
 import { ClientRoomsNotificationPreferences } from './client/ClientRoomsNotificationPreferences';
 import { SpaceSettingsRenderer } from '../features/space-settings';
+import { CreateRoomModalRenderer } from '../features/create-room';
+import { HomeCreateRoom } from './client/home/CreateRoom';
+import { Create } from './client/create';
+import { CreateSpaceModalRenderer } from '../features/create-space';
 
 export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize) => {
   const { hashRouter } = clientConfig;
@@ -125,6 +130,8 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                       >
                         <Outlet />
                       </ClientLayout>
+                      <CreateRoomModalRenderer />
+                      <CreateSpaceModalRenderer />
                       <RoomSettingsRenderer />
                       <SpaceSettingsRenderer />
                       <ReceiveSelfDeviceVerification />
@@ -152,7 +159,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
           }
         >
           {mobile ? null : <Route index element={<WelcomePage />} />}
-          <Route path={_CREATE_PATH} element={<p>create</p>} />
+          <Route path={_CREATE_PATH} element={<HomeCreateRoom />} />
           <Route path={_JOIN_PATH} element={<p>join</p>} />
           <Route path={_SEARCH_PATH} element={<HomeSearch />} />
           <Route
@@ -253,6 +260,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
           <Route path={_FEATURED_PATH} element={<FeaturedRooms />} />
           <Route path={_SERVER_PATH} element={<PublicRooms />} />
         </Route>
+        <Route path={CREATE_PATH} element={<Create />} />
         <Route
           path={INBOX_PATH}
           element={

@@ -18,6 +18,13 @@ export const millisecondsToMinutesAndSeconds = (milliseconds: number): string =>
   return `${mm}:${ss < 10 ? '0' : ''}${ss}`;
 };
 
+export const millisecondsToMinutes = (milliseconds: number): string => {
+  const seconds = Math.floor(milliseconds / 1000);
+  const mm = Math.floor(seconds / 60);
+
+  return mm.toString();
+};
+
 export const secondsToMinutesAndSeconds = (seconds: number): string => {
   const mm = Math.floor(seconds / 60);
   const ss = Math.round(seconds % 60);
