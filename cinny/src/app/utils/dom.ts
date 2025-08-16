@@ -224,3 +224,10 @@ export const notificationPermission = (permission: NotificationPermission) => {
   }
   return false;
 };
+
+export const getMouseEventCords = (event: MouseEvent) => ({
+  x: event.clientX,
+  y: event.clientY,
+  width: 0,
+  height: 0,
+});
