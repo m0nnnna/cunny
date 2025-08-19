@@ -23,7 +23,7 @@ const DOMAIN_REGEX = /\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\b/;
 
 export const isServerName = (serverName: string): boolean => DOMAIN_REGEX.test(serverName);
 
-const matchMxId = (id: string): RegExpMatchArray | null => id.match(/^([@$+#])(.+):(\S+)$/);
+const matchMxId = (id: string): RegExpMatchArray | null => id.match(/^([@$+#])([^\s:]+):(\S+)$/);
 
 const validMxId = (id: string): boolean => !!matchMxId(id);
 
