@@ -2,12 +2,15 @@ import { Direction, IContextResponse, MatrixClient, Method, Room, RoomMember } f
 import { RoomServerAclEventContent } from 'matrix-js-sdk/lib/types';
 import { useMemo } from 'react';
 import {
+  addRoomIdToMDirect,
   getDMRoomFor,
+  guessDmRoomUserId,
   isRoomAlias,
   isRoomId,
   isServerName,
   isUserId,
   rateLimitedActions,
+  removeRoomIdFromMDirect,
 } from '../utils/matrix';
 import { hasDevices } from '../../util/matrixUtil';
 import * as roomActions from '../../client/action/room';
@@ -348,14 +351,15 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
         name: Command.ConvertToDm,
         description: 'Convert room to direct message',
         exe: async () => {
-          roomActions.convertToDm(mx, room.roomId);
+          const dmUserId = guessDmRoomUserId(room, mx.getSafeUserId());
+          await addRoomIdToMDirect(mx, room.roomId, dmUserId);
         },
       },
       [Command.ConvertToRoom]: {
         name: Command.ConvertToRoom,
         description: 'Convert direct message to room',
         exe: async () => {
-          roomActions.convertToRoom(mx, room.roomId);
+          await removeRoomIdFromMDirect(mx, room.roomId);
         },
       },
       [Command.Delete]: {

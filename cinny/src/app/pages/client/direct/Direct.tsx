@@ -17,6 +17,7 @@ import {
 } from 'folds';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import FocusTrap from 'focus-trap-react';
+import { useNavigate } from 'react-router-dom';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { factoryRoomIdByActivity } from '../../../utils/sort';
 import {
@@ -28,7 +29,7 @@ import {
   NavItem,
   NavItemContent,
 } from '../../../components/nav';
-import { getDirectRoomPath } from '../../pathUtils';
+import { getDirectCreatePath, getDirectRoomPath } from '../../pathUtils';
 import { getCanonicalAliasOrRoomId } from '../../../utils/matrix';
 import { useSelectedRoom } from '../../../hooks/router/useSelectedRoom';
 import { VirtualTile } from '../../../components/virtualizer';
@@ -38,7 +39,6 @@ import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import { useCategoryHandler } from '../../../hooks/useCategoryHandler';
 import { useNavToActivePathMapper } from '../../../hooks/useNavToActivePathMapper';
 import { useDirectRooms } from './useDirectRooms';
-import { openInviteUser } from '../../../../client/action/navigation';
 import { PageNav, PageNavContent, PageNavHeader } from '../../../components/page';
 import { useClosedNavCategoriesAtom } from '../../../state/hooks/closedNavCategories';
 import { useRoomsUnread } from '../../../state/hooks/unread';
@@ -50,6 +50,7 @@ import {
   getRoomNotificationMode,
   useRoomsNotificationPreferencesContext,
 } from '../../../hooks/useRoomsNotificationPreferences';
+import { useDirectCreateSelected } from '../../../hooks/router/useDirectSelected';
 
 type DirectMenuProps = {
   requestClose: () => void;
@@ -138,6 +139,8 @@ function DirectHeader() {
 }
 
 function DirectEmpty() {
+  const navigate = useNavigate();
+
   return (
     <NavEmptyCenter>
       <NavEmptyLayout
@@ -153,7 +156,7 @@ function DirectEmpty() {
           </Text>
         }
         options={
-          <Button variant="Secondary" size="300" onClick={() => openInviteUser()}>
+          <Button variant="Secondary" size="300" onClick={() => navigate(getDirectCreatePath())}>
             <Text size="B300" truncate>
               Direct Message
             </Text>
@@ -172,6 +175,9 @@ export function Direct() {
   const directs = useDirectRooms();
   const notificationPreferences = useRoomsNotificationPreferencesContext();
   const roomToUnread = useAtomValue(roomToUnreadAtom);
+  const navigate = useNavigate();
+
+  const createDirectSelected = useDirectCreateSelected();
 
   const selectedRoomId = useSelectedRoom();
   const noRoomToDisplay = directs.length === 0;
@@ -205,8 +211,8 @@ export function Direct() {
         <PageNavContent scrollRef={scrollRef}>
           <Box direction="Column" gap="300">
             <NavCategory>
-              <NavItem variant="Background" radii="400">
-                <NavButton onClick={() => openInviteUser()}>
+              <NavItem variant="Background" radii="400" aria-selected={createDirectSelected}>
+                <NavButton onClick={() => navigate(getDirectCreatePath())}>
                   <NavItemContent>
                     <Box as="span" grow="Yes" alignItems="Center" gap="200">
                       <Avatar size="200" radii="400">
