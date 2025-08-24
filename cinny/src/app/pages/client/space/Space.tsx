@@ -57,7 +57,6 @@ import { useSpaceJoinedHierarchy } from '../../../hooks/useSpaceHierarchy';
 import { allRoomsAtom } from '../../../state/room-list/roomList';
 import { PageNav, PageNavContent, PageNavHeader } from '../../../components/page';
 import { usePowerLevels } from '../../../hooks/usePowerLevels';
-import { openInviteUser } from '../../../../client/action/navigation';
 import { useRecursiveChildScopeFactory, useSpaceChildren } from '../../../state/hooks/roomList';
 import { roomToParentsAtom } from '../../../state/room/roomToParents';
 import { markAsRead } from '../../../../client/action/notifications';
@@ -84,6 +83,7 @@ import { useRoomPermissions } from '../../../hooks/useRoomPermissions';
 import { ContainerColor } from '../../../styles/ContainerColor.css';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { BreakWord } from '../../../styles/Text.css';
+import { InviteUserPrompt } from '../../../components/invite-user-prompt';
 
 type SpaceMenuProps = {
   room: Room;
@@ -101,6 +101,8 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
   const canInvite = permissions.action('invite', mx.getSafeUserId());
   const openSpaceSettings = useOpenSpaceSettings();
   const { navigateRoom } = useRoomNavigate();
+
+  const [invitePrompt, setInvitePrompt] = useState(false);
 
   const allChild = useSpaceChildren(
     allRoomsAtom,
@@ -122,8 +124,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
   };
 
   const handleInvite = () => {
-    openInviteUser(room.roomId);
-    requestClose();
+    setInvitePrompt(true);
   };
 
   const handleRoomSettings = () => {
@@ -139,6 +140,15 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
   return (
     <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
       <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+        {invitePrompt && room && (
+          <InviteUserPrompt
+            room={room}
+            requestClose={() => {
+              setInvitePrompt(false);
+              requestClose();
+            }}
+          />
+        )}
         <MenuItem
           onClick={handleMarkAsRead}
           size="300"
@@ -160,6 +170,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
           size="300"
           after={<Icon size="100" src={Icons.UserPlus} />}
           radii="300"
+          aria-pressed={invitePrompt}
           disabled={!canInvite}
         >
           <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
