@@ -194,7 +194,7 @@ export function InviteUserPrompt({ room, requestClose }: InviteUserProps) {
                       ref={inputRef}
                       onChange={handleSearchChange}
                       onKeyDown={handleKeyDown}
-                      placeholder="@john:server"
+                      placeholder="@username:server"
                       name="userIdInput"
                       variant="Background"
                       disabled={inviting}

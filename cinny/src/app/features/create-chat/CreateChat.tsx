@@ -78,7 +78,7 @@ export function CreateChat({ defaultUserId }: CreateChatProps) {
         <Text size="L400">User ID</Text>
         <Input
           defaultValue={defaultUserId}
-          placeholder="@john:server"
+          placeholder="@username:server"
           name="userIdInput"
           variant="SurfaceVariant"
           size="500"

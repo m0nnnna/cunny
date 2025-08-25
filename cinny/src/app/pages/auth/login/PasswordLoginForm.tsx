@@ -72,19 +72,19 @@ function UsernameHint({ server }: { server: string }) {
                 <Text as="span" size="Inherit" priority="300">
                   Username:
                 </Text>{' '}
-                johndoe
+                user123
               </Text>
               <Text size="T300">
                 <Text as="span" size="Inherit" priority="300">
                   Matrix ID:
                 </Text>
-                {` @johndoe:${server}`}
+                {` @user123:${server}`}
               </Text>
               <Text size="T300">
                 <Text as="span" size="Inherit" priority="300">
                   Email:
                 </Text>
-                {` johndoe@${server}`}
+                {` user123@${server}`}
               </Text>
             </Box>
           </Menu>
