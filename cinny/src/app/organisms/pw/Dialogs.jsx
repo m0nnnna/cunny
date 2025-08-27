@@ -2,7 +2,6 @@ import React from 'react';
 
 import ProfileViewer from '../profile-viewer/ProfileViewer';
 import SpaceAddExisting from '../../molecules/space-add-existing/SpaceAddExisting';
-import Search from '../search/Search';
 import CreateRoom from '../create-room/CreateRoom';
 import JoinAlias from '../join-alias/JoinAlias';
 
@@ -15,7 +14,6 @@ function Dialogs() {
       <CreateRoom />
       <JoinAlias />
       <SpaceAddExisting />
-      <Search />
 
       <ReusableDialog />
     </>
