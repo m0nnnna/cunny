@@ -271,7 +271,7 @@ function SpaceHeader() {
             </Text>
             {joinRules?.join_rule !== JoinRule.Public && <Icon src={Icons.Lock} size="50" />}
           </Box>
-          <Box>
+          <Box shrink="No">
             <IconButton aria-pressed={!!menuAnchor} variant="Background" onClick={handleOpenMenu}>
               <Icon src={Icons.VerticalDots} size="200" />
             </IconButton>
