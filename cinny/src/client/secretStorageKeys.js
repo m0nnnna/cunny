@@ -7,16 +7,12 @@ export function storePrivateKey(keyId, privateKey) {
   secretStorageKeys.set(keyId, privateKey);
 }
 
-export function hasPrivateKey(keyId) {
+function hasPrivateKey(keyId) {
   return secretStorageKeys.get(keyId) instanceof Uint8Array;
 }
 
-export function getPrivateKey(keyId) {
+function getPrivateKey(keyId) {
   return secretStorageKeys.get(keyId);
-}
-
-export function deletePrivateKey(keyId) {
-  delete secretStorageKeys.delete(keyId);
 }
 
 export function clearSecretStorageKeys() {

@@ -56,7 +56,6 @@ import { roomToUnreadAtom } from '../../state/room/roomToUnread';
 import { UnreadBadge, UnreadBadgeCenter } from '../../components/unread-badge';
 import { searchModalAtom } from '../../state/searchModal';
 import { useKeyDown } from '../../hooks/useKeyDown';
-import navigation from '../../../client/state/navigation';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
 import { KeySymbol } from '../../utils/key-symbol';
 import { isMacOS } from '../../utils/user-agent';
@@ -436,11 +435,8 @@ export function SearchModalRenderer() {
           }
 
           // means some menu or modal window is open
-          const { lastChild } = document.body;
-          if (
-            (lastChild && 'className' in lastChild && lastChild.className !== 'ReactModalPortal') ||
-            navigation.isRawModalVisible
-          ) {
+          const lastNode = document.body.lastElementChild;
+          if (lastNode && !lastNode.hasAttribute('data-last-node')) {
             return;
           }
           setOpen(true);
