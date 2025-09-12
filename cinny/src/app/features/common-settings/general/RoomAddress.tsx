@@ -329,7 +329,7 @@ function LocalAddressesList({
             <Box shrink="No">
               <Checkbox
                 checked={selected}
-                onChange={() => toggleSelect(alias)}
+                onClick={() => toggleSelect(alias)}
                 size="50"
                 variant="Primary"
                 disabled={loading}
