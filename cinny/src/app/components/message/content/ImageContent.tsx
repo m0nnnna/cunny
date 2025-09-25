@@ -214,7 +214,7 @@ export const ImageContent = as<'div', ImageContentProps>(
         )}
         {(srcState.status === AsyncStatus.Loading || srcState.status === AsyncStatus.Success) &&
           !load &&
-          !markedAsSpoiler && (
+          !blurred && (
             <Box className={css.AbsoluteContainer} alignItems="Center" justifyContent="Center">
               <Spinner variant="Secondary" />
             </Box>
