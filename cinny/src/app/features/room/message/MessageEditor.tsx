@@ -53,6 +53,7 @@ import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getEditedEvent, getMentionContent, trimReplyFromFormattedBody } from '../../../utils/room';
 import { mobileOrTablet } from '../../../utils/user-agent';
+import { useComposingCheck } from '../../../hooks/useComposingCheck';
 
 type MessageEditorProps = {
   roomId: string;
@@ -69,6 +70,7 @@ export const MessageEditor = as<'div', MessageEditorProps>(
     const [globalToolbar] = useSetting(settingsAtom, 'editorToolbar');
     const [isMarkdown] = useSetting(settingsAtom, 'isMarkdown');
     const [toolbar, setToolbar] = useState(globalToolbar);
+    const isComposing = useComposingCheck();
 
     const [autocompleteQuery, setAutocompleteQuery] =
       useState<AutocompleteQuery<AutocompletePrefix>>();
@@ -163,7 +165,10 @@ export const MessageEditor = as<'div', MessageEditorProps>(
 
     const handleKeyDown: KeyboardEventHandler = useCallback(
       (evt) => {
-        if ((isKeyHotkey('mod+enter', evt) || (!enterForNewline && isKeyHotkey('enter', evt))) && !evt.nativeEvent.isComposing) {
+        if (
+          (isKeyHotkey('mod+enter', evt) || (!enterForNewline && isKeyHotkey('enter', evt))) &&
+          !isComposing(evt)
+        ) {
           evt.preventDefault();
           handleSave();
         }
@@ -172,7 +177,7 @@ export const MessageEditor = as<'div', MessageEditorProps>(
           onCancel();
         }
       },
-      [onCancel, handleSave, enterForNewline]
+      [onCancel, handleSave, enterForNewline, isComposing]
     );
 
     const handleKeyUp: KeyboardEventHandler = useCallback(
