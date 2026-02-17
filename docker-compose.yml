@@ -1,0 +1,67 @@
+# Keys flow: .env is the SINGLE source of truth for LIVEKIT_API_KEY / LIVEKIT_API_SECRET.
+# - LiveKit server receives them via LIVEKIT_KEYS env var (overrides livekit.yaml keys:)
+# - Token server receives them via LIVEKIT_API_KEY / LIVEKIT_API_SECRET env vars
+# Run deploy.ps1 (Windows) or setup.sh (Linux) to auto-generate keys and build.
+
+services:
+  # LiveKit Server - WebRTC SFU for voice
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: livekit-server
+    restart: unless-stopped
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882/udp"
+    environment:
+      # LIVEKIT_KEYS overrides the keys: section in livekit.yaml — single source of truth from .env
+      LIVEKIT_KEYS: "${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}"
+    command: >
+      --config /etc/livekit.yaml
+      --node-ip=${HOST_IP}
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+    networks:
+      - cinny-voice
+
+  # Token Server - Generates LiveKit access tokens
+  token-server:
+    build:
+      context: ./livekit-token-server
+      dockerfile: Dockerfile
+    container_name: livekit-token-server
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET}
+      - PORT=3001
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+    depends_on:
+      - livekit
+    networks:
+      - cinny-voice
+
+  # Cunny with Voice Channels - Modified Matrix client
+  cinny:
+    build:
+      context: ./cinny
+      dockerfile: Dockerfile.voice
+      args:
+        VITE_BRAND_NAME: ${VITE_BRAND_NAME:-}
+    container_name: cinny-voice
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      - LIVEKIT_SERVER_URL=${LIVEKIT_WS_URL}
+      - TOKEN_ENDPOINT=${TOKEN_ENDPOINT}
+    depends_on:
+      - token-server
+    networks:
+      - cinny-voice
+
+networks:
+  cinny-voice:
+    driver: bridge

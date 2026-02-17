@@ -1,0 +1,39 @@
+# ── Secrets & environment ────────────────────────────────────────────
+.env
+env
+
+# ── Server-specific nginx configs (contain real domains, IPs, SSL paths) ─
+chatui.conf
+synapse.conf
+livekit.frennet.xyz.conf
+token.frennet.xyz.conf
+# Keep the example config for reference:
+# nginx-proxy.conf.example  (tracked)
+
+# ── Build artifacts & archives ───────────────────────────────────────
+old.build/
+*.zip
+
+# ── Node / npm ───────────────────────────────────────────────────────
+node_modules/
+cinny/node_modules/
+livekit-token-server/node_modules/
+
+# ── Build output ─────────────────────────────────────────────────────
+cinny/dist/
+
+# ── OS / editor junk ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.Zone.Identifier
+?Zone.Identifier
+desktop.ini
+
+# ── IDE ──────────────────────────────────────────────────────────────
+.idea/
+*.swp
+*.swo
+
+# ── Temp files from Claude/Cursor sessions ───────────────────────────
+tmpclaude-*/
+cinny/tmpclaude-*/

@@ -1,0 +1,177 @@
+@font-face {
+  font-family: Twemoji;
+  src: url('../public/font/Twemoji.Mozilla.v15.1.0.woff2'),
+    url('../public/font/Twemoji.Mozilla.v15.1.0.ttf');
+  font-display: swap;
+}
+
+:root {
+  --tc-link: hsl(213deg 100% 45%);
+
+  /* user mxid colors */
+  --mx-uc-1: hsl(208, 100%, 45%);
+  --mx-uc-2: hsl(302, 100%, 30%);
+  --mx-uc-3: hsl(163, 100%, 30%);
+  --mx-uc-4: hsl(343, 100%, 45%);
+  --mx-uc-5: hsl(24, 100%, 45%);
+  --mx-uc-6: hsl(181, 100%, 30%);
+  --mx-uc-7: hsl(242, 100%, 45%);
+  --mx-uc-8: hsl(94, 100%, 35%);
+
+  --font-emoji: 'Twemoji_DISABLED';
+  --font-secondary: 'InterVariable', var(--font-emoji), sans-serif;
+}
+
+.dark-theme,
+.butter-theme {
+  --tc-link: hsl(213deg 100% 80%);
+
+  --mx-uc-1: hsl(208, 100%, 75%);
+  --mx-uc-2: hsl(301, 100%, 80%);
+  --mx-uc-3: hsl(163, 100%, 70%);
+  --mx-uc-4: hsl(343, 100%, 75%);
+  --mx-uc-5: hsl(24, 100%, 70%);
+  --mx-uc-6: hsl(181, 100%, 60%);
+  --mx-uc-7: hsl(243, 100%, 80%);
+  --mx-uc-8: hsl(94, 100%, 80%);
+
+  --font-secondary: 'InterVariable', var(--font-emoji), sans-serif;
+}
+
+/* ----- Neko Dark: cute neko theme — soft gradient background, lavender/pink links ----- */
+body.neko-dark-theme {
+  --tc-link: hsl(270deg 91% 75%);
+  --mx-uc-1: hsl(263, 91%, 75%);
+  --mx-uc-2: hsl(330, 81%, 75%);
+  --mx-uc-3: hsl(160, 84%, 72%);
+  --mx-uc-4: hsl(340, 82%, 78%);
+  --mx-uc-5: hsl(38, 92%, 72%);
+  --mx-uc-6: hsl(190, 78%, 68%);
+  --mx-uc-7: hsl(270, 91%, 78%);
+  --mx-uc-8: hsl(142, 76%, 75%);
+  background: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(88, 28, 135, 0.18), transparent 50%),
+    radial-gradient(ellipse 80% 60% at 100% 50%, rgba(126, 34, 206, 0.08), transparent 45%),
+    radial-gradient(ellipse 70% 50% at 0% 80%, rgba(236, 72, 153, 0.06), transparent 40%),
+    #13121a;
+  background-attachment: fixed;
+}
+
+body.neko-dark-theme #root {
+  background-image: radial-gradient(circle at 20px 20px, rgba(167, 139, 250, 0.04) 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
+}
+
+/* ----- Neko Light: cute neko theme — blush gradient, pastel links ----- */
+body.neko-light-theme {
+  --tc-link: hsl(262deg 83% 58%);
+  --mx-uc-1: hsl(262, 83%, 62%);
+  --mx-uc-2: hsl(330, 81%, 65%);
+  --mx-uc-3: hsl(160, 84%, 38%);
+  --mx-uc-4: hsl(340, 82%, 55%);
+  --mx-uc-5: hsl(38, 92%, 45%);
+  --mx-uc-6: hsl(190, 78%, 42%);
+  --mx-uc-7: hsl(270, 70%, 58%);
+  --mx-uc-8: hsl(142, 76%, 42%);
+  background: radial-gradient(ellipse 100% 70% at 50% -15%, rgba(237, 233, 254, 0.7), transparent 45%),
+    radial-gradient(ellipse 70% 50% at 100% 100%, rgba(252, 231, 243, 0.5), transparent 40%),
+    radial-gradient(ellipse 60% 40% at 0% 50%, rgba(221, 214, 254, 0.4), transparent 35%),
+    #faf5fc;
+  background-attachment: fixed;
+}
+
+body.neko-light-theme #root {
+  background-image: radial-gradient(circle at 18px 18px, rgba(124, 58, 237, 0.06) 1.2px, transparent 1.2px);
+  background-size: 36px 36px;
+}
+
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: var(--font-secondary);
+  font-size: 16px;
+  font-weight: 400;
+
+  /*Why font-variant-ligatures => https://github.com/rsms/inter/issues/222 */
+  font-variant-ligatures: no-contextual;
+}
+#root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+a {
+  color: var(--tc-link);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+[data-mx-spoiler][aria-pressed='true'] a {
+  color: transparent;
+  pointer-events: none;
+}
+
+b {
+  font-weight: 500;
+}
+label {
+  margin: 0;
+  padding: 0;
+}
+button,
+textarea {
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  border: none;
+}
+button {
+  max-width: 100%;
+  text-transform: none;
+  text-align: inherit;
+  overflow: visible;
+  -webkit-appearance: button;
+}
+textarea,
+input,
+input[type],
+input[type='text'],
+input[type='username'],
+input[type='password'],
+input[type='email'],
+input[type='checkbox'] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+textarea {
+  color: inherit;
+  word-spacing: inherit;
+}
+
+audio:not([controls]) {
+  display: none !important;
+}

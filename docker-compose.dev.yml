@@ -1,0 +1,18 @@
+# Development override - use with: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+# Keys are read from .env (same as production). Do NOT hardcode keys here.
+
+services:
+  livekit:
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882/udp"
+
+  token-server:
+    environment:
+      - ALLOWED_ORIGINS=*
+
+  cinny:
+    environment:
+      - LIVEKIT_SERVER_URL=ws://localhost:7880
+      - TOKEN_ENDPOINT=http://localhost:3001/api/livekit/token

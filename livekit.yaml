@@ -1,0 +1,56 @@
+# LiveKit Server Configuration
+
+port: 7880
+
+rtc:
+  # Single UDP mux port — all WebRTC media multiplexed through one port.
+  # Much faster than mapping a 10,000-port range in Docker.
+  # port_range_start / port_range_end must NOT be set when using udp_port.
+  udp_port: 7882
+
+  # ICE/TCP fallback — critical for privacy browsers (ungoogled-chromium, Zen, Brave, etc.)
+  # that block non-proxied UDP by default. Must be directly reachable (not behind TLS/LB).
+  tcp_port: 7881
+
+  # Pin the server's public IP so ICE candidates always contain the correct address.
+  # use_external_ip uses STUN to discover the IP, but some privacy browsers block STUN too.
+  # Setting node_ip explicitly is more reliable; use_external_ip must be false when node_ip is set.
+  use_external_ip: false
+  node_ip: YOUR_SERVER_IP
+
+  # Ensure TCP fallback is enabled (default true, but be explicit).
+  # When UDP fails (privacy browsers, corporate firewalls), clients fall back to tcp_port.
+  allow_tcp_fallback: true
+
+# Optional: Embedded TURN server for the most restrictive clients.
+# TURN/TLS on 443 can traverse virtually any firewall/proxy.
+# Requires a dedicated domain (e.g. turn.frennet.xyz) with a TLS cert.
+# turn:
+#   enabled: true
+#   domain: turn.frennet.xyz
+#   tls_port: 443
+#   udp_port: 3478
+#   # cert_file: /etc/livekit/turn-cert.pem
+#   # key_file: /etc/livekit/turn-key.pem
+
+# API Keys — overridden at runtime by LIVEKIT_KEYS env var from .env via docker-compose.
+# The keys below are only used if running LiveKit outside of Docker (e.g. bare-metal testing).
+# In Docker, .env is the single source of truth; you never need to edit this section.
+# deploy.ps1 / setup.sh auto-generates keys into .env on every build.
+keys:
+  placeholder: not-used-in-docker
+
+logging:
+  level: info
+
+room:
+  max_participants: 50
+  empty_timeout: 300
+  departure_timeout: 20
+
+# Optional: webhook for "in voice" room list. Uncomment and set url to your token server webhook.
+# The token server must be reachable by the LiveKit server (use a public URL if LiveKit is in Docker).
+# webhook:
+#   api_key: devkey
+#   urls:
+#     - https://your-domain.com/api/livekit/webhook

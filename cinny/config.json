@@ -1,0 +1,23 @@
+{
+  "defaultHomeserver": 0,
+  "homeserverList": [
+	"chat.frennet.xyz"
+  ],
+  "allowCustomHomeservers": true,
+
+  "featuredCommunities": {
+    "openAsDefault": false,
+    "spaces": [
+      "#frens:chat.frennet.xyz"
+    ],
+    "rooms": [
+      "#gen:chat.frennet.xyz"
+    ],
+    "servers": ["chat.frennet.xyz"]
+  },
+
+  "hashRouter": {
+    "enabled": true,
+    "basename": "/"
+  }
+}
