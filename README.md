@@ -1,6 +1,6 @@
 # NekoChat (with Voice Channels)
 
-A Matrix client based on [Cinny](https://github.com/cinnyapp/cinny), branded as **NekoChat**, with Discord-like voice channels powered by [LiveKit](https://livekit.io/). Self-hosted, with a cute neko theme and optional in-app mascot.
+A Matrix client based on [Cinny](https://github.com/cinnyapp/cinny), branded as **NekoChat**, with Discord-like voice channels powered by [LiveKit](https://livekit.io/). Self-hosted, with a cute neko theme and optional in-app mascot. The same app is also available as an **Android APK** (one-command build, push notifications).
 
 ---
 
@@ -41,7 +41,7 @@ A Matrix client based on [Cinny](https://github.com/cinnyapp/cinny), branded as 
 
 ### Theming & appearance
 
-- **Neko themes** — **Neko Dark** and **Neko Light** (default: Neko Dark): liquid glass / aero-style UI, neko-themed copy and emoticons, optional mascot.
+- **Neko themes** — **Neko Dark**, **Neko Light** (default: Neko Dark), **Neko Sunset**, **Neko Mint**, **Neko Cyberpunk**, **Neko Solarized**, **Neko Kawaii**: liquid glass / aero-style UI, neko-themed copy and emoticons, optional mascot.
 - **Other themes** — Light, Silver, Dark, Butter.
 - **System theme** — Automatically switch between light and dark (e.g. Neko Light / Neko Dark) based on OS preference.
 - **IRC mode** — Narrower sidebar and compact list for an IRC-like layout.
@@ -67,13 +67,63 @@ A Matrix client based on [Cinny](https://github.com/cinnyapp/cinny), branded as 
 
 ## Architecture
 
+### How the connections work (Cloudflare → VPS → WireGuard → Home)
+
+Traffic for Matrix and NekoChat (and optionally LiveKit) goes through **Cloudflare**, then to a **VPS** that forwards over **WireGuard** to your **home server**, where all services run.
+
+```
+                          ┌─────────────────────────────────────────┐
+                          │              CLOUDFLARE                   │
+                          │  (DNS + proxy, SSL; your domains)        │
+                          │  matrix.*  │  chat.*  │  livekit.*       │
+                          └───────────────────────┬─────────────────┘
+                                                  │
+                          HTTPS (proxied to VPS)  │
+                                                  ▼
+                          ┌─────────────────────────────────────────┐
+                          │                  VPS                     │
+                          │  (reverse proxy; WireGuard client)       │
+                          │  Receives: matrix, cinny, token, livekit │
+                          └───────────────────────┬─────────────────┘
+                                                  │
+                          WireGuard tunnel       │
+                          (private IP)           │
+                                                  ▼
+                          ┌─────────────────────────────────────────┐
+                          │              HOME SERVER                 │
+                          │  (WireGuard server; all services here)   │
+                          │                                         │
+                          │  ┌─────────────┐  ┌─────────────────┐   │
+                          │  │   Matrix    │  │  NekoChat (web)  │   │
+                          │  │  (Synapse)  │  │  + Token server │   │
+                          │  └─────────────┘  └────────┬────────┘   │
+                          │                             │            │
+                          │                    WebRTC   │            │
+                          │  ┌─────────────┐  ◀────────┘            │
+                          │  │   LiveKit   │  (voice media)          │
+                          │  │   Server    │                         │
+                          │  └─────────────┘                         │
+                          └─────────────────────────────────────────┘
+```
+
+**Flow in words:**
+
+1. **Users** → **Cloudflare** (your domains: Matrix, Cinny/NekoChat, LiveKit). Cloudflare terminates SSL and proxies to your VPS.
+2. **Cloudflare** → **VPS** (single public entry point). The VPS runs a reverse proxy (e.g. nginx) that forwards each hostname to the next hop.
+3. **VPS** → **Home server** over **WireGuard** (private tunnel). The proxy on the VPS sends traffic to the home server’s WireGuard IP (e.g. `10.0.0.2`).
+4. **Home server** runs Matrix (Synapse), NekoChat (web app), the **token server** (LiveKit tokens), and **LiveKit** (voice). The browser talks to NekoChat and the token server; NekoChat then uses LiveKit for WebRTC (voice).
+
+So: **Matrix + Cloudflare** and **Cinny + Cloudflare** both route to the **VPS**, then over **WireGuard** to the **home server** for Matrix, token server, and LiveKit.
+
+### Services (what talks to what)
+
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │   NekoChat      │────▶│  Token Server   │     │    Matrix       │
 │  (Web Client)   │     │   (Express)     │     │   Homeserver    │
 └────────┬────────┘     └─────────────────┘     └─────────────────┘
          │
-         │ WebRTC
+         │ WebRTC (voice)
          ▼
 ┌─────────────────┐
 │  LiveKit Server │
@@ -200,6 +250,10 @@ If voice does not auto-configure:
 
 ---
 
+## Registration (Matrix homeserver)
+
+User registration with email verification requires your **Matrix homeserver** (e.g. Synapse) to be configured to send mail (SMTP). If users see "Verification Request Sent" but then "M_UNAUTHORIZED: Unable to get validated threepid" and no email arrives, configure the `email` block in the homeserver config (e.g. `homeserver.yaml`) with a valid SMTP server and restart the homeserver. The app shows a short in-app hint when this error occurs.
+
 ## Usage
 
 1. Log in with your Matrix account.
@@ -227,6 +281,70 @@ Relevant areas:
 - `cinny/src/app/features/settings/voice/` — Voice settings
 - `cinny/src/app/config/brand.ts` — Default brand/version
 - `cinny/public/config.json` — Runtime branding
+
+---
+
+## Android app
+
+The same NekoChat app is packaged as an Android APK (Capacitor) with **push notifications** (FCM). No Android Studio required for the build.
+
+### One-command release APK
+
+From the **repo root**:
+
+| Platform   | Command            |
+|-----------|---------------------|
+| **Windows** | `build-android.bat` |
+| **Linux / macOS** | `./build-android.sh` |
+
+The script:
+
+1. Installs npm dependencies in `cinny/`
+2. Builds the web app for Android (`--mode android`)
+3. Adds the Android platform if missing (`cap add android`)
+4. Runs **`node scripts/generate-icons.js`** to refresh launcher icons (uses `nekochat-icon-source.png` or, if missing, `android-chrome-512x512.png` in `cinny/public/`; skips cleanly if neither exists)
+5. Syncs the build into the Android project (`cap sync android`)
+6. Runs **`gradlew assembleRelease`** (no `clean`, to avoid "Unable to delete directory" on Windows or network drives)
+7. Copies the APK to **`NekoChat-release.apk`** in the repo root
+
+The release build is signed with the **debug keystore** so the APK is installable for testing. For Play Store you’d use a proper release keystore (see `cinny/ANDROID.md`).
+
+### Prerequisites
+
+- **Node.js** 18+ (includes npm)
+- **Android SDK** and **Java 11 or 17** (for Gradle). If the build fails with “compatible with Java 11”, set **JAVA_HOME** to a JDK 11+ path (e.g. Android Studio’s `jbr` folder on Windows).
+
+### App icon
+
+To use your own icon for the Android launcher:
+
+1. Put a **square PNG** of your app icon at **`cinny/public/nekochat-icon-source.png`** (any size, e.g. 512, 1024, or 2048; the script resizes as needed).
+2. From **`cinny/`** run: **`node scripts/generate-icons.js`**
+3. Rebuild the APK (run `build-android.bat` or `build-android.sh` again).
+
+That updates web favicons and **Android native launcher icons** in `cinny/android/app/src/main/res/mipmap-*`. The build script runs the icon generator automatically; if `nekochat-icon-source.png` is missing it uses `android-chrome-512x512.png` when present.
+
+### Android media (images, thumbnails, files)
+
+On Android the app runs as `https://localhost`, so the service worker's media requests to your Matrix server are cross-origin; if the server's CORS allows only your web domain, media can fail. The app **appends the access token to media URLs** in the native shell so media loads directly and CORS does not block. If media still does not load, see `cinny/ANDROID.md` (server may need to accept `access_token` for media or allow `https://localhost` in CORS).
+
+### More details
+
+- **Full Android guide:** **`cinny/ANDROID.md`** — first-time setup, FCM/push, release signing, troubleshooting (install errors, Java 11, WebView blank, media, icon, "Unable to delete directory" on Windows (“App not installed as package appears to be invalid”).
+
+---
+
+## Troubleshooting and documentation
+
+| Topic | Where to look |
+|-------|----------------|
+| **Android** (build, icon, media, push, install errors, Java) | **`cinny/ANDROID.md`** |
+| **Voice** (LiveKit "could not establish pc connection", privacy browsers, TCP fallback, TURN) | Repo docs or configure browser WebRTC policy / server `livekit.yaml` |
+| **Registration** (email not sent, "Unable to get validated threepid") | Matrix homeserver must have email/SMTP configured; see **Registration (Matrix homeserver)** above |
+| **Branding / config** | `cinny/public/config.json`, `.env` (optional build-time), `cinny/src/app/config/brand.ts` |
+| **Syncing to the public fork** | **`docs/SYNC-TO-FORK.md`** — push this repo to [m0nnnna/cunny](https://github.com/m0nnnna/cunny) while keeping this private repo for testing. |
+
+If present in the repo, **`TROUBLESHOOTING.md`** has more detail on registration (email/threepid) and voice (WebRTC, privacy browsers).
 
 ---
 
