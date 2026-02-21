@@ -24,6 +24,7 @@ import {
   UnsupportedContent,
   VideoContent,
 } from './message';
+import { VoiceInviteCard } from '../features/voice-channel/VoiceInviteCard';
 import { UrlPreviewCard, UrlPreviewHolder } from './url-preview';
 import { Image, MediaControl, Video } from './media';
 import { ImageViewer } from './image-viewer';
@@ -262,6 +263,27 @@ export function RenderMessageContent({
 
   if (msgType === 'm.bad.encrypted') {
     return <MBadEncrypted />;
+  }
+
+  const content = getContent() as Record<string, unknown>;
+  if (
+    msgType === 'org.nekochat.voice_invite' &&
+    typeof content?.server_url === 'string' &&
+    typeof content?.token_endpoint === 'string' &&
+    typeof content?.matrix_room_id === 'string'
+  ) {
+    return (
+      <VoiceInviteCard
+        content={{
+          msgtype: 'org.nekochat.voice_invite',
+          body: typeof content.body === 'string' ? content.body : '',
+          server_url: content.server_url,
+          token_endpoint: content.token_endpoint,
+          matrix_room_id: content.matrix_room_id,
+          room_name: typeof content.room_name === 'string' ? content.room_name : undefined,
+        }}
+      />
+    );
   }
 
   return <UnsupportedContent />;

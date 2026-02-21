@@ -38,7 +38,7 @@
   --font-secondary: 'InterVariable', var(--font-emoji), sans-serif;
 }
 
-/* ----- Neko Dark: cute neko theme — soft gradient background, lavender/pink links ----- */
+/* ----- Neko Dark: liquid glass aero — soft gradient, lavender/pink links ----- */
 body.neko-dark-theme {
   --tc-link: hsl(270deg 91% 75%);
   --mx-uc-1: hsl(263, 91%, 75%);
@@ -49,19 +49,82 @@ body.neko-dark-theme {
   --mx-uc-6: hsl(190, 78%, 68%);
   --mx-uc-7: hsl(270, 91%, 78%);
   --mx-uc-8: hsl(142, 76%, 75%);
-  background: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(88, 28, 135, 0.18), transparent 50%),
-    radial-gradient(ellipse 80% 60% at 100% 50%, rgba(126, 34, 206, 0.08), transparent 45%),
-    radial-gradient(ellipse 70% 50% at 0% 80%, rgba(236, 72, 153, 0.06), transparent 40%),
+  --neko-glass-blur: 16px;
+  --neko-glass-saturate: 160%;
+  --neko-glass-border: rgba(167, 139, 250, 0.12);
+  --neko-glass-shadow: rgba(30, 24, 46, 0.35);
+  background: radial-gradient(ellipse 140% 90% at 50% -25%, rgba(88, 28, 135, 0.22), transparent 48%),
+    radial-gradient(ellipse 90% 70% at 100% 50%, rgba(126, 34, 206, 0.1), transparent 45%),
+    radial-gradient(ellipse 80% 60% at 0% 80%, rgba(236, 72, 153, 0.08), transparent 42%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(167, 139, 250, 0.06), transparent 40%),
     #13121a;
   background-attachment: fixed;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body.neko-dark-theme #root {
-  background-image: radial-gradient(circle at 20px 20px, rgba(167, 139, 250, 0.04) 1.5px, transparent 1.5px);
-  background-size: 32px 32px;
+  --neko-paw-color: rgba(167, 139, 250, 0.06);
+  background-image:
+    radial-gradient(circle at 20px 20px, rgba(167, 139, 250, 0.05) 1.5px, transparent 1.5px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='22' rx='8' ry='6' fill='%23a78bfa' fill-opacity='0.04'/%3E%3Ccircle cx='10' cy='14' r='4' fill='%23a78bfa' fill-opacity='0.04'/%3E%3Ccircle cx='22' cy='14' r='4' fill='%23a78bfa' fill-opacity='0.04'/%3E%3Ccircle cx='8' cy='20' r='3' fill='%23a78bfa' fill-opacity='0.04'/%3E%3Ccircle cx='24' cy='20' r='3' fill='%23a78bfa' fill-opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 32px 32px, 64px 64px;
+  background-position: 0 0, 0 0;
 }
 
-/* ----- Neko Light: cute neko theme — blush gradient, pastel links ----- */
+/* Neko dark: liquid glass panels — frosted backdrop + smooth transitions */
+body.neko-dark-theme #root,
+body.neko-dark-theme #root > div,
+body.neko-dark-theme aside,
+body.neko-dark-theme [role="dialog"],
+body.neko-dark-theme [role="menu"],
+body.neko-dark-theme header,
+body.neko-dark-theme nav,
+body.neko-dark-theme section[class],
+body.neko-dark-theme main {
+  backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  transition: backdrop-filter 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s ease;
+}
+
+body.neko-dark-theme button,
+body.neko-dark-theme [role="button"],
+body.neko-dark-theme input,
+body.neko-dark-theme textarea,
+body.neko-dark-theme [data-folds-scroll],
+body.neko-dark-theme [data-folds-box] {
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+body.neko-dark-theme button:hover,
+body.neko-dark-theme [role="button"]:hover {
+  transform: translateY(-0.5px);
+}
+
+body.neko-dark-theme button:active,
+body.neko-dark-theme [role="button"]:active {
+  transform: translateY(0);
+}
+
+/* Neko dark: floating glass panels — soft shadow + neko-cute radius */
+body.neko-dark-theme [role="dialog"],
+body.neko-dark-theme [role="menu"] {
+  box-shadow: 0 8px 32px var(--neko-glass-shadow),
+    0 0 0 1px var(--neko-glass-border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+}
+
+body.neko-dark-theme aside {
+  box-shadow: 2px 0 24px var(--neko-glass-shadow);
+}
+
+/* ----- Neko Light: liquid glass aero — blush gradient, pastel links ----- */
 body.neko-light-theme {
   --tc-link: hsl(262deg 83% 58%);
   --mx-uc-1: hsl(262, 83%, 62%);
@@ -72,16 +135,456 @@ body.neko-light-theme {
   --mx-uc-6: hsl(190, 78%, 42%);
   --mx-uc-7: hsl(270, 70%, 58%);
   --mx-uc-8: hsl(142, 76%, 42%);
-  background: radial-gradient(ellipse 100% 70% at 50% -15%, rgba(237, 233, 254, 0.7), transparent 45%),
-    radial-gradient(ellipse 70% 50% at 100% 100%, rgba(252, 231, 243, 0.5), transparent 40%),
-    radial-gradient(ellipse 60% 40% at 0% 50%, rgba(221, 214, 254, 0.4), transparent 35%),
+  --neko-glass-blur: 20px;
+  --neko-glass-saturate: 140%;
+  --neko-glass-border: rgba(124, 58, 237, 0.1);
+  --neko-glass-shadow: rgba(45, 42, 54, 0.06);
+  background: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(237, 233, 254, 0.85), transparent 50%),
+    radial-gradient(ellipse 80% 60% at 100% 100%, rgba(252, 231, 243, 0.6), transparent 45%),
+    radial-gradient(ellipse 70% 50% at 0% 50%, rgba(221, 214, 254, 0.5), transparent 40%),
+    radial-gradient(ellipse 50% 30% at 70% 10%, rgba(244, 114, 182, 0.08), transparent 35%),
     #faf5fc;
   background-attachment: fixed;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body.neko-light-theme #root {
-  background-image: radial-gradient(circle at 18px 18px, rgba(124, 58, 237, 0.06) 1.2px, transparent 1.2px);
-  background-size: 36px 36px;
+  --neko-paw-color: rgba(124, 58, 237, 0.05);
+  background-image:
+    radial-gradient(circle at 18px 18px, rgba(124, 58, 237, 0.07) 1.2px, transparent 1.2px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='22' rx='8' ry='6' fill='%237c3aed' fill-opacity='0.035'/%3E%3Ccircle cx='10' cy='14' r='4' fill='%237c3aed' fill-opacity='0.035'/%3E%3Ccircle cx='22' cy='14' r='4' fill='%237c3aed' fill-opacity='0.035'/%3E%3Ccircle cx='8' cy='20' r='3' fill='%237c3aed' fill-opacity='0.035'/%3E%3Ccircle cx='24' cy='20' r='3' fill='%237c3aed' fill-opacity='0.035'/%3E%3C/svg%3E");
+  background-size: 36px 36px, 64px 64px;
+  background-position: 0 0, 0 0;
+}
+
+/* Neko light: liquid glass panels */
+body.neko-light-theme #root,
+body.neko-light-theme #root > div,
+body.neko-light-theme aside,
+body.neko-light-theme [role="dialog"],
+body.neko-light-theme [role="menu"],
+body.neko-light-theme header,
+body.neko-light-theme nav,
+body.neko-light-theme section[class],
+body.neko-light-theme main {
+  backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  transition: backdrop-filter 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s ease;
+}
+
+body.neko-light-theme button,
+body.neko-light-theme [role="button"],
+body.neko-light-theme input,
+body.neko-light-theme textarea,
+body.neko-light-theme [data-folds-scroll],
+body.neko-light-theme [data-folds-box] {
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+body.neko-light-theme button:hover,
+body.neko-light-theme [role="button"]:hover {
+  transform: translateY(-0.5px);
+}
+
+body.neko-light-theme button:active,
+body.neko-light-theme [role="button"]:active {
+  transform: translateY(0);
+}
+
+/* Neko light: floating glass panels */
+body.neko-light-theme [role="dialog"],
+body.neko-light-theme [role="menu"] {
+  box-shadow: 0 8px 32px var(--neko-glass-shadow),
+    0 0 0 1px var(--neko-glass-border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+}
+
+body.neko-light-theme aside {
+  box-shadow: 2px 0 24px var(--neko-glass-shadow);
+}
+
+/* ----- Neko Sunset: liquid glass — warm gradient, amber/coral accents ----- */
+body.neko-sunset-theme {
+  --tc-link: hsl(25deg 95% 62%);
+  --mx-uc-1: hsl(25, 95%, 62%);
+  --mx-uc-2: hsl(340, 82%, 68%);
+  --mx-uc-3: hsl(160, 84%, 72%);
+  --mx-uc-4: hsl(350, 78%, 72%);
+  --mx-uc-5: hsl(38, 92%, 72%);
+  --mx-uc-6: hsl(190, 78%, 68%);
+  --mx-uc-7: hsl(280, 70%, 68%);
+  --mx-uc-8: hsl(142, 76%, 75%);
+  --neko-glass-blur: 16px;
+  --neko-glass-saturate: 150%;
+  --neko-glass-border: rgba(251, 146, 60, 0.14);
+  --neko-glass-shadow: rgba(28, 20, 16, 0.4);
+  background: radial-gradient(ellipse 140% 90% at 50% -25%, rgba(180, 83, 9, 0.25), transparent 48%),
+    radial-gradient(ellipse 90% 70% at 100% 50%, rgba(234, 88, 12, 0.12), transparent 45%),
+    radial-gradient(ellipse 80% 60% at 0% 80%, rgba(251, 113, 133, 0.1), transparent 42%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(251, 146, 60, 0.08), transparent 40%),
+    #1a1410;
+  background-attachment: fixed;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.neko-sunset-theme #root {
+  --neko-paw-color: rgba(251, 146, 60, 0.06);
+  background-image:
+    radial-gradient(circle at 20px 20px, rgba(251, 146, 60, 0.05) 1.5px, transparent 1.5px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='22' rx='8' ry='6' fill='%23fb923c' fill-opacity='0.05'/%3E%3Ccircle cx='10' cy='14' r='4' fill='%23fb923c' fill-opacity='0.05'/%3E%3Ccircle cx='22' cy='14' r='4' fill='%23fb923c' fill-opacity='0.05'/%3E%3Ccircle cx='8' cy='20' r='3' fill='%23fb923c' fill-opacity='0.05'/%3E%3Ccircle cx='24' cy='20' r='3' fill='%23fb923c' fill-opacity='0.05'/%3E%3C/svg%3E");
+  background-size: 32px 32px, 64px 64px;
+  background-position: 0 0, 0 0;
+}
+
+body.neko-sunset-theme #root,
+body.neko-sunset-theme #root > div,
+body.neko-sunset-theme aside,
+body.neko-sunset-theme [role="dialog"],
+body.neko-sunset-theme [role="menu"],
+body.neko-sunset-theme header,
+body.neko-sunset-theme nav,
+body.neko-sunset-theme section[class],
+body.neko-sunset-theme main {
+  backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  transition: backdrop-filter 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s ease;
+}
+
+body.neko-sunset-theme button,
+body.neko-sunset-theme [role="button"],
+body.neko-sunset-theme input,
+body.neko-sunset-theme textarea,
+body.neko-sunset-theme [data-folds-scroll],
+body.neko-sunset-theme [data-folds-box] {
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+body.neko-sunset-theme button:hover,
+body.neko-sunset-theme [role="button"]:hover {
+  transform: translateY(-0.5px);
+}
+
+body.neko-sunset-theme button:active,
+body.neko-sunset-theme [role="button"]:active {
+  transform: translateY(0);
+}
+
+body.neko-sunset-theme [role="dialog"],
+body.neko-sunset-theme [role="menu"] {
+  box-shadow: 0 8px 32px var(--neko-glass-shadow),
+    0 0 0 1px var(--neko-glass-border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+}
+
+body.neko-sunset-theme aside {
+  box-shadow: 2px 0 24px var(--neko-glass-shadow);
+}
+
+/* ----- Neko Mint: liquid glass — cool mint gradient, teal accents ----- */
+body.neko-mint-theme {
+  --tc-link: hsl(174deg 58% 39%);
+  --mx-uc-1: hsl(174, 58%, 42%);
+  --mx-uc-2: hsl(330, 81%, 65%);
+  --mx-uc-3: hsl(160, 84%, 38%);
+  --mx-uc-4: hsl(340, 82%, 55%);
+  --mx-uc-5: hsl(38, 92%, 45%);
+  --mx-uc-6: hsl(190, 78%, 42%);
+  --mx-uc-7: hsl(270, 70%, 58%);
+  --mx-uc-8: hsl(142, 76%, 42%);
+  --neko-glass-blur: 20px;
+  --neko-glass-saturate: 140%;
+  --neko-glass-border: rgba(13, 148, 136, 0.12);
+  --neko-glass-shadow: rgba(19, 78, 72, 0.08);
+  background: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(204, 251, 241, 0.9), transparent 50%),
+    radial-gradient(ellipse 80% 60% at 100% 100%, rgba(167, 243, 228, 0.5), transparent 45%),
+    radial-gradient(ellipse 70% 50% at 0% 50%, rgba(153, 246, 228, 0.4), transparent 40%),
+    radial-gradient(ellipse 50% 30% at 70% 10%, rgba(94, 234, 212, 0.15), transparent 35%),
+    #f0fdfa;
+  background-attachment: fixed;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.neko-mint-theme #root {
+  --neko-paw-color: rgba(13, 148, 136, 0.06);
+  background-image:
+    radial-gradient(circle at 18px 18px, rgba(13, 148, 136, 0.06) 1.2px, transparent 1.2px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='22' rx='8' ry='6' fill='%230d9488' fill-opacity='0.04'/%3E%3Ccircle cx='10' cy='14' r='4' fill='%230d9488' fill-opacity='0.04'/%3E%3Ccircle cx='22' cy='14' r='4' fill='%230d9488' fill-opacity='0.04'/%3E%3Ccircle cx='8' cy='20' r='3' fill='%230d9488' fill-opacity='0.04'/%3E%3Ccircle cx='24' cy='20' r='3' fill='%230d9488' fill-opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 36px 36px, 64px 64px;
+  background-position: 0 0, 0 0;
+}
+
+body.neko-mint-theme #root,
+body.neko-mint-theme #root > div,
+body.neko-mint-theme aside,
+body.neko-mint-theme [role="dialog"],
+body.neko-mint-theme [role="menu"],
+body.neko-mint-theme header,
+body.neko-mint-theme nav,
+body.neko-mint-theme section[class],
+body.neko-mint-theme main {
+  backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  transition: backdrop-filter 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s ease;
+}
+
+body.neko-mint-theme button,
+body.neko-mint-theme [role="button"],
+body.neko-mint-theme input,
+body.neko-mint-theme textarea,
+body.neko-mint-theme [data-folds-scroll],
+body.neko-mint-theme [data-folds-box] {
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+body.neko-mint-theme button:hover,
+body.neko-mint-theme [role="button"]:hover {
+  transform: translateY(-0.5px);
+}
+
+body.neko-mint-theme button:active,
+body.neko-mint-theme [role="button"]:active {
+  transform: translateY(0);
+}
+
+body.neko-mint-theme [role="dialog"],
+body.neko-mint-theme [role="menu"] {
+  box-shadow: 0 8px 32px var(--neko-glass-shadow),
+    0 0 0 1px var(--neko-glass-border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  border-radius: 16px;
+}
+
+body.neko-mint-theme aside {
+  box-shadow: 2px 0 24px var(--neko-glass-shadow);
+}
+
+/* ----- Neko Cyberpunk: neon cyan/magenta, grid vibes ----- */
+body.neko-cyberpunk-theme {
+  --tc-link: hsl(187deg 92% 58%);
+  --mx-uc-1: hsl(187, 92%, 58%);
+  --mx-uc-2: hsl(330, 81%, 72%);
+  --mx-uc-3: hsl(160, 84%, 72%);
+  --mx-uc-4: hsl(340, 82%, 78%);
+  --mx-uc-5: hsl(45, 93%, 58%);
+  --mx-uc-6: hsl(190, 90%, 58%);
+  --mx-uc-7: hsl(270, 91%, 78%);
+  --mx-uc-8: hsl(142, 76%, 75%);
+  --neko-glass-blur: 14px;
+  --neko-glass-saturate: 180%;
+  --neko-glass-border: rgba(34, 211, 238, 0.18);
+  --neko-glass-shadow: rgba(8, 8, 18, 0.55);
+  background: radial-gradient(ellipse 150% 100% at 50% -30%, rgba(34, 211, 238, 0.08), transparent 45%),
+    radial-gradient(ellipse 80% 60% at 100% 50%, rgba(244, 114, 182, 0.06), transparent 45%),
+    linear-gradient(180deg, transparent 0%, rgba(8, 8, 18, 0.97) 100%),
+    #080812;
+  background-attachment: fixed;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.neko-cyberpunk-theme #root {
+  --neko-paw-color: rgba(34, 211, 238, 0.06);
+  background-image:
+    linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='22' rx='8' ry='6' fill='%2322d3ee' fill-opacity='0.04'/%3E%3Ccircle cx='10' cy='14' r='4' fill='%2322d3ee' fill-opacity='0.04'/%3E%3Ccircle cx='22' cy='14' r='4' fill='%2322d3ee' fill-opacity='0.04'/%3E%3Ccircle cx='8' cy='20' r='3' fill='%2322d3ee' fill-opacity='0.04'/%3E%3Ccircle cx='24' cy='20' r='3' fill='%2322d3ee' fill-opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 24px 24px, 24px 24px, 64px 64px;
+  background-position: 0 0, 0 0, 0 0;
+}
+
+body.neko-cyberpunk-theme #root,
+body.neko-cyberpunk-theme #root > div,
+body.neko-cyberpunk-theme aside,
+body.neko-cyberpunk-theme [role="dialog"],
+body.neko-cyberpunk-theme [role="menu"],
+body.neko-cyberpunk-theme header,
+body.neko-cyberpunk-theme nav,
+body.neko-cyberpunk-theme section[class],
+body.neko-cyberpunk-theme main {
+  backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  transition: backdrop-filter 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s ease;
+}
+
+body.neko-cyberpunk-theme button,
+body.neko-cyberpunk-theme [role="button"],
+body.neko-cyberpunk-theme input,
+body.neko-cyberpunk-theme textarea,
+body.neko-cyberpunk-theme [data-folds-scroll],
+body.neko-cyberpunk-theme [data-folds-box] {
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+body.neko-cyberpunk-theme button:hover,
+body.neko-cyberpunk-theme [role="button"]:hover {
+  transform: translateY(-0.5px);
+}
+
+body.neko-cyberpunk-theme button:active,
+body.neko-cyberpunk-theme [role="button"]:active {
+  transform: translateY(0);
+}
+
+body.neko-cyberpunk-theme [role="dialog"],
+body.neko-cyberpunk-theme [role="menu"] {
+  box-shadow: 0 8px 32px var(--neko-glass-shadow),
+    0 0 0 1px var(--neko-glass-border),
+    inset 0 1px 0 rgba(34, 211, 238, 0.06);
+  border-radius: 16px;
+}
+
+body.neko-cyberpunk-theme aside {
+  box-shadow: 2px 0 24px var(--neko-glass-shadow);
+}
+
+/* ----- Neko Solarized: solarized dark, liquid glass ----- */
+body.neko-solarized-theme {
+  --tc-link: hsl(175deg 58% 42%);
+  --mx-uc-1: hsl(197, 71%, 52%);
+  --mx-uc-2: hsl(330, 65%, 55%);
+  --mx-uc-3: hsl(75, 100%, 32%);
+  --mx-uc-4: hsl(1, 70%, 52%);
+  --mx-uc-5: hsl(45, 100%, 38%);
+  --mx-uc-6: hsl(175, 58%, 42%);
+  --mx-uc-7: hsl(263, 45%, 58%);
+  --mx-uc-8: hsl(142, 76%, 42%);
+  --neko-glass-blur: 16px;
+  --neko-glass-saturate: 140%;
+  --neko-glass-border: rgba(42, 161, 152, 0.2);
+  --neko-glass-shadow: rgba(0, 43, 54, 0.45);
+  background: radial-gradient(ellipse 130% 85% at 50% -20%, rgba(7, 54, 66, 0.95), transparent 50%),
+    radial-gradient(ellipse 70% 50% at 80% 80%, rgba(42, 161, 152, 0.06), transparent 45%),
+    #002b36;
+  background-attachment: fixed;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.neko-solarized-theme #root {
+  --neko-paw-color: rgba(42, 161, 152, 0.06);
+  background-image:
+    radial-gradient(circle at 20px 20px, rgba(42, 161, 152, 0.05) 1.5px, transparent 1.5px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='22' rx='8' ry='6' fill='%232aa198' fill-opacity='0.05'/%3E%3Ccircle cx='10' cy='14' r='4' fill='%232aa198' fill-opacity='0.05'/%3E%3Ccircle cx='22' cy='14' r='4' fill='%232aa198' fill-opacity='0.05'/%3E%3Ccircle cx='8' cy='20' r='3' fill='%232aa198' fill-opacity='0.05'/%3E%3Ccircle cx='24' cy='20' r='3' fill='%232aa198' fill-opacity='0.05'/%3E%3C/svg%3E");
+  background-size: 32px 32px, 64px 64px;
+  background-position: 0 0, 0 0;
+}
+
+body.neko-solarized-theme #root,
+body.neko-solarized-theme #root > div,
+body.neko-solarized-theme aside,
+body.neko-solarized-theme [role="dialog"],
+body.neko-solarized-theme [role="menu"],
+body.neko-solarized-theme header,
+body.neko-solarized-theme nav,
+body.neko-solarized-theme section[class],
+body.neko-solarized-theme main {
+  backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  transition: backdrop-filter 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s ease;
+}
+
+body.neko-solarized-theme button,
+body.neko-solarized-theme [role="button"],
+body.neko-solarized-theme input,
+body.neko-solarized-theme textarea,
+body.neko-solarized-theme [data-folds-scroll],
+body.neko-solarized-theme [data-folds-box] {
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+body.neko-solarized-theme button:hover,
+body.neko-solarized-theme [role="button"]:hover {
+  transform: translateY(-0.5px);
+}
+
+body.neko-solarized-theme button:active,
+body.neko-solarized-theme [role="button"]:active {
+  transform: translateY(0);
+}
+
+body.neko-solarized-theme [role="dialog"],
+body.neko-solarized-theme [role="menu"] {
+  box-shadow: 0 8px 32px var(--neko-glass-shadow),
+    0 0 0 1px var(--neko-glass-border),
+    inset 0 1px 0 rgba(253, 246, 227, 0.04);
+  border-radius: 16px;
+}
+
+body.neko-solarized-theme aside {
+  box-shadow: 2px 0 24px var(--neko-glass-shadow);
+}
+
+/* Neko: smooth focus ring for a11y + cute glow */
+body.neko-dark-theme :focus-visible {
+  outline: 2px solid rgba(167, 139, 250, 0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
+  transition: outline-color 0.2s ease, outline-offset 0.2s ease;
+}
+
+body.neko-light-theme :focus-visible {
+  outline: 2px solid rgba(124, 58, 237, 0.5);
+  outline-offset: 2px;
+  border-radius: 6px;
+  transition: outline-color 0.2s ease, outline-offset 0.2s ease;
+}
+
+body.neko-sunset-theme :focus-visible {
+  outline: 2px solid rgba(251, 146, 60, 0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
+  transition: outline-color 0.2s ease, outline-offset 0.2s ease;
+}
+
+body.neko-mint-theme :focus-visible {
+  outline: 2px solid rgba(13, 148, 136, 0.5);
+  outline-offset: 2px;
+  border-radius: 6px;
+  transition: outline-color 0.2s ease, outline-offset 0.2s ease;
+}
+
+body.neko-cyberpunk-theme :focus-visible {
+  outline: 2px solid rgba(34, 211, 238, 0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
+  transition: outline-color 0.2s ease, outline-offset 0.2s ease;
+}
+
+body.neko-solarized-theme :focus-visible {
+  outline: 2px solid rgba(42, 161, 152, 0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
+  transition: outline-color 0.2s ease, outline-offset 0.2s ease;
 }
 
 html {

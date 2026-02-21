@@ -40,6 +40,8 @@ import {
   AvatarBase,
   BubbleLayout,
   CompactLayout,
+  IrcCompactContent,
+  IrcCompactSpacer,
   MessageBase,
   ModernLayout,
   Time,
@@ -748,7 +750,7 @@ export const Message = as<'div', MessageProps>(
     const headerJSX = !collapse && (
       <Box
         gap="300"
-        direction={messageLayout === MessageLayout.Compact ? 'RowReverse' : 'Row'}
+        direction={messageLayout === MessageLayout.Compact && !ircMode ? 'RowReverse' : 'Row'}
         justifyContent="SpaceBetween"
         alignItems="Baseline"
         grow="Yes"
@@ -791,6 +793,33 @@ export const Message = as<'div', MessageProps>(
         </Box>
       </Box>
     );
+
+    const ircHeaderRow =
+      !collapse &&
+      ircMode && (
+        <Box alignItems="Baseline" gap="200" justifyContent="SpaceBetween" style={{ minWidth: 0 }}>
+          <Box alignItems="Center" gap="200" style={{ minWidth: 0 }}>
+            <Username
+              as="button"
+              style={{ color: usernameColor }}
+              data-user-id={senderId}
+              onContextMenu={onUserClick}
+              onClick={onUsernameClick}
+            >
+              <Text as="span" size="T200" truncate>
+                <UsernameBold>{senderDisplayName}</UsernameBold>
+              </Text>
+            </Username>
+            {tagIconSrc && <PowerIcon size="100" iconSrc={tagIconSrc} />}
+          </Box>
+          <Time
+            ts={mEvent.getTs()}
+            compact
+            hour24Clock={hour24Clock}
+            dateFormatString={dateFormatString}
+          />
+        </Box>
+      );
 
     const sharedAvatar = (
       <UserAvatar
@@ -1154,7 +1183,22 @@ export const Message = as<'div', MessageProps>(
             </Menu>
           </div>
         )}
-        {messageLayout === MessageLayout.Compact && (
+        {messageLayout === MessageLayout.Compact && ircMode && (
+          <Box
+            direction="Row"
+            gap="200"
+            alignItems="flex-start"
+            style={{ minWidth: 0 }}
+            onContextMenu={handleContextMenu}
+          >
+            {collapse ? <div className={IrcCompactSpacer} aria-hidden /> : compactAvatarJSX}
+            <div className={IrcCompactContent}>
+              {ircHeaderRow}
+              {msgContentJSX}
+            </div>
+          </Box>
+        )}
+        {messageLayout === MessageLayout.Compact && !ircMode && (
           <CompactLayout
             before={
               <>

@@ -69,7 +69,8 @@ import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { useRoomCreators } from '../../hooks/useRoomCreators';
 import { useRoomPermissions } from '../../hooks/useRoomPermissions';
 import { InviteUserPrompt } from '../../components/invite-user-prompt';
-import { VoiceChannelButton } from '../voice-channel';
+import { VoiceChannelButton, InviteVoicePrompt } from '../voice-channel';
+import { useVoiceServerProfiles } from '../../state/hooks/voiceChannel';
 
 type RoomMenuProps = {
   room: Room;
@@ -89,6 +90,9 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(({ room, requestClose
   const { navigateRoom } = useRoomNavigate();
 
   const [invitePrompt, setInvitePrompt] = useState(false);
+  const [inviteVoicePrompt, setInviteVoicePrompt] = useState(false);
+  const { getDefaultProfile } = useVoiceServerProfiles();
+  const hasVoiceProfile = !!getDefaultProfile();
 
   const handleMarkAsRead = () => {
     markAsRead(mx, room.roomId, hideActivity);
@@ -120,6 +124,15 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(({ room, requestClose
           room={room}
           requestClose={() => {
             setInvitePrompt(false);
+            requestClose();
+          }}
+        />
+      )}
+      {inviteVoicePrompt && (
+        <InviteVoicePrompt
+          room={room}
+          requestClose={() => {
+            setInviteVoicePrompt(false);
             requestClose();
           }}
         />
@@ -174,6 +187,19 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(({ room, requestClose
             Invite
           </Text>
         </MenuItem>
+        {hasVoiceProfile && (
+          <MenuItem
+            onClick={() => setInviteVoicePrompt(true)}
+            size="300"
+            after={<Icon size="100" src={Icons.Phone} />}
+            radii="300"
+            aria-pressed={inviteVoicePrompt}
+          >
+            <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
+              Invite to voice
+            </Text>
+          </MenuItem>
+        )}
         <MenuItem
           onClick={handleCopyLink}
           size="300"

@@ -47,10 +47,10 @@ export interface Settings {
 }
 
 const defaultSettings: Settings = {
-  themeId: undefined,
+  themeId: 'neko-dark-theme',
   useSystemTheme: true,
-  lightThemeId: undefined,
-  darkThemeId: undefined,
+  lightThemeId: 'neko-light-theme',
+  darkThemeId: 'neko-dark-theme',
   monochromeMode: false,
   isMarkdown: true,
   editorToolbar: false,

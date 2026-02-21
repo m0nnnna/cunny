@@ -7,7 +7,9 @@ import { SettingTile } from '../../../components/setting-tile';
 import CinnySVG from '../../../../../public/res/svg/cinny.svg';
 import { clearCacheAndReload } from '../../../../client/initMatrix';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
-import { useBrandName } from '../../../hooks/useClientConfig';
+import { useAppVersion, useBrandName } from '../../../hooks/useClientConfig';
+
+const CINNY_PROJECT_URL = 'https://github.com/cinnyapp/cinny';
 
 type AboutProps = {
   requestClose: () => void;
@@ -15,6 +17,7 @@ type AboutProps = {
 export function About({ requestClose }: AboutProps) {
   const mx = useMatrixClient();
   const brandName = useBrandName();
+  const appVersion = useAppVersion();
 
   return (
     <Page>
@@ -48,38 +51,23 @@ export function About({ requestClose }: AboutProps) {
                   <Box direction="Column" gap="100">
                     <Box gap="100" alignItems="End">
                       <Text size="H3">{brandName}</Text>
-                      <Text size="T200">v4.10.2</Text>
+                      <Text size="T200">v{appVersion}</Text>
                     </Box>
-                    <Text>Yet another matrix client.</Text>
+                    <Text>The Cute and Funny Matrix Client</Text>
                   </Box>
 
-                  <Box gap="200" wrap="Wrap">
-                    <Button
-                      as="a"
-                      href="https://github.com/cinnyapp/cinny"
-                      rel="noreferrer noopener"
-                      target="_blank"
-                      variant="Secondary"
-                      fill="Soft"
-                      size="300"
-                      radii="300"
-                      before={<Icon src={Icons.Code} size="100" filled />}
-                    >
-                      <Text size="B300">Source Code</Text>
-                    </Button>
-                    <Button
-                      as="a"
-                      href="https://cinny.in/#sponsor"
-                      rel="noreferrer noopener"
-                      target="_blank"
-                      variant="Critical"
-                      fill="Soft"
-                      size="300"
-                      radii="300"
-                      before={<Icon src={Icons.Heart} size="100" filled />}
-                    >
-                      <Text size="B300">Support</Text>
-                    </Button>
+                  <Box direction="Column" gap="200">
+                    <Text size="T300">
+                      Thanks to the{' '}
+                      <a
+                        href={CINNY_PROJECT_URL}
+                        rel="noreferrer noopener"
+                        target="_blank"
+                      >
+                        Cinny team
+                      </a>{' '}
+                      for the original project.
+                    </Text>
                   </Box>
                 </Box>
               </Box>

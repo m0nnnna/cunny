@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { DEFAULT_BRAND_NAME } from '../config/brand';
+import { DEFAULT_APP_VERSION, DEFAULT_BRAND_NAME } from '../config/brand';
 
 export type HashRouterConfig = {
   enabled?: boolean;
@@ -7,8 +7,12 @@ export type HashRouterConfig = {
 };
 
 export type ClientConfig = {
-  /** Display name for the app (UI only). Overrides VITE_BRAND_NAME from .env when set in config.json */
+  /** Display name for the app (UI only). Set in config.json or .env (VITE_BRAND_NAME). */
   brandName?: string;
+  /** App version (UI only). Set in config.json or .env (VITE_APP_VERSION). */
+  appVersion?: string;
+  /** Show the neko mascot in Neko themes. Default true. Set to false in config.json to hide. */
+  showNekoMascot?: boolean;
   defaultHomeserver?: number;
   homeserverList?: string[];
   allowCustomHomeservers?: boolean;
@@ -38,6 +42,13 @@ export function useBrandName(): string {
   const config = useContext(ClientConfigContext);
   const fromConfig = config?.brandName?.trim();
   return fromConfig || DEFAULT_BRAND_NAME;
+}
+
+/** App version (UI only). Prefers config.appVersion, then VITE_APP_VERSION from .env, then default. */
+export function useAppVersion(): string {
+  const config = useContext(ClientConfigContext);
+  const fromConfig = config?.appVersion?.trim();
+  return fromConfig || DEFAULT_APP_VERSION;
 }
 
 export const clientDefaultServer = (clientConfig: ClientConfig): string =>

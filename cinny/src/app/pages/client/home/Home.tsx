@@ -65,6 +65,9 @@ import {
 import { UseStateProvider } from '../../../components/UseStateProvider';
 import { JoinAddressPrompt } from '../../../components/join-address-prompt';
 import { _RoomSearchParams } from '../../paths';
+import { isNekoThemeId, useTheme } from '../../../hooks/useTheme';
+
+const NEKO_EMOJI = '🐱';
 
 type HomeMenuProps = {
   requestClose: () => void;
@@ -154,26 +157,44 @@ function HomeHeader() {
 
 function HomeEmpty() {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const neko = isNekoThemeId(theme.id);
 
   return (
     <NavEmptyCenter>
       <NavEmptyLayout
-        icon={<Icon size="600" src={Icons.Hash} />}
+        icon={
+          neko ? (
+            <Text as="span" style={{ fontSize: '4rem', lineHeight: 1 }}>
+              {NEKO_EMOJI}
+            </Text>
+          ) : (
+            <Icon size="600" src={Icons.Hash} />
+          )
+        }
         title={
           <Text size="H5" align="Center">
-            No Rooms
+            {neko ? (
+              <>
+                No rooms yet~ {NEKO_EMOJI}
+              </>
+            ) : (
+              'No Rooms'
+            )}
           </Text>
         }
         content={
           <Text size="T300" align="Center">
-            You do not have any rooms yet.
+            {neko
+              ? "You don't have any rooms yet. Create one and say nya~ ✨"
+              : 'You do not have any rooms yet.'}
           </Text>
         }
         options={
           <>
             <Button onClick={() => navigate(getHomeCreatePath())} variant="Secondary" size="300">
               <Text size="B300" truncate>
-                Create Room
+                {neko ? '✨ Create Room' : 'Create Room'}
               </Text>
             </Button>
             <Button
@@ -183,7 +204,7 @@ function HomeEmpty() {
               size="300"
             >
               <Text size="B300" truncate>
-                Explore Community Rooms
+                {neko ? '🐾 Explore Rooms' : 'Explore Community Rooms'}
               </Text>
             </Button>
           </>

@@ -85,11 +85,77 @@ export const voiceChannelSettingsAtom = atomWithLocalStorage<VoiceChannelSetting
   setLocalStorageItem
 );
 
+// ── Server profiles ("address book") ──────────────────────────────────
+
+export interface VoiceServerProfile {
+  id: string;
+  name: string;
+  livekitServerUrl: string;
+  livekitTokenEndpoint: string;
+}
+
+/** Matrix message type for "invite to voice" (add server to address book via DM). */
+export const VOICE_INVITE_MSGTYPE = 'org.nekochat.voice_invite';
+
+export interface VoiceInviteContent {
+  msgtype: typeof VOICE_INVITE_MSGTYPE;
+  body: string;
+  server_url: string;
+  token_endpoint: string;
+  matrix_room_id: string;
+  room_name?: string;
+}
+
+const VOICE_SERVER_PROFILES_KEY = 'voiceServerProfiles';
+const VOICE_DEFAULT_PROFILE_KEY = 'voiceDefaultServerProfileId';
+
+export function generateProfileId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function loadVoiceServerProfiles(key: string): VoiceServerProfile[] {
+  const stored = getLocalStorageItem<VoiceServerProfile[]>(key, []);
+  if (stored.length > 0) return stored;
+
+  const legacy = getLocalStorageItem<Record<string, unknown>>(VOICE_SETTINGS_KEY, {});
+  const injected = getInjectedConfig();
+  const url = (injected.livekitServerUrl || (legacy.livekitServerUrl as string) || '').trim();
+  const endpoint = (injected.livekitTokenEndpoint || (legacy.livekitTokenEndpoint as string) || '').trim();
+
+  if (url || endpoint) {
+    const id = generateProfileId();
+    const profile: VoiceServerProfile = {
+      id,
+      name: 'Default Server',
+      livekitServerUrl: url,
+      livekitTokenEndpoint: endpoint,
+    };
+    setLocalStorageItem(key, [profile]);
+    setLocalStorageItem(VOICE_DEFAULT_PROFILE_KEY, id);
+    return [profile];
+  }
+
+  return [];
+}
+
+export const voiceServerProfilesAtom = atomWithLocalStorage<VoiceServerProfile[]>(
+  VOICE_SERVER_PROFILES_KEY,
+  loadVoiceServerProfiles,
+  setLocalStorageItem
+);
+
+export const defaultVoiceServerProfileIdAtom = atomWithLocalStorage<string>(
+  VOICE_DEFAULT_PROFILE_KEY,
+  (key: string) => getLocalStorageItem<string>(key, ''),
+  setLocalStorageItem
+);
+
 // Voice connection state
 export interface VoiceConnectionState {
   roomId: string | null;
   roomName: string | null;
   token: string | null;
+  serverUrl: string | null;
   isConnected: boolean;
   isConnecting: boolean;
   isMuted: boolean;
@@ -101,6 +167,7 @@ const defaultVoiceConnectionState: VoiceConnectionState = {
   roomId: null,
   roomName: null,
   token: null,
+  serverUrl: null,
   isConnected: false,
   isConnecting: false,
   isMuted: false,
@@ -111,7 +178,7 @@ const defaultVoiceConnectionState: VoiceConnectionState = {
 const baseVoiceConnectionAtom = atom<VoiceConnectionState>(defaultVoiceConnectionState);
 
 export type VoiceConnectionAction =
-  | { type: 'CONNECT_START'; roomId: string; roomName: string }
+  | { type: 'CONNECT_START'; roomId: string; roomName: string; serverUrl: string }
   | { type: 'CONNECT_SUCCESS'; token: string; joinMuted?: boolean }
   | { type: 'CONNECT_ERROR'; error: string }
   | { type: 'DISCONNECT' }
@@ -131,6 +198,7 @@ export const voiceConnectionAtom = atom<VoiceConnectionState, [VoiceConnectionAc
           ...defaultVoiceConnectionState,
           roomId: action.roomId,
           roomName: action.roomName,
+          serverUrl: action.serverUrl,
           isConnecting: true,
         });
         break;

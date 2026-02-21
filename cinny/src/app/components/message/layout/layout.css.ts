@@ -124,6 +124,23 @@ export const CompactHeader = style([
   },
 ]);
 
+/** IRC-style compact: content column next to avatar (username + time on one line, body below). */
+export const IrcCompactContent = style({
+  minWidth: 0,
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  gap: config.space.S100,
+});
+
+/** Spacer for collapsed IRC messages so body lines up with the first message. Match avatar width only; row gap adds the rest. */
+export const IrcCompactSpacer = style({
+  width: toRem(24),
+  minWidth: toRem(24),
+  flexShrink: 0,
+});
+
 export const AvatarBase = style({
   paddingTop: toRem(4),
   transition: 'transform 200ms cubic-bezier(0, 0.8, 0.67, 0.97)',

@@ -3,12 +3,12 @@
 env
 
 # ── Server-specific nginx configs (contain real domains, IPs, SSL paths) ─
+# Copy .example files and fill in your domain/paths; keep your copies ignored.
 chatui.conf
 synapse.conf
-livekit.frennet.xyz.conf
-token.frennet.xyz.conf
-# Keep the example config for reference:
-# nginx-proxy.conf.example  (tracked)
+livekit.*.conf
+token.*.conf
+# Example templates (tracked): nginx-proxy.conf.example, livekit.nginx.conf.example, token.nginx.conf.example
 
 # ── Build artifacts & archives ───────────────────────────────────────
 old.build/

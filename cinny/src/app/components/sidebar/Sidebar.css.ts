@@ -16,9 +16,9 @@ export const Sidebar = style([
   },
 ]);
 
-/** Narrower sidebar for IRC-style layout */
+/** Narrower sidebar for IRC-style layout; wide enough for badges on icons. */
 export const SidebarIrc = style({
-  width: toRem(48),
+  width: toRem(54),
 });
 
 export const SidebarStack = style([

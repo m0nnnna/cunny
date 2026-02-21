@@ -1,0 +1,1 @@
+export { NekoMascot } from './NekoMascot';

@@ -51,6 +51,9 @@ import {
   useRoomsNotificationPreferencesContext,
 } from '../../../hooks/useRoomsNotificationPreferences';
 import { useDirectCreateSelected } from '../../../hooks/router/useDirectSelected';
+import { isNekoThemeId, useTheme } from '../../../hooks/useTheme';
+
+const NEKO_EMOJI = '🐱';
 
 type DirectMenuProps = {
   requestClose: () => void;
@@ -140,25 +143,43 @@ function DirectHeader() {
 
 function DirectEmpty() {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const neko = isNekoThemeId(theme.id);
 
   return (
     <NavEmptyCenter>
       <NavEmptyLayout
-        icon={<Icon size="600" src={Icons.Mention} />}
+        icon={
+          neko ? (
+            <Text as="span" style={{ fontSize: '4rem', lineHeight: 1 }}>
+              {NEKO_EMOJI}
+            </Text>
+          ) : (
+            <Icon size="600" src={Icons.Mention} />
+          )
+        }
         title={
           <Text size="H5" align="Center">
-            No Direct Messages
+            {neko ? (
+              <>
+                No DMs yet~ {NEKO_EMOJI}
+              </>
+            ) : (
+              'No Direct Messages'
+            )}
           </Text>
         }
         content={
           <Text size="T300" align="Center">
-            You do not have any direct messages yet.
+            {neko
+              ? "No direct messages yet. Start a chat and make a friend, nya~ 💬"
+              : 'You do not have any direct messages yet.'}
           </Text>
         }
         options={
           <Button variant="Secondary" size="300" onClick={() => navigate(getDirectCreatePath())}>
             <Text size="B300" truncate>
-              Direct Message
+              {neko ? '💬 Direct Message' : 'Direct Message'}
             </Text>
           </Button>
         }

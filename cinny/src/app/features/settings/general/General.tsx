@@ -39,6 +39,8 @@ import { isMacOS } from '../../../utils/user-agent';
 import {
   DarkTheme,
   LightTheme,
+  NekoDarkTheme,
+  NekoLightTheme,
   Theme,
   ThemeKind,
   useSystemThemeKind,
@@ -82,7 +84,7 @@ function SelectTheme({ disabled }: { disabled?: boolean }) {
   const themeNames = useThemeNames();
   const [themeId, setThemeId] = useSetting(settingsAtom, 'themeId');
   const [menuCords, setMenuCords] = useState<RectCords>();
-  const selectedTheme = themes.find((theme) => theme.id === themeId) ?? LightTheme;
+  const selectedTheme = themes.find((theme) => theme.id === themeId) ?? NekoDarkTheme;
 
   const handleThemeMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
     setMenuCords(evt.currentTarget.getBoundingClientRect());
@@ -148,8 +150,8 @@ function SystemThemePreferences() {
   const lightThemes = themes.filter((theme) => theme.kind === ThemeKind.Light);
   const darkThemes = themes.filter((theme) => theme.kind === ThemeKind.Dark);
 
-  const selectedLightTheme = lightThemes.find((theme) => theme.id === lightThemeId) ?? LightTheme;
-  const selectedDarkTheme = darkThemes.find((theme) => theme.id === darkThemeId) ?? DarkTheme;
+  const selectedLightTheme = lightThemes.find((theme) => theme.id === lightThemeId) ?? NekoLightTheme;
+  const selectedDarkTheme = darkThemes.find((theme) => theme.id === darkThemeId) ?? NekoDarkTheme;
 
   const [ltCords, setLTCords] = useState<RectCords>();
   const [dtCords, setDTCords] = useState<RectCords>();

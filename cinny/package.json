@@ -1,7 +1,7 @@
 {
   "name": "cunny",
   "version": "4.10.2",
-  "description": "Yet another matrix client",
+  "description": "The Cute and Funny Matrix Client",
   "main": "index.js",
   "type": "module",
   "engines": {

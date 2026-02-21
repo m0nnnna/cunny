@@ -11,6 +11,10 @@ import {
   isDeafenedAtom,
   voiceSpeakingAtom,
   VoiceChannelSettings,
+  voiceServerProfilesAtom,
+  defaultVoiceServerProfileIdAtom,
+  VoiceServerProfile,
+  generateProfileId,
 } from '../voiceChannel';
 import { warmUpAudioContext } from '../../features/voice-channel/voiceSounds';
 import { allRoomsAtom } from '../room-list/roomList';
@@ -18,6 +22,7 @@ import { useSpaceChildren, useRecursiveChildScopeFactory } from './roomList';
 import { roomToParentsAtom } from '../room/roomToParents';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useSelectedSpace } from '../../hooks/router/useSelectedSpace';
+import { isRoom } from '../../utils/room';
 
 export const useVoiceChannelSettings = () => {
   return useAtom(voiceChannelSettingsAtom);
@@ -36,23 +41,83 @@ export const useUpdateVoiceChannelSettings = () => {
   return updateSettings;
 };
 
+export const useVoiceServerProfiles = () => {
+  const [profiles, setProfiles] = useAtom(voiceServerProfilesAtom);
+  const [defaultId, setDefaultId] = useAtom(defaultVoiceServerProfileIdAtom);
+
+  const addProfile = useCallback(
+    (profile: Omit<VoiceServerProfile, 'id'>) => {
+      const newProfile: VoiceServerProfile = { ...profile, id: generateProfileId() };
+      const updated = [...profiles, newProfile];
+      setProfiles(updated);
+      if (updated.length === 1) setDefaultId(newProfile.id);
+      return newProfile;
+    },
+    [profiles, setProfiles, setDefaultId]
+  );
+
+  const updateProfile = useCallback(
+    (id: string, updates: Partial<Omit<VoiceServerProfile, 'id'>>) => {
+      setProfiles(profiles.map((p) => (p.id === id ? { ...p, ...updates } : p)));
+    },
+    [profiles, setProfiles]
+  );
+
+  const removeProfile = useCallback(
+    (id: string) => {
+      const updated = profiles.filter((p) => p.id !== id);
+      setProfiles(updated);
+      if (defaultId === id) setDefaultId(updated[0]?.id ?? '');
+    },
+    [profiles, setProfiles, defaultId, setDefaultId]
+  );
+
+  const setDefault = useCallback(
+    (id: string) => {
+      setDefaultId(id);
+    },
+    [setDefaultId]
+  );
+
+  const getDefaultProfile = useCallback(
+    (): VoiceServerProfile | undefined =>
+      profiles.find((p) => p.id === defaultId) || profiles[0],
+    [profiles, defaultId]
+  );
+
+  return {
+    profiles,
+    defaultProfileId: defaultId,
+    addProfile,
+    updateProfile,
+    removeProfile,
+    setDefault,
+    getDefaultProfile,
+  };
+};
+
 export const useVoiceConnection = () => {
   const voiceConnection = useAtomValue(voiceConnectionAtom);
   const dispatch = useSetAtom(voiceConnectionAtom);
   const setParticipantsByRoom = useSetAtom(voiceParticipantsByRoomAtom);
   const settings = useAtomValue(voiceChannelSettingsAtom);
+  const profiles = useAtomValue(voiceServerProfilesAtom);
+  const defaultProfileId = useAtomValue(defaultVoiceServerProfileIdAtom);
   const mx = useMatrixClient();
 
   const connect = useCallback(
-    async (roomId: string, roomName: string) => {
-      // Warm up AudioContext while we still have the user-gesture context from the click.
-      // Browsers block Web Audio playback unless the context was started during a trusted event.
+    async (roomId: string, roomName: string, profileId?: string) => {
       warmUpAudioContext();
 
-      if (!settings.livekitServerUrl || !settings.livekitTokenEndpoint) {
+      const resolvedId = profileId || defaultProfileId;
+      const profile = profiles.find((p) => p.id === resolvedId) || profiles[0];
+      const serverUrl = profile?.livekitServerUrl || settings.livekitServerUrl;
+      const tokenEndpoint = profile?.livekitTokenEndpoint || settings.livekitTokenEndpoint;
+
+      if (!serverUrl || !tokenEndpoint) {
         dispatch({
           type: 'CONNECT_ERROR',
-          error: 'LiveKit server URL or token endpoint not configured. Please configure in settings.',
+          error: 'No voice server configured. Add one in Settings → Voice Channels.',
         });
         return;
       }
@@ -66,10 +131,6 @@ export const useVoiceConnection = () => {
         return;
       }
 
-      // Request mic permission early (while user-gesture context from the click is still active).
-      // This ensures the browser permission prompt appears during "Connecting..." rather than
-      // after the LiveKit room mounts, which avoids ICE timeouts on first use and fixes Chrome
-      // silently blocking getUserMedia when the gesture has expired.
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         stream.getTracks().forEach((t) => t.stop());
@@ -81,14 +142,12 @@ export const useVoiceConnection = () => {
         return;
       }
 
-      dispatch({ type: 'CONNECT_START', roomId, roomName });
+      dispatch({ type: 'CONNECT_START', roomId, roomName, serverUrl });
 
       try {
-        const response = await fetch(settings.livekitTokenEndpoint, {
+        const response = await fetch(tokenEndpoint, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             roomName: `matrix-${roomId}`,
             participantName: participantIdentity,
@@ -96,8 +155,7 @@ export const useVoiceConnection = () => {
         });
 
         if (!response.ok) {
-          const status = response.status;
-          if (status === 0) {
+          if (response.status === 0) {
             throw new Error(
               'Cannot reach token server. Check URL and CORS, or network/firewall.'
             );
@@ -106,15 +164,13 @@ export const useVoiceConnection = () => {
         }
 
         const data = await response.json();
-        const token = data.token;
-
-        if (!token) {
+        if (!data.token) {
           throw new Error('No token received from server');
         }
 
         dispatch({
           type: 'CONNECT_SUCCESS',
-          token,
+          token: data.token,
           joinMuted: settings.joinMuted ?? settings.pushToTalk ?? false,
         });
         setParticipantsByRoom((prev) => {
@@ -130,7 +186,7 @@ export const useVoiceConnection = () => {
         dispatch({ type: 'CONNECT_ERROR', error: message });
       }
     },
-    [settings, dispatch, mx, setParticipantsByRoom]
+    [settings, profiles, defaultProfileId, dispatch, mx, setParticipantsByRoom]
   );
 
   const disconnect = useCallback(
@@ -205,6 +261,8 @@ export const useVoiceSpeaking = (roomId: string): boolean => {
 const VOICE_PARTICIPANTS_POLL_MS = 15_000;
 /** Short delay after local join/leave before refreshing (let server process the event). */
 const VOICE_PARTICIPANTS_JOIN_DELAY_MS = 1_500;
+/** Max room IDs to request when no space is selected (avoids huge URLs). */
+const MAX_POLL_ROOM_IDS = 80;
 
 /** Build the participants endpoint URL from token endpoint + room IDs. */
 function buildParticipantsUrl(tokenEndpoint: string, ids: string[]): string {
@@ -216,6 +274,7 @@ function buildParticipantsUrl(tokenEndpoint: string, ids: string[]): string {
  *  local user joins or leaves a voice channel so the count updates without waiting for the next poll. */
 export const useVoiceParticipantsPoll = () => {
   const selectedSpaceId = useSelectedSpace();
+  const allRoomIds = useAtomValue(allRoomsAtom);
   const mx = useMatrixClient();
   const roomToParents = useAtomValue(roomToParentsAtom);
   const scopeFactory = useRecursiveChildScopeFactory(mx, roomToParents);
@@ -224,18 +283,27 @@ export const useVoiceParticipantsPoll = () => {
     selectedSpaceId ?? '',
     scopeFactory
   );
-  const roomIds = selectedSpaceId ? spaceRoomIds : [];
+  const roomIds = selectedSpaceId
+    ? spaceRoomIds
+    : allRoomIds
+        .filter((id) => isRoom(mx.getRoom(id)))
+        .slice(0, MAX_POLL_ROOM_IDS);
   const settings = useAtomValue(voiceChannelSettingsAtom);
+  const profiles = useAtomValue(voiceServerProfilesAtom);
+  const defaultProfileId = useAtomValue(defaultVoiceServerProfileIdAtom);
   const voiceRoomId = useAtomValue(voiceRoomIdAtom);
   const isConnected = useAtomValue(isVoiceConnectedAtom);
   const setByRoom = useSetAtom(voiceParticipantsByRoomAtom);
 
-  // Main polling effect — always creates an interval regardless of initial fetch result
+  const defaultProfile = profiles.find((p) => p.id === defaultProfileId) || profiles[0];
+  const tokenEndpoint = defaultProfile?.livekitTokenEndpoint || settings.livekitTokenEndpoint;
+  const participantsEnabled = settings.participantsApiEnabled ?? true;
+
   useEffect(() => {
-    if (!settings.livekitTokenEndpoint || settings.participantsApiEnabled !== true) return;
+    if (!tokenEndpoint || participantsEnabled !== true) return;
     const ids = Array.isArray(roomIds) ? roomIds : [];
     if (ids.length === 0) return;
-    const url = buildParticipantsUrl(settings.livekitTokenEndpoint, ids);
+    const url = buildParticipantsUrl(tokenEndpoint, ids);
 
     let cancelled = false;
 
@@ -251,10 +319,8 @@ export const useVoiceParticipantsPoll = () => {
       }
     };
 
-    // Initial fetch
     void fetchParticipants();
 
-    // Always start the interval — if the endpoint is flaky, it will recover on next tick
     const interval = setInterval(() => void fetchParticipants(), VOICE_PARTICIPANTS_POLL_MS);
 
     const onFocus = () => {
@@ -267,15 +333,13 @@ export const useVoiceParticipantsPoll = () => {
       clearInterval(interval);
       window.removeEventListener('focus', onFocus);
     };
-  }, [settings.livekitTokenEndpoint, settings.participantsApiEnabled, roomIds.join(','), setByRoom]);
+  }, [tokenEndpoint, participantsEnabled, roomIds.join(','), setByRoom]);
 
-  // Refresh participant list immediately when local user joins or leaves voice.
-  // Small delay so the token server webhook has time to process the LiveKit event.
   useEffect(() => {
-    if (!settings.livekitTokenEndpoint || settings.participantsApiEnabled !== true) return;
+    if (!tokenEndpoint || participantsEnabled !== true) return;
     const ids = Array.isArray(roomIds) ? roomIds : [];
     if (ids.length === 0) return;
-    const url = buildParticipantsUrl(settings.livekitTokenEndpoint, ids);
+    const url = buildParticipantsUrl(tokenEndpoint, ids);
 
     const timer = setTimeout(async () => {
       try {
@@ -290,7 +354,7 @@ export const useVoiceParticipantsPoll = () => {
     }, VOICE_PARTICIPANTS_JOIN_DELAY_MS);
 
     return () => clearTimeout(timer);
-  }, [voiceRoomId, isConnected, settings.livekitTokenEndpoint, settings.participantsApiEnabled, roomIds.join(','), setByRoom]);
+  }, [voiceRoomId, isConnected, tokenEndpoint, participantsEnabled, roomIds.join(','), setByRoom]);
 };
 
 /** Mount once at app level to poll "who is in voice" for the room list. */

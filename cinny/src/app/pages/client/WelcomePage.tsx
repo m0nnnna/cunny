@@ -1,11 +1,18 @@
 import React from 'react';
-import { Box, Button, Icon, Icons, Text, config, toRem } from 'folds';
+import { Box, Text, config, toRem } from 'folds';
 import { Page, PageHero, PageHeroSection } from '../../components/page';
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
-import { useBrandName } from '../../hooks/useClientConfig';
+import { useAppVersion, useBrandName } from '../../hooks/useClientConfig';
+import { isNekoThemeId, useTheme } from '../../hooks/useTheme';
+
+const NEKO_EMOJI = '🐱';
 
 export function WelcomePage() {
   const brandName = useBrandName();
+  const appVersion = useAppVersion();
+  const theme = useTheme();
+  const isNekoTheme = isNekoThemeId(theme.id);
+
   return (
     <Page>
       <Box
@@ -16,49 +23,33 @@ export function WelcomePage() {
       >
         <PageHeroSection>
           <PageHero
-            icon={<img width="70" height="70" src={CinnySVG} alt={`${brandName} Logo`} />}
-            title={`Welcome to ${brandName}`}
+            icon={
+              isNekoTheme ? (
+                <Text as="span" style={{ fontSize: toRem(72), lineHeight: 1 }}>
+                  {NEKO_EMOJI}
+                </Text>
+              ) : (
+                <img width="70" height="70" src={CinnySVG} alt={`${brandName} Logo`} />
+              )
+            }
+            title={
+              isNekoTheme ? (
+                <>
+                  Welcome to {brandName} {NEKO_EMOJI}
+                </>
+              ) : (
+                `Welcome to ${brandName}`
+              )
+            }
             subTitle={
               <span>
-                Yet another matrix client.{' '}
-                <a
-                  href="https://github.com/cinnyapp/cinny/releases"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                >
-                  v4.10.2
-                </a>
+                {isNekoTheme
+                  ? 'Cute Matrix client, nya~ '
+                  : 'The Cute and Funny Matrix Client '}
+                v{appVersion}
               </span>
             }
-          >
-            <Box justifyContent="Center">
-              <Box grow="Yes" style={{ maxWidth: toRem(300) }} direction="Column" gap="300">
-                <Button
-                  as="a"
-                  href="https://github.com/cinnyapp/cinny"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  before={<Icon size="200" src={Icons.Code} />}
-                >
-                  <Text as="span" size="B400" truncate>
-                    Source Code
-                  </Text>
-                </Button>
-                <Button
-                  as="a"
-                  href="https://cinny.in/#sponsor"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  fill="Soft"
-                  before={<Icon size="200" src={Icons.Heart} />}
-                >
-                  <Text as="span" size="B400" truncate>
-                    Support
-                  </Text>
-                </Button>
-              </Box>
-            </Box>
-          </PageHero>
+          />
         </PageHeroSection>
       </Box>
     </Page>

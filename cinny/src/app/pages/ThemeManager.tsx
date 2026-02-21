@@ -1,8 +1,8 @@
 import React, { ReactNode, useEffect } from 'react';
 import { configClass, varsClass } from 'folds';
 import {
-  DarkTheme,
-  LightTheme,
+  NekoDarkTheme,
+  NekoLightTheme,
   ThemeContextProvider,
   ThemeKind,
   useActiveTheme,
@@ -18,10 +18,10 @@ export function UnAuthRouteThemeManager() {
     document.body.className = '';
     document.body.classList.add(configClass, varsClass);
     if (systemThemeKind === ThemeKind.Dark) {
-      document.body.classList.add(...DarkTheme.classNames);
+      document.body.classList.add(...NekoDarkTheme.classNames);
     }
     if (systemThemeKind === ThemeKind.Light) {
-      document.body.classList.add(...LightTheme.classNames);
+      document.body.classList.add(...NekoLightTheme.classNames);
     }
   }, [systemThemeKind]);
 

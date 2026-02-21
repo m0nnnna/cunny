@@ -19,6 +19,7 @@ import {
   useRoomContext,
   useTracks,
   AudioTrack,
+  VideoTrack,
   useConnectionState,
   useSpeakingParticipants,
 } from '@livekit/components-react';
@@ -449,17 +450,21 @@ function VoiceControls() {
   const { localParticipant } = useLocalParticipant();
   const room = useRoomContext();
   const connectionState = useConnectionState();
+  const screenShareTracks = useTracks([Track.Source.ScreenShare]);
 
-  // Only publish/sync mic AFTER the room is fully connected.
-  // audio={false} on LiveKitRoom means we control mic publishing here, which avoids
-  // the race between LiveKitRoom's auto-publish and this effect that broke Chrome audio.
+  const isLocalSharing = screenShareTracks.some(
+    (t) => t.participant.isLocal
+  );
+  const someoneElseSharing = screenShareTracks.some(
+    (t) => !t.participant.isLocal
+  );
+
   useEffect(() => {
     if (connectionState === ConnectionState.Connected && localParticipant) {
       localParticipant.setMicrophoneEnabled(!isMuted);
     }
   }, [isMuted, localParticipant, connectionState]);
 
-  // Push-to-talk: hold key to unmute, release to mute
   useEffect(() => {
     if (!(settings.pushToTalk ?? false) || !settings.pushToTalkKey) return;
     const code = settings.pushToTalkKey;
@@ -488,8 +493,21 @@ function VoiceControls() {
     disconnect();
   }, [room, disconnect]);
 
+  const handleScreenShare = useCallback(async () => {
+    if (!localParticipant) return;
+    try {
+      await localParticipant.setScreenShareEnabled(!isLocalSharing, {
+        audio: true,
+        suppressLocalAudioPlayback: true,
+        systemAudio: 'include',
+      });
+    } catch {
+      // User cancelled the screen picker or browser denied
+    }
+  }, [localParticipant, isLocalSharing]);
+
   return (
-    <Box className={css.VoiceChannelControls} justifyContent="Center" gap="200">
+    <Box alignItems="Center" gap="100">
       <IconButton
         onClick={toggleMute}
         className={classNames(css.VoiceButton, {
@@ -500,7 +518,7 @@ function VoiceControls() {
         radii="Pill"
         aria-label={isMuted ? 'Unmute mic' : 'Mute mic'}
       >
-        <Icon size="300" src={isMuted ? Icons.MicMute : Icons.Mic} />
+        <Icon size="200" src={isMuted ? Icons.MicMute : Icons.Mic} />
       </IconButton>
 
       <IconButton
@@ -513,7 +531,34 @@ function VoiceControls() {
         radii="Pill"
         aria-label={isDeafened ? 'Undeafen' : 'Deafen (mute others)'}
       >
-        <Icon size="300" src={isDeafened ? Icons.VolumeMute : Icons.VolumeHigh} />
+        <Icon size="200" src={isDeafened ? Icons.VolumeMute : Icons.VolumeHigh} />
+      </IconButton>
+
+      <IconButton
+        onClick={handleScreenShare}
+        disabled={someoneElseSharing}
+        className={classNames(css.VoiceButton, {
+          [css.ScreenShareButtonSharing]: isLocalSharing,
+        })}
+        variant={isLocalSharing ? 'Success' : 'Secondary'}
+        size="300"
+        radii="Pill"
+        aria-label={
+          someoneElseSharing
+            ? 'Someone is already sharing'
+            : isLocalSharing
+              ? 'Stop sharing'
+              : 'Share screen'
+        }
+        title={
+          someoneElseSharing
+            ? 'Someone is already sharing'
+            : isLocalSharing
+              ? 'Stop sharing'
+              : 'Share screen'
+        }
+      >
+        <Icon size="200" src={Icons.Terminal} />
       </IconButton>
 
       <IconButton
@@ -523,87 +568,243 @@ function VoiceControls() {
         radii="Pill"
         aria-label="Leave voice"
       >
-        <Icon size="300" src={Icons.Phone} />
+        <Icon size="200" src={Icons.Phone} />
       </IconButton>
     </Box>
+  );
+}
+
+/* ── Screenshare modal (large overlay view) ────────────────────────── */
+type ScreenShareModalProps = {
+  trackRef: ReturnType<typeof useTracks>[number];
+  sharerName: string;
+  onClose: () => void;
+};
+
+function ScreenShareModal({ trackRef, sharerName, onClose }: ScreenShareModalProps) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div className={css.ScreenShareModalBackdrop} onClick={onClose}>
+      <div className={css.ScreenShareModalHeader}>
+        <Text size="T300" style={{ color: '#fff' }}>
+          {sharerName} is sharing their screen
+        </Text>
+        <IconButton
+          onClick={onClose}
+          variant="Secondary"
+          size="300"
+          radii="Pill"
+          aria-label="Close"
+        >
+          <Icon size="300" src={Icons.Cross} />
+        </IconButton>
+      </div>
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+      <div onClick={(e) => e.stopPropagation()}>
+        <VideoTrack trackRef={trackRef} className={css.ScreenShareModalVideo} />
+      </div>
+    </div>
+  );
+}
+
+/* ── Screenshare inline preview ────────────────────────────────────── */
+type ScreenSharePreviewProps = {
+  trackRef: ReturnType<typeof useTracks>[number];
+  sharerName: string;
+  isLocal: boolean;
+  onStopSharing?: () => void;
+  onHide?: () => void;
+};
+
+function ScreenSharePreview({ trackRef, sharerName, isLocal, onStopSharing, onHide }: ScreenSharePreviewProps) {
+  const [modalOpen, setModalOpen] = useState(false);
+
+  return (
+    <>
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+      <div className={css.ScreenSharePreview} onClick={() => setModalOpen(true)}>
+        <VideoTrack trackRef={trackRef} className={css.ScreenSharePreviewVideo} />
+        <div className={css.ScreenShareLabel}>
+          <Icon size="100" src={Icons.Terminal} />
+          <Text size="T200" style={{ color: '#fff' }}>
+            {isLocal ? 'You are sharing' : `${sharerName} is sharing`}
+          </Text>
+        </div>
+        {isLocal && onStopSharing && (
+          <div className={css.ScreenShareStopOverlay}>
+            <IconButton
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                onStopSharing();
+              }}
+              variant="Critical"
+              size="300"
+              radii="Pill"
+              aria-label="Stop sharing"
+              title="Stop sharing"
+            >
+              <Icon size="200" src={Icons.Cross} />
+            </IconButton>
+          </div>
+        )}
+        {!isLocal && onHide && (
+          <div className={css.ScreenShareHideOverlay}>
+            <IconButton
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                onHide();
+              }}
+              variant="Secondary"
+              size="300"
+              radii="Pill"
+              aria-label="Hide screen share"
+              title="Hide screen share"
+            >
+              <Icon size="200" src={Icons.Eye} />
+            </IconButton>
+          </div>
+        )}
+      </div>
+      {modalOpen && (
+        <ScreenShareModal
+          trackRef={trackRef}
+          sharerName={isLocal ? 'You' : sharerName}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
+    </>
   );
 }
 
 function VoiceChannelConnected() {
   const { roomName } = useVoiceConnection();
   const participants = useParticipants();
+  const { localParticipant } = useLocalParticipant();
+  const screenShareTracks = useTracks([Track.Source.ScreenShare]);
+  const screenShareAudioTracks = useTracks([Track.Source.ScreenShareAudio]);
+  const [settings] = useVoiceChannelSettings();
+  const participantVolumes = useAtomValue(voiceParticipantVolumesAtom);
   const [expanded, setExpanded] = useState(false);
+  const [screenShareHidden, setScreenShareHidden] = useState(false);
   const inVoiceLabel =
     participants.length === 0 ? 'Just you' : `${participants.length} in voice`;
 
+  const activeScreenShare = screenShareTracks.length > 0 ? screenShareTracks[0] : null;
+  const screenSharerIsLocal = activeScreenShare?.participant.isLocal ?? false;
+  const screenSharerIdentity = activeScreenShare?.participant.identity ?? null;
+  const screenSharerName = activeScreenShare
+    ? activeScreenShare.participant.name || activeScreenShare.participant.identity
+    : '';
+
+  const prevSharerRef = React.useRef<string | null>(null);
+  useEffect(() => {
+    if (screenSharerIdentity !== prevSharerRef.current) {
+      setScreenShareHidden(false);
+      prevSharerRef.current = screenSharerIdentity;
+    }
+  }, [screenSharerIdentity]);
+
+  const handleStopSharing = useCallback(async () => {
+    if (localParticipant) {
+      try {
+        await localParticipant.setScreenShareEnabled(false);
+      } catch { /* ignore */ }
+    }
+  }, [localParticipant]);
+
   return (
     <Box className={css.VoiceChannelPanel} direction="Column">
-      {expanded ? (
+      {/* ── Unified header: status + controls + chevron ──────────── */}
+      <Box className={css.VoiceChannelCompact} alignItems="Center">
+        <Box
+          alignItems="Center"
+          gap="200"
+          grow="Yes"
+          onClick={() => setExpanded((v) => !v)}
+          style={{ cursor: 'pointer', minWidth: 0 }}
+        >
+          <Icon size="200" src={Icons.Phone} className={css.VoiceButtonActive} />
+          <Text size="T300" priority="500" truncate>
+            Voice {'\u00B7'} {inVoiceLabel}
+          </Text>
+        </Box>
+        <VoiceControls />
+        <IconButton
+          size="300"
+          variant="Surface"
+          fill="None"
+          radii="300"
+          aria-label={expanded ? 'Collapse voice panel' : 'Expand voice panel'}
+          onClick={() => setExpanded((v) => !v)}
+        >
+          <Icon size="200" src={expanded ? Icons.ChevronBottom : Icons.ChevronTop} />
+        </IconButton>
+      </Box>
+
+      {/* ── Expandable: participants + screen share ──────────────── */}
+      {expanded && (
         <>
-          <Box
-            className={css.VoiceChannelHeader}
-            alignItems="Center"
-            justifyContent="SpaceBetween"
-          >
-            <Box alignItems="Center" gap="200">
-              <Icon size="200" src={Icons.Phone} className={css.VoiceButtonActive} />
-              <Text size="T300" truncate>
-                Voice
-              </Text>
-              <Text size="T200" priority="400">
-                {inVoiceLabel}
-              </Text>
-            </Box>
-            <Box alignItems="Center" gap="100">
-              {roomName && (
-                <Text size="T200" priority="400" truncate>
-                  {roomName}
-                </Text>
-              )}
-              <IconButton
-                size="300"
-                variant="Surface"
-                fill="None"
-                radii="300"
-                aria-label="Collapse voice panel"
-                onClick={() => setExpanded(false)}
-              >
-                <Icon size="200" src={Icons.ChevronBottom} />
-              </IconButton>
-            </Box>
-          </Box>
           <div className={css.VoiceChannelContent}>
             <VoiceParticipantList />
           </div>
-          <VoiceControls />
+
+          {activeScreenShare && !screenShareHidden && (
+            <div className={css.ScreenShareSection}>
+              <ScreenSharePreview
+                trackRef={activeScreenShare}
+                sharerName={screenSharerName}
+                isLocal={screenSharerIsLocal}
+                onStopSharing={screenSharerIsLocal ? handleStopSharing : undefined}
+                onHide={!screenSharerIsLocal ? () => setScreenShareHidden(true) : undefined}
+              />
+            </div>
+          )}
+
+          {activeScreenShare && screenShareHidden && (
+            <div className={css.ScreenShareHiddenBar}>
+              <Box alignItems="Center" gap="200" style={{ minWidth: 0 }}>
+                <Icon size="100" src={Icons.Terminal} />
+                <Text size="T200" priority="400" truncate>
+                  {screenSharerName} is sharing
+                </Text>
+              </Box>
+              <IconButton
+                size="300"
+                variant="Secondary"
+                fill="None"
+                radii="300"
+                aria-label="Show screen share"
+                onClick={() => setScreenShareHidden(false)}
+              >
+                <Icon size="100" src={Icons.Eye} />
+              </IconButton>
+            </div>
+          )}
         </>
-      ) : (
-        <Box className={css.VoiceChannelCompact} alignItems="Center">
-          <Box
-            alignItems="Center"
-            gap="200"
-            grow="Yes"
-            onClick={() => setExpanded(true)}
-            style={{ cursor: 'pointer', minWidth: 0 }}
-          >
-            <Icon size="200" src={Icons.Phone} className={css.VoiceButtonActive} />
-            <Text size="T300" priority="500" truncate>
-              Voice · {inVoiceLabel}
-            </Text>
-          </Box>
-          <VoiceControls />
-          <IconButton
-            size="300"
-            variant="Surface"
-            fill="None"
-            radii="300"
-            aria-label="Expand voice panel"
-            onClick={() => setExpanded(true)}
-          >
-            <Icon size="200" src={Icons.ChevronTop} />
-          </IconButton>
-        </Box>
       )}
+
+      {/* ── Screen share audio (gated on !hidden) ────────────────── */}
+      {!screenShareHidden &&
+        screenShareAudioTracks
+          .filter((t) => !t.participant.isLocal)
+          .map((t) => {
+            const vol =
+              participantVolumes[t.participant.identity] ?? settings.outputVolume ?? 1;
+            return (
+              <AudioTrack
+                key={`ss-audio-${t.participant.identity}`}
+                trackRef={t}
+                volume={vol}
+              />
+            );
+          })}
     </Box>
   );
 }
@@ -618,12 +819,12 @@ export function VoiceChannelPanel({ roomId, roomName }: VoiceChannelPanelProps) 
     isConnected,
     isConnecting,
     token,
+    serverUrl,
     error,
     connect,
     disconnect,
     reportError,
   } = useVoiceConnection();
-  const [settings] = useVoiceChannelSettings();
   const wasConnectedRef = React.useRef(false);
 
   // Play connection/disconnection sounds when voice state changes
@@ -647,11 +848,6 @@ export function VoiceChannelPanel({ roomId, roomName }: VoiceChannelPanelProps) 
   const handleDismiss = useCallback(() => {
     disconnect();
   }, [disconnect]);
-
-  // Show nothing if no voice settings configured
-  if (!settings.livekitServerUrl) {
-    return null;
-  }
 
   // Show WebRTC-specific failure notice with browser fix steps
   if (error && isWebRTCPolicyError(error)) {
@@ -678,28 +874,27 @@ export function VoiceChannelPanel({ roomId, roomName }: VoiceChannelPanelProps) 
     );
   }
 
-  // Show connecting state
   if (isConnecting) {
     return (
       <Box className={css.VoiceChannelPanel} direction="Column">
         <Box
-          className={css.VoiceChannelHeader}
+          className={css.VoiceChannelCompact}
           alignItems="Center"
           justifyContent="Center"
           gap="200"
         >
           <Spinner size="200" />
-          <Text size="T300">Connecting to voice...</Text>
+          <Text size="T300">Connecting...</Text>
         </Box>
       </Box>
     );
   }
 
   // When connected, render LiveKitRoom here in the room view
-  if (isConnected && token) {
+  if (isConnected && token && serverUrl) {
     return (
       <LiveKitRoom
-        serverUrl={settings.livekitServerUrl}
+        serverUrl={serverUrl}
         token={token}
         connect={true}
         audio={false}
