@@ -136,6 +136,10 @@ export function EmailStageDialog({
   }
 
   if (emailTokenState.status === AsyncStatus.Success) {
+    const isThreepidUnauthorized =
+      errorCode === 'M_UNAUTHORIZED' &&
+      (error?.toLowerCase().includes('validated threepid') ?? false);
+
     return (
       <Dialog>
         <Box style={{ padding: config.space.S400 }} direction="Column" gap="400">
@@ -144,7 +148,16 @@ export function EmailStageDialog({
             <Text>{`Please check your email "${emailTokenState.data.email}" and validate before continuing further.`}</Text>
 
             {errorCode && (
-              <Text style={{ color: color.Critical.Main }}>{`${errorCode}: ${error}`}</Text>
+              <>
+                <Text style={{ color: color.Critical.Main }}>{`${errorCode}: ${error}`}</Text>
+                {isThreepidUnauthorized && (
+                  <Text size="T300" style={{ color: color.Critical.Main }}>
+                    Usually this means no email was sent by the server. Ask the server admin to
+                    configure email (SMTP) on the Matrix homeserver — see the app’s troubleshooting
+                    docs.
+                  </Text>
+                )}
+              </>
             )}
           </Box>
           <Button variant="Primary" onClick={() => handleSubmit(emailTokenState.data.result.sid)}>

@@ -11,6 +11,9 @@ import fs from 'fs';
 import path from 'path';
 import buildConfig from './build.config';
 
+const buildBrandName = (process.env.VITE_BRAND_NAME || '').trim() || 'NekoChat';
+const buildAppVersion = (process.env.VITE_APP_VERSION || '').trim() || '1.0.0';
+
 const copyFiles = {
   targets: [
     {
@@ -29,6 +32,11 @@ const copyFiles = {
     {
       src: 'public/manifest.json',
       dest: '',
+      transform: (content) =>
+        content
+          .toString()
+          .replace(/__VITE_BRAND_NAME__/g, buildBrandName)
+          .replace(/__VITE_APP_VERSION__/g, buildAppVersion),
     },
     {
       src: 'public/android',
@@ -79,10 +87,29 @@ function serverMatrixSdkCryptoWasm(wasmFilePath) {
   };
 }
 
+const buildForAndroid = process.env.MODE === 'android';
+
+function brandReplacementPlugin() {
+  return {
+    name: 'vite-brand-replacement',
+    transformIndexHtml: {
+      order: 'pre',
+      handler(html) {
+        return html
+          .replace(/__VITE_BRAND_NAME__/g, buildBrandName)
+          .replace(/__VITE_APP_VERSION__/g, buildAppVersion);
+      },
+    },
+  };
+}
+
 export default defineConfig({
   appType: 'spa',
   publicDir: false,
   base: buildConfig.base,
+  define: {
+    'import.meta.env.VITE_BUILD_FOR_ANDROID': JSON.stringify(buildForAndroid),
+  },
   server: {
     port: 8080,
     host: true,
@@ -92,6 +119,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    brandReplacementPlugin(),
     serverMatrixSdkCryptoWasm('/node_modules/.vite/deps/pkg/matrix_sdk_crypto_wasm_bg.wasm'),
     topLevelAwait({
       // The export name of top-level await promise for each chunk module
@@ -134,7 +162,8 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    // Disable sourcemaps for Android build to avoid hang (sourcemap resolution errors in deps like @tanstack/react-query)
+    sourcemap: !buildForAndroid,
     copyPublicDir: false,
     rollupOptions: {
       plugins: [inject({ Buffer: ['buffer', 'Buffer'] })],

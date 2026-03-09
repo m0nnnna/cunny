@@ -47,6 +47,11 @@ room:
   max_participants: 50
   empty_timeout: 300
   departure_timeout: 20
+  # Video codecs: H.264 for screen share (GPU-friendly). VP8 kept for Firefox/compatibility.
+  # Clients request H.264 via publishDefaults.videoCodec; server must allow it here.
+  enabled_codecs:
+    - mime: video/h264
+    - mime: video/vp8
 
 # Optional: webhook for "in voice" room list. Uncomment and set url to your token server webhook.
 # The token server must be reachable by the LiveKit server (use a public URL if LiveKit is in Docker).

@@ -1,7 +1,7 @@
 {
-  "name": "NekoChat - Cunny edition",
-  "short_name": "NekoChat",
-  "description": "A Matrix client — NekoChat (Cunny edition). Simple, cute, and secure.",
+  "name": "__VITE_BRAND_NAME__",
+  "short_name": "__VITE_BRAND_NAME__",
+  "description": "A Matrix client — __VITE_BRAND_NAME__. Simple, cute, and secure.",
   "dir": "auto",
   "lang": "en-US",
   "display": "standalone",

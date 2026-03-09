@@ -378,36 +378,37 @@ body.neko-mint-theme aside {
   box-shadow: 2px 0 24px var(--neko-glass-shadow);
 }
 
-/* ----- Neko Cyberpunk: neon cyan/magenta, grid vibes ----- */
+/* ----- Neko Cyberpunk: HEAVY neons, BRIGHT cyan/magenta/lime ----- */
 body.neko-cyberpunk-theme {
-  --tc-link: hsl(187deg 92% 58%);
-  --mx-uc-1: hsl(187, 92%, 58%);
-  --mx-uc-2: hsl(330, 81%, 72%);
-  --mx-uc-3: hsl(160, 84%, 72%);
-  --mx-uc-4: hsl(340, 82%, 78%);
-  --mx-uc-5: hsl(45, 93%, 58%);
-  --mx-uc-6: hsl(190, 90%, 58%);
-  --mx-uc-7: hsl(270, 91%, 78%);
-  --mx-uc-8: hsl(142, 76%, 75%);
-  --neko-glass-blur: 14px;
-  --neko-glass-saturate: 180%;
-  --neko-glass-border: rgba(34, 211, 238, 0.18);
-  --neko-glass-shadow: rgba(8, 8, 18, 0.55);
-  background: radial-gradient(ellipse 150% 100% at 50% -30%, rgba(34, 211, 238, 0.08), transparent 45%),
-    radial-gradient(ellipse 80% 60% at 100% 50%, rgba(244, 114, 182, 0.06), transparent 45%),
-    linear-gradient(180deg, transparent 0%, rgba(8, 8, 18, 0.97) 100%),
-    #080812;
+  --tc-link: hsl(177deg 100% 50%);
+  --mx-uc-1: hsl(177, 100%, 55%);
+  --mx-uc-2: hsl(300, 100%, 65%);
+  --mx-uc-3: hsl(120, 100%, 55%);
+  --mx-uc-4: hsl(330, 100%, 65%);
+  --mx-uc-5: hsl(60, 100%, 55%);
+  --mx-uc-6: hsl(190, 100%, 55%);
+  --mx-uc-7: hsl(270, 100%, 70%);
+  --mx-uc-8: hsl(100, 100%, 55%);
+  --neko-glass-blur: 12px;
+  --neko-glass-saturate: 200%;
+  --neko-glass-border: rgba(0, 255, 245, 0.35);
+  --neko-glass-shadow: rgba(0, 255, 245, 0.15);
+  background: radial-gradient(ellipse 160% 120% at 50% -40%, rgba(0, 255, 245, 0.18), transparent 50%),
+    radial-gradient(ellipse 100% 80% at 100% 50%, rgba(255, 0, 255, 0.14), transparent 45%),
+    radial-gradient(ellipse 80% 60% at 0% 100%, rgba(57, 255, 20, 0.08), transparent 40%),
+    linear-gradient(180deg, transparent 0%, rgba(2, 2, 8, 0.98) 70%),
+    #020208;
   background-attachment: fixed;
   transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body.neko-cyberpunk-theme #root {
-  --neko-paw-color: rgba(34, 211, 238, 0.06);
+  --neko-paw-color: rgba(0, 255, 245, 0.08);
   background-image:
-    linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='22' rx='8' ry='6' fill='%2322d3ee' fill-opacity='0.04'/%3E%3Ccircle cx='10' cy='14' r='4' fill='%2322d3ee' fill-opacity='0.04'/%3E%3Ccircle cx='22' cy='14' r='4' fill='%2322d3ee' fill-opacity='0.04'/%3E%3Ccircle cx='8' cy='20' r='3' fill='%2322d3ee' fill-opacity='0.04'/%3E%3Ccircle cx='24' cy='20' r='3' fill='%2322d3ee' fill-opacity='0.04'/%3E%3C/svg%3E");
-  background-size: 24px 24px, 24px 24px, 64px 64px;
+    linear-gradient(rgba(0, 255, 245, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 245, 0.06) 1px, transparent 1px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='22' rx='8' ry='6' fill='%2300fff5' fill-opacity='0.08'/%3E%3Ccircle cx='10' cy='14' r='4' fill='%2300fff5' fill-opacity='0.08'/%3E%3Ccircle cx='22' cy='14' r='4' fill='%2300fff5' fill-opacity='0.08'/%3E%3Ccircle cx='8' cy='20' r='3' fill='%2300fff5' fill-opacity='0.08'/%3E%3Ccircle cx='24' cy='20' r='3' fill='%2300fff5' fill-opacity='0.08'/%3E%3C/svg%3E");
+  background-size: 20px 20px, 20px 20px, 64px 64px;
   background-position: 0 0, 0 0, 0 0;
 }
 
@@ -452,9 +453,11 @@ body.neko-cyberpunk-theme [role="button"]:active {
 
 body.neko-cyberpunk-theme [role="dialog"],
 body.neko-cyberpunk-theme [role="menu"] {
-  box-shadow: 0 8px 32px var(--neko-glass-shadow),
+  box-shadow: 0 0 24px rgba(0, 255, 245, 0.2),
+    0 0 48px rgba(255, 0, 255, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.5),
     0 0 0 1px var(--neko-glass-border),
-    inset 0 1px 0 rgba(34, 211, 238, 0.06);
+    inset 0 1px 0 rgba(0, 255, 245, 0.1);
   border-radius: 16px;
 }
 
@@ -544,12 +547,105 @@ body.neko-solarized-theme aside {
   box-shadow: 2px 0 24px var(--neko-glass-shadow);
 }
 
+/* ----- Neko Kawaii: pink, super cute — liquid glass ----- */
+body.neko-kawaii-theme {
+  --tc-link: hsl(340deg 82% 55%);
+  --mx-uc-1: hsl(340, 82%, 58%);
+  --mx-uc-2: hsl(330, 81%, 65%);
+  --mx-uc-3: hsl(160, 84%, 42%);
+  --mx-uc-4: hsl(340, 82%, 62%);
+  --mx-uc-5: hsl(38, 92%, 52%);
+  --mx-uc-6: hsl(190, 78%, 48%);
+  --mx-uc-7: hsl(300, 70%, 60%);
+  --mx-uc-8: hsl(142, 76%, 48%);
+  --neko-glass-blur: 20px;
+  --neko-glass-saturate: 150%;
+  --neko-glass-border: rgba(233, 30, 140, 0.12);
+  --neko-glass-shadow: rgba(74, 44, 58, 0.08);
+  background: radial-gradient(ellipse 130% 90% at 50% -25%, rgba(255, 182, 193, 0.7), transparent 50%),
+    radial-gradient(ellipse 80% 60% at 100% 100%, rgba(255, 192, 203, 0.5), transparent 45%),
+    radial-gradient(ellipse 70% 50% at 0% 50%, rgba(255, 218, 228, 0.6), transparent 40%),
+    radial-gradient(ellipse 50% 30% at 70% 10%, rgba(248, 184, 212, 0.4), transparent 35%),
+    #fff0f5;
+  background-attachment: fixed;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.neko-kawaii-theme #root {
+  --neko-paw-color: rgba(233, 30, 140, 0.06);
+  background-image:
+    radial-gradient(circle at 18px 18px, rgba(233, 30, 140, 0.06) 1.2px, transparent 1.2px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='22' rx='8' ry='6' fill='%23e91e8c' fill-opacity='0.05'/%3E%3Ccircle cx='10' cy='14' r='4' fill='%23e91e8c' fill-opacity='0.05'/%3E%3Ccircle cx='22' cy='14' r='4' fill='%23e91e8c' fill-opacity='0.05'/%3E%3Ccircle cx='8' cy='20' r='3' fill='%23e91e8c' fill-opacity='0.05'/%3E%3Ccircle cx='24' cy='20' r='3' fill='%23e91e8c' fill-opacity='0.05'/%3E%3C/svg%3E");
+  background-size: 36px 36px, 64px 64px;
+  background-position: 0 0, 0 0;
+}
+
+body.neko-kawaii-theme #root,
+body.neko-kawaii-theme #root > div,
+body.neko-kawaii-theme aside,
+body.neko-kawaii-theme [role="dialog"],
+body.neko-kawaii-theme [role="menu"],
+body.neko-kawaii-theme header,
+body.neko-kawaii-theme nav,
+body.neko-kawaii-theme section[class],
+body.neko-kawaii-theme main {
+  backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--neko-glass-blur)) saturate(var(--neko-glass-saturate));
+  transition: backdrop-filter 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s ease;
+}
+
+body.neko-kawaii-theme button,
+body.neko-kawaii-theme [role="button"],
+body.neko-kawaii-theme input,
+body.neko-kawaii-theme textarea,
+body.neko-kawaii-theme [data-folds-scroll],
+body.neko-kawaii-theme [data-folds-box] {
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+body.neko-kawaii-theme button:hover,
+body.neko-kawaii-theme [role="button"]:hover {
+  transform: translateY(-0.5px);
+}
+
+body.neko-kawaii-theme button:active,
+body.neko-kawaii-theme [role="button"]:active {
+  transform: translateY(0);
+}
+
+body.neko-kawaii-theme [role="dialog"],
+body.neko-kawaii-theme [role="menu"] {
+  box-shadow: 0 8px 32px var(--neko-glass-shadow),
+    0 0 0 1px var(--neko-glass-border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+}
+
+body.neko-kawaii-theme aside {
+  box-shadow: 2px 0 24px var(--neko-glass-shadow);
+}
+
 /* Neko: smooth focus ring for a11y + cute glow */
 body.neko-dark-theme :focus-visible {
   outline: 2px solid rgba(167, 139, 250, 0.6);
   outline-offset: 2px;
   border-radius: 6px;
   transition: outline-color 0.2s ease, outline-offset 0.2s ease;
+}
+
+/* Form controls: ring on the element border so it doesn’t misalign (e.g. registration inputs) */
+body.neko-dark-theme input:focus-visible,
+body.neko-dark-theme textarea:focus-visible,
+body.neko-dark-theme select:focus-visible {
+  outline: none;
+  outline-offset: 0;
+  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.6);
 }
 
 body.neko-light-theme :focus-visible {
@@ -559,11 +655,26 @@ body.neko-light-theme :focus-visible {
   transition: outline-color 0.2s ease, outline-offset 0.2s ease;
 }
 
+body.neko-light-theme input:focus-visible,
+body.neko-light-theme textarea:focus-visible,
+body.neko-light-theme select:focus-visible {
+  outline: none;
+  outline-offset: 0;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.5);
+}
+
 body.neko-sunset-theme :focus-visible {
   outline: 2px solid rgba(251, 146, 60, 0.6);
   outline-offset: 2px;
   border-radius: 6px;
   transition: outline-color 0.2s ease, outline-offset 0.2s ease;
+}
+
+body.neko-sunset-theme input:focus-visible,
+body.neko-sunset-theme textarea:focus-visible,
+body.neko-sunset-theme select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(251, 146, 60, 0.6);
 }
 
 body.neko-mint-theme :focus-visible {
@@ -573,11 +684,26 @@ body.neko-mint-theme :focus-visible {
   transition: outline-color 0.2s ease, outline-offset 0.2s ease;
 }
 
+body.neko-mint-theme input:focus-visible,
+body.neko-mint-theme textarea:focus-visible,
+body.neko-mint-theme select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.5);
+}
+
 body.neko-cyberpunk-theme :focus-visible {
-  outline: 2px solid rgba(34, 211, 238, 0.6);
+  outline: 2px solid rgba(0, 255, 245, 0.9);
   outline-offset: 2px;
   border-radius: 6px;
+  box-shadow: 0 0 12px rgba(0, 255, 245, 0.5);
   transition: outline-color 0.2s ease, outline-offset 0.2s ease;
+}
+
+body.neko-cyberpunk-theme input:focus-visible,
+body.neko-cyberpunk-theme textarea:focus-visible,
+body.neko-cyberpunk-theme select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 255, 245, 0.9), 0 0 12px rgba(0, 255, 245, 0.5);
 }
 
 body.neko-solarized-theme :focus-visible {
@@ -585,6 +711,27 @@ body.neko-solarized-theme :focus-visible {
   outline-offset: 2px;
   border-radius: 6px;
   transition: outline-color 0.2s ease, outline-offset 0.2s ease;
+}
+
+body.neko-solarized-theme input:focus-visible,
+body.neko-solarized-theme textarea:focus-visible,
+body.neko-solarized-theme select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(42, 161, 152, 0.6);
+}
+
+body.neko-kawaii-theme :focus-visible {
+  outline: 2px solid rgba(233, 30, 140, 0.5);
+  outline-offset: 2px;
+  border-radius: 6px;
+  transition: outline-color 0.2s ease, outline-offset 0.2s ease;
+}
+
+body.neko-kawaii-theme input:focus-visible,
+body.neko-kawaii-theme textarea:focus-visible,
+body.neko-kawaii-theme select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(233, 30, 140, 0.5);
 }
 
 html {

@@ -52,8 +52,6 @@ import { useRoomCreators } from '../../hooks/useRoomCreators';
 import { useRoomPermissions } from '../../hooks/useRoomPermissions';
 import { InviteUserPrompt } from '../../components/invite-user-prompt';
 import classNames from 'classnames';
-import { useVoiceParticipantCount, useVoiceSpeaking, useVoiceRoomId } from '../../state/hooks/voiceChannel';
-import { VoiceBadgeActive, VoiceBadgeSpeaking } from '../voice-channel/VoiceChannel.css';
 
 type RoomNavItemMenuProps = {
   room: Room;
@@ -236,10 +234,6 @@ export function RoomNavItem({
   const { focusWithinProps } = useFocusWithin({ onFocusWithinChange: setHover });
   const [menuAnchor, setMenuAnchor] = useState<RectCords>();
   const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
-  const voiceCount = useVoiceParticipantCount(room.roomId);
-  const voiceSpeaking = useVoiceSpeaking(room.roomId);
-  const connectedVoiceRoomId = useVoiceRoomId();
-  const isMyVoiceRoom = connectedVoiceRoomId === room.roomId;
   const typingMember = useRoomTypingMember(room.roomId).filter(
     (receipt) => receipt.userId !== mx.getUserId()
   );
@@ -307,25 +301,6 @@ export function RoomNavItem({
             {!optionsVisible && !unread && !selected && typingMember.length > 0 && (
               <Badge size="300" variant="Secondary" fill="Soft" radii="Pill" outlined>
                 <TypingIndicator size="300" disableAnimation />
-              </Badge>
-            )}
-            {!optionsVisible && voiceCount > 0 && (
-              <Badge
-                size="300"
-                variant="Secondary"
-                fill="Soft"
-                radii="Pill"
-                outlined
-                title={`${voiceCount} in voice`}
-                className={classNames({
-                  [VoiceBadgeActive]: isMyVoiceRoom && !voiceSpeaking,
-                  [VoiceBadgeSpeaking]: voiceSpeaking,
-                })}
-              >
-                <Box as="span" alignItems="Center" gap="100">
-                  <Icon size="50" src={Icons.Phone} />
-                  <Text as="span" size="T200">{voiceCount}</Text>
-                </Box>
               </Badge>
             )}
             {!optionsVisible && unread && (

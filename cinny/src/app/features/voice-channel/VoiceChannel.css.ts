@@ -1,18 +1,34 @@
 import { keyframes, style } from '@vanilla-extract/css';
 import { color, config, toRem } from 'folds';
 
+/** Wrapper when voice panel is shown as a left sidebar (fixed width, main content to the right). */
+export const VoiceChannelPanelSidebar = style({
+  width: toRem(300),
+  minWidth: toRem(260),
+  maxWidth: toRem(360),
+  flexShrink: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  borderRight: `${config.borderWidth.B200} solid ${color.Surface.ContainerLine}`,
+  backgroundColor: color.Surface.Container,
+});
+
 export const VoiceChannelPanel = style({
   borderTop: `${config.borderWidth.B200} solid ${color.Surface.ContainerLine}`,
   backgroundColor: color.Surface.Container,
   color: color.Surface.OnContainer,
   borderRadius: `${config.radii.R400} ${config.radii.R400} 0 0`,
   overflow: 'hidden',
+  flexShrink: 0,
+  display: 'flex',
+  flexDirection: 'column',
 });
 
 export const VoiceChannelCompact = style({
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'space-between',
+  justifyContent: 'flex-start',
+  flexWrap: 'nowrap',
   padding: `${config.space.S100} ${config.space.S200}`,
   gap: config.space.S100,
   minHeight: toRem(36),
@@ -164,6 +180,16 @@ export const ScreenShareSection = style({
   borderTop: `${config.borderWidth.B200} solid ${color.Surface.ContainerLine}`,
   padding: config.space.S200,
   backgroundColor: color.Surface.Container,
+});
+
+export const ScreenShareVolumeRow = style({
+  flexWrap: 'wrap',
+});
+
+export const ScreenShareVolumeSlider = style({
+  width: toRem(120),
+  minWidth: toRem(80),
+  accentColor: color.Primary.Main,
 });
 
 export const ScreenShareHiddenBar = style({

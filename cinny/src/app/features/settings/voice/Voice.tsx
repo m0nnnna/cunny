@@ -374,20 +374,6 @@ export function Voice({ requestClose }: VoiceProps) {
                   gap="400"
                 >
                   <SettingTile
-                    title="Show who's in voice"
-                    description="Show participant counts on room list. Fetches from the token server and updates when you join or leave."
-                    after={
-                      <Switch
-                        variant="Primary"
-                        value={settings.participantsApiEnabled === true}
-                        onChange={(value) =>
-                          updateSettings({ participantsApiEnabled: value })
-                        }
-                      />
-                    }
-                  />
-
-                  <SettingTile
                     title="Join voice channels muted"
                     description="Start muted when joining so you don't broadcast until you're ready"
                     after={

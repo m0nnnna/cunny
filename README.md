@@ -25,6 +25,7 @@ A Matrix client based on [Cinny](https://github.com/cinnyapp/cinny), branded as 
 - **Persistent channels** — One voice channel per Matrix room; participants shown in the room list and in a collapsible panel.
 - **Self-hosted** — Uses your own LiveKit server and token endpoint; no third-party voice service required.
 - **Voice server address book** — Save multiple LiveKit/token server combinations (Settings → Voice Channels). Choose which server to use when joining voice; everyone must use the same server + room to be in the same chat.
+- **Screen share with audio** — When you share your screen (window or tab), the app requests capture of that source’s audio and sends it as a separate track so others hear what’s playing in the shared window. Support is browser-dependent (e.g. Chrome can capture tab/window audio; the share dialog may offer “Share audio” when available). Screen share uses **H.264** (GPU-friendly) at up to 60 fps / 3 Mbps; the app validates client codec support on connect. For smooth game streaming, use the **720p 60fps** or **1080p 60fps** preset and ensure your **LiveKit server** has H.264 enabled (default).
 - **Invite to voice via DM** — From a room’s menu (⋮), use **Invite to voice**, enter a Matrix user ID, and send. They receive a DM with a voice-invite message: **Add to address book** adds your voice server to their list, **Join room** opens the room so they can join the same voice channel.
 
 ### People & account
@@ -60,8 +61,9 @@ A Matrix client based on [Cinny](https://github.com/cinnyapp/cinny), branded as 
 
 ### Branding (one place)
 
-- **config.json** (e.g. `cinny/public/config.json`) — Set `brandName`, `appVersion`, and `showNekoMascot`. Single place to edit branding and version for the UI.
-- **.env** — Optional build-time overrides: `VITE_BRAND_NAME`, `VITE_APP_VERSION`.
+All branding (title, manifest, app name, device names, etc.) is driven from **`cinny/src/app/config/brand.ts`**, which uses:
+- **Runtime:** `config.json` (e.g. `cinny/public/config.json`) — Set `brandName`, `appVersion`, and `showNekoMascot`. Loaded by the app and used everywhere in the UI.
+- **Build-time:** `.env` — Set `VITE_BRAND_NAME` and `VITE_APP_VERSION` to control what gets baked into `index.html`, `manifest.json`, and the Capacitor Android app name. Default (if unset) is `NekoChat` / `1.0.0`.
 
 ---
 
@@ -237,6 +239,19 @@ For voice you need:
 The same key/secret must be in **`.env`** (token server) and **`livekit.yaml`** (LiveKit server). After changing keys, run `./sync-livekit-keys.sh` (or `.\sync-livekit-keys.ps1` on Windows) and restart: `docker compose restart livekit token-server`.
 
 See `docs/LIVEKIT-AUTH-REVIEW.md` for details.
+
+### LiveKit codecs (screen share)
+
+The app uses **H.264** for screen share (GPU-friendly). The LiveKit server must allow H.264: in **`livekit.yaml`** the `room.enabled_codecs` section lists `video/h264` and `video/vp8` (VP8 for Firefox compatibility). If you edited the config and removed codecs, ensure at least:
+
+```yaml
+room:
+  enabled_codecs:
+    - mime: video/h264
+    - mime: video/vp8
+```
+
+Restart LiveKit after changing `livekit.yaml` (e.g. `docker compose restart livekit`).
 
 ---
 

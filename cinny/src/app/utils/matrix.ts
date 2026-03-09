@@ -276,6 +276,25 @@ export const removeRoomIdFromMDirect = async (mx: MatrixClient, roomId: string):
   await mx.setAccountData(AccountDataEvent.Direct as any, userIdToRoomIds as any);
 };
 
+const MEDIA_TOKEN_KEY = 'cinny_access_token';
+
+/**
+ * On Capacitor Android the service worker's fetch to the Matrix server is cross-origin;
+ * if the server's CORS allows only the web app origin (e.g. https://chat.example.com),
+ * the SW response is CORS-blocked and media fails. Appending the access_token to the
+ * URL lets <img> load the URL directly (no SW), so CORS for the SW is irrelevant.
+ */
+function appendTokenForNativeMediaIfNeeded(url: string | null): string | null {
+  if (!url || typeof window === 'undefined') return url;
+  const cap = (window as Window & { Capacitor?: { isNativePlatform?: () => boolean; getPlatform?: () => string } })
+    .Capacitor;
+  if (!cap?.isNativePlatform?.() || cap.getPlatform?.() !== 'android') return url;
+  const token = localStorage.getItem(MEDIA_TOKEN_KEY);
+  if (!token) return url;
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}access_token=${encodeURIComponent(token)}`;
+}
+
 export const mxcUrlToHttp = (
   mx: MatrixClient,
   mxcUrl: string,
@@ -285,8 +304,8 @@ export const mxcUrlToHttp = (
   resizeMethod?: string,
   allowDirectLinks?: boolean,
   allowRedirects?: boolean
-): string | null =>
-  mx.mxcUrlToHttp(
+): string | null => {
+  const url = mx.mxcUrlToHttp(
     mxcUrl,
     width,
     height,
@@ -295,6 +314,8 @@ export const mxcUrlToHttp = (
     allowRedirects,
     useAuthentication
   );
+  return useAuthentication ? appendTokenForNativeMediaIfNeeded(url) : url;
+};
 
 export const downloadMedia = async (src: string): Promise<Blob> => {
   // this request is authenticated by service worker

@@ -26,6 +26,80 @@ import { getMxIdLocalPart, mxcUrlToHttp } from '../../utils/matrix';
 import { useSelectedRoom } from '../../hooks/router/useSelectedRoom';
 import { useInboxNotificationsSelected } from '../../hooks/router/useInbox';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import {
+  isNativePushAvailable,
+  getStoredPushToken,
+  FCM_TOKEN_EVENT,
+} from '../../utils/pushNotifications';
+import { useBrandName } from '../../hooks/useClientConfig';
+import { DEFAULT_BRAND_NAME } from '../../config/brand';
+
+/**
+ * URL of the Matrix push gateway (Sygnal) that the homeserver will POST to when
+ * delivering a notification. Set VITE_PUSH_GATEWAY_URL at build time to your Sygnal
+ * instance, e.g. https://push.your-domain.com/_matrix/push/v1/notify
+ *
+ * This must NOT be the homeserver URL – the homeserver doesn't speak FCM.
+ * See: https://github.com/matrix-org/sygnal
+ */
+const PUSH_GATEWAY_URL: string | undefined =
+  (import.meta.env.VITE_PUSH_GATEWAY_URL as string | undefined)?.trim() || undefined;
+
+/**
+ * When on Android with a logged-in client, register the FCM token with the Matrix
+ * homeserver as an HTTP pusher so the push gateway can deliver notifications.
+ */
+function AndroidPushRegistration() {
+  const mx = useMatrixClient();
+  const brandName = useBrandName();
+  const registeredTokenRef = useRef<string | null>(null);
+
+  const registerPusher = useCallback(
+    async (token: string) => {
+      if (registeredTokenRef.current === token) return;
+      if (!PUSH_GATEWAY_URL) {
+        console.warn(
+          '[push] VITE_PUSH_GATEWAY_URL is not set. ' +
+          'Set it to your Sygnal instance URL (e.g. https://push.your-domain.com/_matrix/push/v1/notify). ' +
+          'Push notifications will not work without a configured gateway.'
+        );
+        return;
+      }
+      try {
+        await mx.setPusher({
+          kind: 'http',
+          app_id: 'org.nekochat.cinny',
+          pushkey: token,
+          app_display_name: brandName || DEFAULT_BRAND_NAME,
+          device_display_name: 'Android',
+          lang: 'en',
+          data: {
+            url: PUSH_GATEWAY_URL,
+          },
+          append: true,
+        });
+        registeredTokenRef.current = token;
+      } catch (e) {
+        console.warn('Failed to register push token with Matrix', e);
+      }
+    },
+    [mx, brandName]
+  );
+
+  useEffect(() => {
+    if (!isNativePushAvailable()) return;
+    const token = getStoredPushToken();
+    if (token) registerPusher(token);
+    const onToken = (e: Event) => {
+      const token = (e as CustomEvent<string>).detail;
+      if (token) registerPusher(token);
+    };
+    window.addEventListener(FCM_TOKEN_EVENT, onToken);
+    return () => window.removeEventListener(FCM_TOKEN_EVENT, onToken);
+  }, [registerPusher]);
+
+  return null;
+}
 
 function SystemEmojiFeature() {
   const [twitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
@@ -263,6 +337,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
       <SystemEmojiFeature />
       <PageZoomFeature />
       <FaviconUpdater />
+      {isNativePushAvailable() && <AndroidPushRegistration />}
       <InviteNotifications />
       <MessageNotifications />
       {children}

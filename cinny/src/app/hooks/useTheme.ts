@@ -6,6 +6,7 @@ import {
   darkTheme,
   nekoCyberpunkTheme,
   nekoDarkTheme,
+  nekoKawaiiTheme,
   nekoLightTheme,
   nekoMintTheme,
   nekoSolarizedTheme,
@@ -84,6 +85,12 @@ export const NekoSolarizedTheme: Theme = {
   classNames: ['neko-solarized-theme', nekoSolarizedTheme, onDarkFontWeight, 'prism-dark'],
 };
 
+export const NekoKawaiiTheme: Theme = {
+  id: 'neko-kawaii-theme',
+  kind: ThemeKind.Light,
+  classNames: ['neko-kawaii-theme', nekoKawaiiTheme, onLightFontWeight, 'prism-light'],
+};
+
 export const NEKO_THEME_IDS = [
   'neko-dark-theme',
   'neko-light-theme',
@@ -91,6 +98,7 @@ export const NEKO_THEME_IDS = [
   'neko-mint-theme',
   'neko-cyberpunk-theme',
   'neko-solarized-theme',
+  'neko-kawaii-theme',
 ] as const;
 
 export const isNekoThemeId = (id: string): boolean =>
@@ -109,6 +117,7 @@ export const useThemes = (): Theme[] => {
       NekoMintTheme,
       NekoCyberpunkTheme,
       NekoSolarizedTheme,
+      NekoKawaiiTheme,
     ],
     []
   );
@@ -129,6 +138,7 @@ export const useThemeNames = (): Record<string, string> =>
       [NekoMintTheme.id]: 'Neko Mint',
       [NekoCyberpunkTheme.id]: 'Neko Cyberpunk',
       [NekoSolarizedTheme.id]: 'Neko Solarized',
+      [NekoKawaiiTheme.id]: 'Neko Kawaii',
     }),
     []
   );

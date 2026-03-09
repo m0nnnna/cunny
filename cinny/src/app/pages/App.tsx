@@ -3,7 +3,12 @@ import { Provider as JotaiProvider } from 'jotai';
 import { OverlayContainerProvider, PopOutContainerProvider, TooltipContainerProvider } from 'folds';
 import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+// Lazy-load devtools only when not Android so the package is not transformed during android build (avoids freeze)
+const ReactQueryDevtools = import.meta.env.VITE_BUILD_FOR_ANDROID
+  ? () => null
+  : React.lazy(() =>
+      import('@tanstack/react-query-devtools').then((m) => ({ default: m.ReactQueryDevtools }))
+    );
 
 import { ClientConfigLoader } from '../components/ClientConfigLoader';
 import { ClientConfigProvider } from '../hooks/useClientConfig';
@@ -49,7 +54,11 @@ function App() {
                       <JotaiProvider>
                         <RouterProvider router={createRouter(clientConfig, screenSize)} />
                       </JotaiProvider>
-                      <ReactQueryDevtools initialIsOpen={false} />
+                      {!import.meta.env.VITE_BUILD_FOR_ANDROID && (
+                        <React.Suspense fallback={null}>
+                          <ReactQueryDevtools initialIsOpen={false} />
+                        </React.Suspense>
+                      )}
                     </QueryClientProvider>
                   </ClientConfigProvider>
                   );

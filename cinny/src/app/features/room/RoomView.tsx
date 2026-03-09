@@ -22,7 +22,6 @@ import { settingsAtom } from '../../state/settings';
 import { useSetting } from '../../state/hooks/settings';
 import { useRoomPermissions } from '../../hooks/useRoomPermissions';
 import { useRoomCreators } from '../../hooks/useRoomCreators';
-import { VoiceChannelPanel } from '../voice-channel';
 import { useRoomName } from '../../hooks/useRoomMeta';
 
 const FN_KEYS_REGEX = /^F\d+$/;
@@ -107,7 +106,6 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
         />
         <RoomViewTyping room={room} />
       </Box>
-      <VoiceChannelPanel roomId={roomId} roomName={roomName} />
       <Box shrink="No" direction="Column">
         <div style={{ padding: `0 ${config.space.S400}` }}>
           {tombstoneEvent ? (

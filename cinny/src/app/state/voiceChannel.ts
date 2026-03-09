@@ -12,6 +12,8 @@ export interface VoiceChannelSettings {
   outputDeviceId?: string;
   inputVolume: number;
   outputVolume: number;
+  /** Volume for screen-share audio (0–1). Only affects what viewers hear from shared screen audio. */
+  screenShareVolume: number;
   /** If true, join voice channels muted by default. */
   joinMuted: boolean;
   /** If true, hold the push-to-talk key to unmute; release to mute. */
@@ -50,6 +52,7 @@ const defaultVoiceSettings: VoiceChannelSettings = {
   outputDeviceId: undefined,
   inputVolume: 1,
   outputVolume: 1,
+  screenShareVolume: 1,
   joinMuted: false,
   pushToTalk: false,
   pushToTalkKey: 'KeyV',
@@ -75,6 +78,9 @@ function loadVoiceSettings(key: string): VoiceChannelSettings {
   // Ensure participantsApiEnabled defaults to true for existing installs that had it off
   if (stored.participantsApiEnabled === undefined) {
     stored.participantsApiEnabled = true;
+  }
+  if (typeof stored.screenShareVolume !== 'number') {
+    stored.screenShareVolume = 1;
   }
   return stored;
 }

@@ -7,16 +7,16 @@ import {
   RegisterResponse,
 } from 'matrix-js-sdk';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { LoginPathSearchParams } from '../../paths';
 import { ErrorCode } from '../../../cs-errorcode';
 import {
   deleteAfterLoginRedirectPath,
   getAfterLoginRedirectPath,
 } from '../../afterLoginRedirectPath';
-import { getHomePath, getLoginPath, withSearchParam } from '../../pathUtils';
+import { getHomePath, getLoginPath, getOriginBaseUrl, withSearchParam } from '../../pathUtils';
 import { getMxIdLocalPart, getMxIdServer } from '../../../utils/matrix';
 import { setFallbackSession } from '../../../state/sessions';
+import { useClientConfig } from '../../../hooks/useClientConfig';
 
 export enum RegisterError {
   UserTaken = 'UserTaken',
@@ -107,8 +107,16 @@ export const register = async (
   ];
 };
 
+function buildFullUrl(path: string, hashRouter?: { enabled?: boolean; basename?: string }): string {
+  const base = getOriginBaseUrl(hashRouter);
+  if (base.includes('#')) {
+    return base + path.replace(/^\//, '');
+  }
+  return base.replace(/\/$/, '') + (path.startsWith('/') ? path : `/${path}`);
+}
+
 export const useRegisterComplete = (data?: CustomRegisterResponse) => {
-  const navigate = useNavigate();
+  const { hashRouter } = useClientConfig();
 
   useEffect(() => {
     if (data) {
@@ -122,17 +130,17 @@ export const useRegisterComplete = (data?: CustomRegisterResponse) => {
         setFallbackSession(accessToken, deviceId, userId, baseUrl);
         const afterLoginRedirectPath = getAfterLoginRedirectPath();
         deleteAfterLoginRedirectPath();
-        navigate(afterLoginRedirectPath ?? getHomePath(), { replace: true });
+        const path = afterLoginRedirectPath ?? getHomePath();
+        // Full page navigation so the app re-initializes with the new session
+        window.location.assign(buildFullUrl(path, hashRouter));
       } else {
         const username = getMxIdLocalPart(userId);
         const userServer = getMxIdServer(userId);
-        navigate(
-          withSearchParam<LoginPathSearchParams>(getLoginPath(userServer), {
-            username,
-          }),
-          { replace: true }
-        );
+        const loginPath = withSearchParam<LoginPathSearchParams>(getLoginPath(userServer), {
+          username,
+        });
+        window.location.assign(buildFullUrl(loginPath, hashRouter));
       }
     }
-  }, [data, navigate]);
+  }, [data, hashRouter]);
 };

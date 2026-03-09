@@ -88,3 +88,6 @@ export const INBOX_INVITES_PATH = `/inbox/${_INVITES_PATH}`;
 export const SPACE_SETTINGS_PATH = '/space-settings/';
 
 export const ROOM_SETTINGS_PATH = '/room-settings/';
+
+/** Route for screen-share pop-out window (auth passed in hash). */
+export const VOICE_SCREEN_SHARE_POPOUT_PATH = '/voice-screen-share-popout/';

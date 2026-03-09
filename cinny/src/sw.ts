@@ -31,15 +31,19 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
   event.waitUntil(clients.claim());
 });
 
+function isMatrixMediaRequest(url: string): boolean {
+  return (
+    url.includes('/_matrix/client/v1/media/download') ||
+    url.includes('/_matrix/client/v1/media/thumbnail') ||
+    url.includes('/_matrix/media/r0/download') ||
+    url.includes('/_matrix/media/r0/thumbnail')
+  );
+}
+
 self.addEventListener('fetch', (event: FetchEvent) => {
   const { url, method } = event.request;
   if (method !== 'GET') return;
-  if (
-    !url.includes('/_matrix/client/v1/media/download') &&
-    !url.includes('/_matrix/client/v1/media/thumbnail')
-  ) {
-    return;
-  }
+  if (!isMatrixMediaRequest(url)) return;
   event.respondWith(
     (async (): Promise<Response> => {
       const client = await self.clients.get(event.clientId);

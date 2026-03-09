@@ -68,6 +68,8 @@ import { Create } from './client/create';
 import { CreateSpaceModalRenderer } from '../features/create-space';
 import { SearchModalRenderer } from '../features/search';
 import { getFallbackSession } from '../state/sessions';
+import { ScreenSharePopout } from '../features/voice-channel/ScreenSharePopout';
+import { VOICE_SCREEN_SHARE_POPOUT_PATH } from './paths';
 
 export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize) => {
   const { hashRouter } = clientConfig;
@@ -265,6 +267,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
           <Route path={_SERVER_PATH} element={<PublicRooms />} />
         </Route>
         <Route path={CREATE_PATH} element={<Create />} />
+        <Route path={VOICE_SCREEN_SHARE_POPOUT_PATH} element={<ScreenSharePopout />} />
         <Route
           path={INBOX_PATH}
           element={
