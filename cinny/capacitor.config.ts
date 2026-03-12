@@ -1,6 +1,9 @@
 import type { CapacitorConfig } from '@capacitor/cli';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
-const appName = (process.env.VITE_BRAND_NAME || '').trim() || 'NekoChat';
+const _cfg = JSON.parse(readFileSync(resolve(__dirname, 'config.json'), 'utf-8'));
+const appName = (process.env.VITE_BRAND_NAME || '').trim() || _cfg.brandName || 'NekoChat';
 
 const config: CapacitorConfig = {
   appId: 'org.nekochat.cinny',

@@ -11,8 +11,13 @@ import fs from 'fs';
 import path from 'path';
 import buildConfig from './build.config';
 
-const buildBrandName = (process.env.VITE_BRAND_NAME || '').trim() || 'NekoChat';
-const buildAppVersion = (process.env.VITE_APP_VERSION || '').trim() || '1.0.0';
+// ─── BRANDING ────────────────────────────────────────────────────────────────
+// Edit cinny/config.json ("brandName" + "appVersion") to change branding.
+// Env vars VITE_BRAND_NAME / VITE_APP_VERSION override config.json if set.
+const _appConfig = JSON.parse(fs.readFileSync(path.resolve('./config.json'), 'utf-8'));
+const buildBrandName = (process.env.VITE_BRAND_NAME || '').trim() || _appConfig.brandName || 'NekoChat';
+const buildAppVersion = (process.env.VITE_APP_VERSION || '').trim() || _appConfig.appVersion || '1.0.0';
+// ─────────────────────────────────────────────────────────────────────────────
 
 const copyFiles = {
   targets: [
@@ -109,6 +114,8 @@ export default defineConfig({
   base: buildConfig.base,
   define: {
     'import.meta.env.VITE_BUILD_FOR_ANDROID': JSON.stringify(buildForAndroid),
+    'import.meta.env.VITE_BRAND_NAME': JSON.stringify(buildBrandName),
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(buildAppVersion),
   },
   server: {
     port: 8080,

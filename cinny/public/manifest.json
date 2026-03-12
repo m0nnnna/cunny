@@ -7,9 +7,15 @@
   "display": "standalone",
   "orientation": "portrait",
   "start_url": "./",
-  "background_color": "#fff",
-  "theme_color": "#fff",
+  "background_color": "#f472b6",
+  "theme_color": "#c084fc",
   "icons": [
+    {
+      "src": "../favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
     {
       "src": "./android/android-chrome-36x36.png",
       "sizes": "36x36",

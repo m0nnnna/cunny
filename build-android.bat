@@ -9,7 +9,7 @@ if not exist "android\app" (
   echo Adding Android platform...
   call npx cap add android
 )
-REM Generate launcher icons (uses nekochat-icon-source.png or android-chrome-512x512.png if present)
+REM Generate all icons from image.png at repo root
 call node scripts/generate-icons.js
 call npx cap sync android
 cd android
@@ -24,7 +24,16 @@ REM Skip 'clean' to avoid "Unable to delete directory" on Windows (network drive
 REM Run 'gradlew.bat clean assembleRelease' manually when you need a full clean.
 call gradlew.bat assembleRelease
 cd ..
-set APK_DEST=%ROOT%NekoChat-release.apk
+REM Read brandName from config.json for the APK filename
+for /f "tokens=2 delims=:, " %%A in ('findstr /i "brandName" config.json') do (
+  set BRAND_RAW=%%~A
+  goto :gotbrand
+)
+:gotbrand
+REM Strip quotes and whitespace
+set BRAND_NAME=%BRAND_RAW:"=%
+if "%BRAND_NAME%"=="" set BRAND_NAME=NekoChat
+set APK_DEST=%ROOT%%BRAND_NAME%-release.apk
 if exist "android\app\build\outputs\apk\release\app-release.apk" (
   copy /Y "android\app\build\outputs\apk\release\app-release.apk" "%APK_DEST%" >nul
   echo.

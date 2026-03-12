@@ -1,27 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#a78bfa"/>
-      <stop offset="100%" style="stop-color:#ec4899"/>
-    </linearGradient>
+    <clipPath id="c">
+      <rect width="64" height="64" rx="14"/>
+    </clipPath>
   </defs>
-  <!-- Rounded square background -->
-  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
-  <!-- Cat ears -->
-  <path d="M18 24 L14 10 L24 20 Z" fill="white" opacity="0.95"/>
-  <path d="M46 24 L50 10 L40 20 Z" fill="white" opacity="0.95"/>
-  <!-- Chat bubble body (cat face) -->
-  <ellipse cx="32" cy="30" rx="16" ry="14" fill="white" opacity="0.95"/>
-  <!-- Chat bubble tail -->
-  <path d="M22 40 Q18 48 14 50 Q22 46 26 42 Z" fill="white" opacity="0.95"/>
-  <!-- Eyes (^_^ style) -->
-  <path d="M24 28 Q26 25 28 28" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" fill="none"/>
-  <path d="M36 28 Q38 25 40 28" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" fill="none"/>
-  <!-- Nose -->
-  <ellipse cx="32" cy="31" rx="1.5" ry="1" fill="#ec4899"/>
-  <!-- Whiskers -->
-  <line x1="14" y1="29" x2="23" y2="31" stroke="#d1d5db" stroke-width="0.8" opacity="0.6"/>
-  <line x1="14" y1="33" x2="23" y2="33" stroke="#d1d5db" stroke-width="0.8" opacity="0.6"/>
-  <line x1="50" y1="29" x2="41" y2="31" stroke="#d1d5db" stroke-width="0.8" opacity="0.6"/>
-  <line x1="50" y1="33" x2="41" y2="33" stroke="#d1d5db" stroke-width="0.8" opacity="0.6"/>
+  <image href="favicon-64.png" width="64" height="64" clip-path="url(#c)"/>
 </svg>
