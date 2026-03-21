@@ -673,21 +673,21 @@ body.neko-kawaii-theme {
   --mx-uc-6: hsl(190, 78%, 48%);
   --mx-uc-7: hsl(300, 70%, 60%);
   --mx-uc-8: hsl(142, 76%, 48%);
-  --neko-glass-blur: 38px;
-  --neko-glass-saturate: 210%;
-  --neko-glass-brightness: 1.05;
-  --neko-glass-border: rgba(233, 30, 140, 0.36);
-  --neko-glass-rim: rgba(255, 255, 255, 0.82);
-  --neko-glass-shadow: rgba(140, 50, 100, 0.14);
-  --neko-glass-glow: rgba(233, 30, 140, 0.34);
+  --neko-glass-blur: 34px;
+  --neko-glass-saturate: 185%;
+  --neko-glass-brightness: 1.03;
+  --neko-glass-border: rgba(219, 112, 147, 0.24);
+  --neko-glass-rim: rgba(255, 255, 255, 0.78);
+  --neko-glass-shadow: rgba(180, 100, 140, 0.10);
+  --neko-glass-glow: rgba(219, 112, 147, 0.22);
   background:
-    radial-gradient(ellipse 180% 140% at 50% -8%, rgba(255, 65, 150, 0.75), transparent 52%),
-    radial-gradient(ellipse 130% 95% at 110% 110%, rgba(255, 20, 120, 0.55), transparent 48%),
-    radial-gradient(ellipse 95% 75% at -5% 55%, rgba(255, 150, 205, 0.65), transparent 42%),
-    radial-gradient(ellipse 75% 55% at 75% 5%, rgba(255, 100, 175, 0.52), transparent 38%),
-    radial-gradient(ellipse 58% 42% at 20% 82%, rgba(255, 180, 215, 0.58), transparent 35%),
-    radial-gradient(ellipse 42% 28% at 62% 45%, rgba(255, 20, 147, 0.20), transparent 30%),
-    #ffd6eb;
+    radial-gradient(ellipse 170% 130% at 50% -8%, rgba(255, 182, 210, 0.80), transparent 52%),
+    radial-gradient(ellipse 120% 90% at 110% 110%, rgba(255, 192, 215, 0.58), transparent 48%),
+    radial-gradient(ellipse 90% 72% at -5% 55%, rgba(255, 218, 232, 0.68), transparent 42%),
+    radial-gradient(ellipse 70% 50% at 75% 5%, rgba(248, 185, 215, 0.55), transparent 38%),
+    radial-gradient(ellipse 55% 38% at 20% 82%, rgba(255, 205, 225, 0.60), transparent 35%),
+    radial-gradient(ellipse 40% 26% at 62% 45%, rgba(255, 160, 200, 0.18), transparent 30%),
+    #fff0f7;
   background-attachment: fixed;
   transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -696,7 +696,7 @@ body.neko-kawaii-theme #root {
   background-image:
     radial-gradient(circle at 18px 18px, rgba(233, 30, 140, 0.09) 1.5px, transparent 1.5px),
     radial-gradient(circle at 9px 9px, rgba(255, 105, 180, 0.055) 1px, transparent 1px),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 40 C11 30 3 22 3 13 C3 7 8 3 14 3 C18 3 22 5 24 9 C26 5 30 3 34 3 C40 3 45 7 45 13 C45 22 37 30 24 40Z' fill='%23e91e8c' fill-opacity='0.07'/%3E%3Ccircle cx='10' cy='5' r='2' fill='%23ff69b4' fill-opacity='0.05'/%3E%3Ccircle cx='38' cy='5' r='2' fill='%23ff69b4' fill-opacity='0.05'/%3E%3Ccircle cx='4' cy='30' r='1.5' fill='%23e91e8c' fill-opacity='0.045'/%3E%3Ccircle cx='44' cy='30' r='1.5' fill='%23e91e8c' fill-opacity='0.045'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 40 C11 30 3 22 3 13 C3 7 8 3 14 3 C18 3 22 5 24 9 C26 5 30 3 34 3 C40 3 45 7 45 13 C45 22 37 30 24 40Z' fill='%23f472b6' fill-opacity='0.07'/%3E%3Ccircle cx='10' cy='5' r='2' fill='%23fbb6d4' fill-opacity='0.06'/%3E%3Ccircle cx='38' cy='5' r='2' fill='%23fbb6d4' fill-opacity='0.06'/%3E%3Ccircle cx='4' cy='30' r='1.5' fill='%23f472b6' fill-opacity='0.05'/%3E%3Ccircle cx='44' cy='30' r='1.5' fill='%23f472b6' fill-opacity='0.05'/%3E%3C/svg%3E");
   background-size: 36px 36px, 18px 18px, 96px 96px;
   background-position: 0 0, 0 0, 0 0;
 }
@@ -748,23 +748,22 @@ body.neko-kawaii-theme [role="dialog"],
 body.neko-kawaii-theme [role="menu"] {
   box-shadow:
     0 32px 64px var(--neko-glass-shadow),
-    0 0 80px rgba(233, 30, 140, 0.20),
-    0 0 140px rgba(255, 105, 180, 0.12),
+    0 0 80px rgba(219, 112, 147, 0.14),
     0 0 0 1px var(--neko-glass-border),
-    inset 0 1px 0 rgba(255, 255, 255, 0.94),
-    inset 0 -1px 0 rgba(233, 30, 140, 0.12),
-    inset 1px 0 0 rgba(255, 255, 255, 0.70),
-    inset -1px 0 0 rgba(233, 30, 140, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.90),
+    inset 0 -1px 0 rgba(219, 112, 147, 0.08),
+    inset 1px 0 0 rgba(255, 255, 255, 0.65),
+    inset -1px 0 0 rgba(219, 112, 147, 0.05);
   border-radius: 24px;
 }
 
 body.neko-kawaii-theme aside {
-  box-shadow: 4px 0 48px var(--neko-glass-shadow), 0 0 32px rgba(233, 30, 140, 0.10), 1px 0 0 var(--neko-glass-border);
+  box-shadow: 4px 0 40px var(--neko-glass-shadow), 0 0 24px rgba(219, 112, 147, 0.08), 1px 0 0 var(--neko-glass-border);
 }
 
 body.neko-kawaii-theme header,
 body.neko-kawaii-theme nav {
-  box-shadow: 0 1px 0 var(--neko-glass-border), 0 2px 20px rgba(233, 30, 140, 0.10);
+  box-shadow: 0 1px 0 var(--neko-glass-border), 0 2px 16px rgba(219, 112, 147, 0.08);
 }
 
 /* ----- Neko: focus rings for a11y + cute glow ----- */
@@ -874,10 +873,10 @@ body.neko-solarized-theme [contenteditable]:focus-visible {
 }
 
 body.neko-kawaii-theme :focus-visible {
-  outline: 2px solid rgba(233, 30, 140, 0.85);
+  outline: 2px solid rgba(219, 112, 147, 0.75);
   outline-offset: 2px;
   border-radius: 6px;
-  box-shadow: 0 0 10px rgba(233, 30, 140, 0.35);
+  box-shadow: 0 0 8px rgba(219, 112, 147, 0.25);
   transition: outline-color 0.2s ease, outline-offset 0.2s ease;
 }
 
@@ -1063,9 +1062,9 @@ body.neko-solarized-theme ::-webkit-scrollbar-thumb       { background: rgba(42,
 body.neko-solarized-theme ::-webkit-scrollbar-thumb:hover { background: rgba(42, 161, 152, 0.60); }
 body.neko-solarized-theme *                               { scrollbar-color: rgba(42, 161, 152, 0.38) transparent; }
 
-body.neko-kawaii-theme ::-webkit-scrollbar-thumb          { background: rgba(233, 30, 140, 0.42); }
-body.neko-kawaii-theme ::-webkit-scrollbar-thumb:hover    { background: rgba(233, 30, 140, 0.68); }
-body.neko-kawaii-theme *                                  { scrollbar-color: rgba(233, 30, 140, 0.42) transparent; }
+body.neko-kawaii-theme ::-webkit-scrollbar-thumb          { background: rgba(219, 112, 147, 0.38); }
+body.neko-kawaii-theme ::-webkit-scrollbar-thumb:hover    { background: rgba(219, 112, 147, 0.60); }
+body.neko-kawaii-theme *                                  { scrollbar-color: rgba(219, 112, 147, 0.38) transparent; }
 
 /* ── Neko themes: NavItem hover gets a gentle glow ───────── */
 body[class*="neko"] .neko-nav-hover:hover {
@@ -1099,6 +1098,12 @@ body[class*="neko"] nav {
 [role="dialog"] nav a:not(:hover):not(:focus-visible):not([aria-selected="true"]) {
   background-color: transparent !important;
 }
+/* On neko themes: also strip background from the pressed/selected item —
+   the inset accent-line below is the sole selection indicator. */
+body[class*="neko"] [role="dialog"] nav button[aria-pressed="true"]:not(:hover):not(:focus-visible),
+body[class*="neko"] [role="dialog"] nav a[aria-selected="true"]:not(:hover):not(:focus-visible) {
+  background-color: transparent !important;
+}
 
 /* ── Neko themes: purple left-accent on selected nav/dialog items ─────────── */
 /* Inset box-shadow acts as a left border without shifting layout. */
@@ -1115,22 +1120,22 @@ body.neko-sunset-theme { --neko-accent-line: rgba(251, 146,  60, 0.80); }
 body.neko-mint-theme   { --neko-accent-line: rgba( 52, 211, 153, 0.80); }
 body.neko-cyberpunk-theme { --neko-accent-line: rgba( 34, 211, 238, 0.80); }
 body.neko-solarized-theme { --neko-accent-line: rgba(181, 137,   0, 0.80); }
-body.neko-kawaii-theme { --neko-accent-line: rgba(233, 30, 140, 0.92); }
+body.neko-kawaii-theme { --neko-accent-line: rgba(219, 112, 147, 0.88); }
 
-/* ── Kawaii: extra pink sparkle touches ───────────────────── */
+/* ── Kawaii: soft pastel pink touches ─────────────────────── */
 /* Text selection */
 body.neko-kawaii-theme ::selection {
-  background: rgba(233, 30, 140, 0.28);
-  color: #3a0025;
+  background: rgba(244, 114, 182, 0.28);
+  color: #4a1535;
 }
-/* Extra pink glow on button hover — on top of the standard transform */
+/* Soft pink glow on button hover */
 body.neko-kawaii-theme button:hover,
 body.neko-kawaii-theme [role="button"]:hover {
-  box-shadow: 0 8px 28px rgba(233, 30, 140, 0.30), 0 2px 8px rgba(255, 105, 180, 0.20) !important;
+  box-shadow: 0 6px 22px rgba(219, 112, 147, 0.22), 0 2px 8px rgba(255, 182, 210, 0.18) !important;
 }
 /* Make the selected nav accent line thicker for kawaii */
 body.neko-kawaii-theme nav [aria-selected="true"],
 body.neko-kawaii-theme [role="dialog"] nav [aria-pressed="true"] {
-  box-shadow: inset 4px 0 0 var(--neko-accent-line), 0 0 12px rgba(233, 30, 140, 0.10) !important;
+  box-shadow: inset 4px 0 0 var(--neko-accent-line), 0 0 10px rgba(219, 112, 147, 0.08) !important;
 }
 
