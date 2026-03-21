@@ -1086,3 +1086,11 @@ body[class*="neko"] nav {
     background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* ── Dialog nav items (settings, room/space settings): transparent at rest ── */
+/* Mirrors the NavItem fix — solid pill backgrounds look awful on glass panels. */
+/* Scoped to [role="dialog"] nav so pop-out menus keep their solid backgrounds. */
+[role="dialog"] nav button:not(:hover):not(:focus-visible):not([aria-pressed="true"]),
+[role="dialog"] nav a:not(:hover):not(:focus-visible):not([aria-selected="true"]) {
+  background-color: transparent !important;
+}
