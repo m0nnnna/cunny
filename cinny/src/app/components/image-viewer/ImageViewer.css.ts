@@ -4,7 +4,8 @@ import { DefaultReset, color, config } from 'folds';
 export const ImageViewer = style([
   DefaultReset,
   {
-    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
   },
 ]);
 
@@ -32,10 +33,11 @@ export const ImageViewerImg = style([
   DefaultReset,
   {
     objectFit: 'contain',
+    display: 'block',
     width: 'auto',
     height: 'auto',
-    maxWidth: '100%',
-    maxHeight: '100%',
+    maxWidth: '92vw',
+    maxHeight: 'calc(92vh - 3.5rem)',
     backgroundColor: color.Surface.Container,
     transition: 'transform 100ms linear',
   },

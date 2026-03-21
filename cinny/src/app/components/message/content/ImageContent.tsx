@@ -6,7 +6,6 @@ import {
   Chip,
   Icon,
   Icons,
-  Modal,
   Overlay,
   OverlayBackdrop,
   OverlayCenter,
@@ -29,18 +28,8 @@ import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
 import { stopPropagation } from '../../../utils/keyboard';
 import { decryptFile, downloadEncryptedMedia, mxcUrlToHttp } from '../../../utils/matrix';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { ImageViewerModal } from '../../../styles/Modal.css';
 import { validBlurHash } from '../../../utils/blurHash';
-
-const VIEWER_HEADER_H = 56; // ImageViewer toolbar height in px
-function getModalStyle(w?: number, h?: number): React.CSSProperties {
-  if (!w || !h) return { minWidth: '85vw', minHeight: '90vh' };
-  const maxW = window.innerWidth * 0.92;
-  const maxH = window.innerHeight * 0.92 - VIEWER_HEADER_H;
-  const scale = Math.min(1, maxW / w, maxH / h);
-  const width = Math.max(320, Math.round(w * scale));
-  const height = Math.max(240, Math.round(h * scale)) + VIEWER_HEADER_H;
-  return { width: `${width}px`, height: `${height}px` };
-}
 
 type RenderViewerProps = {
   src: string;
@@ -138,9 +127,8 @@ export const ImageContent = as<'div', ImageContentProps>(
                   escapeDeactivates: stopPropagation,
                 }}
               >
-                <Modal
-                  style={getModalStyle(info?.w, info?.h)}
-                  size="500"
+                <div
+                  className={ImageViewerModal}
                   onContextMenu={(evt: any) => evt.stopPropagation()}
                 >
                   {renderViewer({
@@ -148,7 +136,7 @@ export const ImageContent = as<'div', ImageContentProps>(
                     alt: body,
                     requestClose: () => setViewer(false),
                   })}
-                </Modal>
+                </div>
               </FocusTrap>
             </OverlayCenter>
           </Overlay>
