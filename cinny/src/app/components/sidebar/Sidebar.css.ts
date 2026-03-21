@@ -93,7 +93,7 @@ export const SidebarItem = recipe({
           width: toRem(3 + PUSH_X),
           height: toRem(16),
           borderRadius: `0 ${toRem(4)} ${toRem(4)} 0`,
-          background: 'CurrentColor',
+          background: color.Primary.Main,
           transition: 'height 200ms linear',
         },
         '&:hover::before': {

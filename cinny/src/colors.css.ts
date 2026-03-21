@@ -241,25 +241,25 @@ export const butterTheme = createTheme(color, {
 export const nekoDarkTheme = createTheme(color, {
   Background: {
     Container: 'rgba(19, 18, 26, 0.52)',
-    ContainerHover: 'rgba(27, 25, 36, 0.64)',
-    ContainerActive: 'rgba(34, 32, 46, 0.74)',
-    ContainerLine: 'rgba(42, 39, 56, 0.48)',
+    ContainerHover: 'rgba(109, 86, 180, 0.22)',
+    ContainerActive: 'rgba(119, 94, 200, 0.36)',
+    ContainerLine: 'rgba(167, 139, 250, 0.20)',
     OnContainer: '#efeef6',
   },
 
   Surface: {
     Container: 'rgba(26, 24, 38, 0.46)',
-    ContainerHover: 'rgba(34, 32, 46, 0.58)',
-    ContainerActive: 'rgba(42, 39, 56, 0.68)',
-    ContainerLine: 'rgba(50, 47, 66, 0.42)',
+    ContainerHover: 'rgba(109, 86, 180, 0.18)',
+    ContainerActive: 'rgba(119, 94, 200, 0.30)',
+    ContainerLine: 'rgba(167, 139, 250, 0.16)',
     OnContainer: '#efeef6',
   },
 
   SurfaceVariant: {
     Container: 'rgba(34, 32, 46, 0.40)',
-    ContainerHover: 'rgba(42, 39, 56, 0.52)',
-    ContainerActive: 'rgba(50, 47, 66, 0.62)',
-    ContainerLine: 'rgba(58, 55, 76, 0.36)',
+    ContainerHover: 'rgba(109, 86, 180, 0.15)',
+    ContainerActive: 'rgba(119, 94, 200, 0.25)',
+    ContainerLine: 'rgba(167, 139, 250, 0.13)',
     OnContainer: '#efeef6',
   },
 

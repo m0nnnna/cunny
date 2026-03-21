@@ -1094,3 +1094,20 @@ body[class*="neko"] nav {
 [role="dialog"] nav a:not(:hover):not(:focus-visible):not([aria-selected="true"]) {
   background-color: transparent !important;
 }
+
+/* ── Neko themes: purple left-accent on selected nav/dialog items ─────────── */
+/* Inset box-shadow acts as a left border without shifting layout. */
+body[class*="neko"] nav [aria-selected="true"],
+body[class*="neko"] [role="dialog"] nav [aria-pressed="true"] {
+  box-shadow: inset 3px 0 0 var(--neko-accent-line, rgba(167, 139, 250, 0.8));
+  border-radius: 6px;
+}
+
+/* Per-theme accent colors for the selection indicator */
+body.neko-dark-theme   { --neko-accent-line: rgba(167, 139, 250, 0.85); }
+body.neko-light-theme  { --neko-accent-line: rgba(124,  58, 237, 0.70); }
+body.neko-sunset-theme { --neko-accent-line: rgba(251, 146,  60, 0.80); }
+body.neko-mint-theme   { --neko-accent-line: rgba( 52, 211, 153, 0.80); }
+body.neko-cyberpunk-theme { --neko-accent-line: rgba( 34, 211, 238, 0.80); }
+body.neko-solarized-theme { --neko-accent-line: rgba(181, 137,   0, 0.80); }
+body.neko-kawaii-theme { --neko-accent-line: rgba(244, 114, 182, 0.80); }
