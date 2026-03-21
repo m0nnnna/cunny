@@ -437,25 +437,25 @@ export const nekoLightTheme = createTheme(color, {
 export const nekoSunsetTheme = createTheme(color, {
   Background: {
     Container: 'rgba(28, 22, 20, 0.54)',
-    ContainerHover: 'rgba(38, 30, 26, 0.66)',
-    ContainerActive: 'rgba(48, 38, 32, 0.76)',
-    ContainerLine: 'rgba(58, 46, 38, 0.48)',
+    ContainerHover: 'rgba(160, 80, 20, 0.22)',
+    ContainerActive: 'rgba(180, 100, 30, 0.36)',
+    ContainerLine: 'rgba(251, 146, 60, 0.20)',
     OnContainer: '#fef7ee',
   },
 
   Surface: {
     Container: 'rgba(38, 30, 26, 0.50)',
-    ContainerHover: 'rgba(48, 38, 32, 0.62)',
-    ContainerActive: 'rgba(58, 46, 38, 0.72)',
-    ContainerLine: 'rgba(68, 54, 46, 0.44)',
+    ContainerHover: 'rgba(155, 75, 18, 0.18)',
+    ContainerActive: 'rgba(175, 95, 28, 0.30)',
+    ContainerLine: 'rgba(251, 146, 60, 0.16)',
     OnContainer: '#fef7ee',
   },
 
   SurfaceVariant: {
     Container: 'rgba(48, 38, 32, 0.44)',
-    ContainerHover: 'rgba(58, 46, 38, 0.56)',
-    ContainerActive: 'rgba(68, 54, 46, 0.68)',
-    ContainerLine: 'rgba(78, 62, 52, 0.38)',
+    ContainerHover: 'rgba(150, 70, 16, 0.15)',
+    ContainerActive: 'rgba(170, 90, 25, 0.25)',
+    ContainerLine: 'rgba(251, 146, 60, 0.13)',
     OnContainer: '#fef7ee',
   },
 
@@ -633,24 +633,24 @@ export const nekoMintTheme = createTheme(color, {
 export const nekoCyberpunkTheme = createTheme(color, {
   Background: {
     Container: 'rgba(2, 2, 8, 0.72)',
-    ContainerHover: 'rgba(6, 4, 16, 0.80)',
-    ContainerActive: 'rgba(12, 8, 24, 0.88)',
-    ContainerLine: 'rgba(0, 255, 255, 0.18)',
+    ContainerHover: 'rgba(0, 180, 180, 0.20)',
+    ContainerActive: 'rgba(0, 220, 210, 0.33)',
+    ContainerLine: 'rgba(0, 255, 255, 0.22)',
     OnContainer: '#e0f9ff',
   },
 
   Surface: {
     Container: 'rgba(4, 4, 14, 0.68)',
-    ContainerHover: 'rgba(10, 6, 22, 0.76)',
-    ContainerActive: 'rgba(18, 12, 32, 0.84)',
-    ContainerLine: 'rgba(0, 255, 200, 0.15)',
+    ContainerHover: 'rgba(0, 160, 160, 0.16)',
+    ContainerActive: 'rgba(0, 200, 190, 0.26)',
+    ContainerLine: 'rgba(0, 255, 200, 0.18)',
     OnContainer: '#e0f9ff',
   },
 
   SurfaceVariant: {
     Container: 'rgba(8, 6, 20, 0.62)',
-    ContainerHover: 'rgba(16, 10, 30, 0.72)',
-    ContainerActive: 'rgba(24, 16, 40, 0.80)',
+    ContainerHover: 'rgba(0, 140, 140, 0.13)',
+    ContainerActive: 'rgba(0, 180, 170, 0.22)',
     ContainerLine: 'rgba(255, 0, 255, 0.15)',
     OnContainer: '#e0f9ff',
   },
@@ -731,24 +731,24 @@ export const nekoCyberpunkTheme = createTheme(color, {
 export const nekoSolarizedTheme = createTheme(color, {
   Background: {
     Container: 'rgba(0, 43, 54, 0.60)',
-    ContainerHover: 'rgba(7, 54, 66, 0.72)',
-    ContainerActive: 'rgba(88, 110, 117, 0.22)',
-    ContainerLine: 'rgba(101, 123, 131, 0.30)',
+    ContainerHover: 'rgba(42, 161, 152, 0.18)',
+    ContainerActive: 'rgba(42, 161, 152, 0.32)',
+    ContainerLine: 'rgba(42, 161, 152, 0.28)',
     OnContainer: '#fdf6e3',
   },
 
   Surface: {
     Container: 'rgba(7, 54, 66, 0.54)',
-    ContainerHover: 'rgba(0, 43, 54, 0.70)',
-    ContainerActive: 'rgba(88, 110, 117, 0.26)',
-    ContainerLine: 'rgba(101, 123, 131, 0.34)',
+    ContainerHover: 'rgba(42, 161, 152, 0.14)',
+    ContainerActive: 'rgba(42, 161, 152, 0.26)',
+    ContainerLine: 'rgba(42, 161, 152, 0.24)',
     OnContainer: '#fdf6e3',
   },
 
   SurfaceVariant: {
     Container: 'rgba(88, 110, 117, 0.28)',
-    ContainerHover: 'rgba(101, 123, 131, 0.35)',
-    ContainerActive: 'rgba(131, 148, 150, 0.4)',
+    ContainerHover: 'rgba(42, 161, 152, 0.12)',
+    ContainerActive: 'rgba(42, 161, 152, 0.22)',
     ContainerLine: 'rgba(147, 161, 161, 0.35)',
     OnContainer: '#eee8d5',
   },

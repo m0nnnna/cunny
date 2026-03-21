@@ -268,11 +268,11 @@ body.neko-sunset-theme {
   --neko-glass-shadow: rgba(28, 20, 16, 0.52);
   --neko-glass-glow: rgba(251, 146, 60, 0.22);
   background:
-    radial-gradient(ellipse 170% 115% at 50% -35%, rgba(180, 83, 9, 0.32), transparent 52%),
-    radial-gradient(ellipse 100% 80% at 105% 55%, rgba(234, 88, 12, 0.18), transparent 48%),
-    radial-gradient(ellipse 90% 70% at -5% 85%, rgba(251, 113, 133, 0.15), transparent 45%),
-    radial-gradient(ellipse 70% 45% at 80% 15%, rgba(251, 146, 60, 0.10), transparent 42%),
-    radial-gradient(ellipse 50% 32% at 20% 45%, rgba(253, 186, 116, 0.08), transparent 38%),
+    radial-gradient(ellipse 170% 115% at 50% -10%, rgba(180, 83, 9, 0.68), transparent 52%),
+    radial-gradient(ellipse 100% 80% at 105% 55%, rgba(234, 88, 12, 0.44), transparent 48%),
+    radial-gradient(ellipse 90% 70% at -5% 85%, rgba(251, 113, 133, 0.35), transparent 45%),
+    radial-gradient(ellipse 70% 45% at 80% 15%, rgba(251, 146, 60, 0.22), transparent 42%),
+    radial-gradient(ellipse 50% 32% at 20% 45%, rgba(253, 186, 116, 0.15), transparent 38%),
     #1a1410;
   background-attachment: fixed;
   transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -474,10 +474,10 @@ body.neko-cyberpunk-theme {
   --neko-glass-shadow: rgba(0, 0, 0, 0.7);
   --neko-glass-glow: rgba(0, 255, 245, 0.25);
   background:
-    radial-gradient(ellipse 180% 130% at 50% -45%, rgba(0, 255, 245, 0.22), transparent 52%),
-    radial-gradient(ellipse 110% 85% at 108% 55%, rgba(255, 0, 255, 0.18), transparent 48%),
-    radial-gradient(ellipse 90% 65% at -8% 105%, rgba(57, 255, 20, 0.10), transparent 42%),
-    radial-gradient(ellipse 70% 45% at 80% 12%, rgba(0, 200, 255, 0.08), transparent 38%),
+    radial-gradient(ellipse 180% 130% at 50% -15%, rgba(0, 255, 245, 0.50), transparent 52%),
+    radial-gradient(ellipse 110% 85% at 108% 55%, rgba(255, 0, 255, 0.40), transparent 48%),
+    radial-gradient(ellipse 90% 65% at -8% 105%, rgba(57, 255, 20, 0.22), transparent 42%),
+    radial-gradient(ellipse 70% 45% at 80% 12%, rgba(0, 200, 255, 0.18), transparent 38%),
     linear-gradient(180deg, transparent 0%, rgba(2, 2, 8, 0.98) 65%),
     #020208;
   background-attachment: fixed;
@@ -578,9 +578,11 @@ body.neko-solarized-theme {
   --neko-glass-shadow: rgba(0, 43, 54, 0.52);
   --neko-glass-glow: rgba(42, 161, 152, 0.18);
   background:
-    radial-gradient(ellipse 150% 100% at 50% -25%, rgba(7, 54, 66, 0.98), transparent 52%),
-    radial-gradient(ellipse 80% 60% at 85% 85%, rgba(42, 161, 152, 0.09), transparent 48%),
-    radial-gradient(ellipse 60% 40% at 10% 90%, rgba(181, 137, 0, 0.06), transparent 42%),
+    radial-gradient(ellipse 150% 100% at 50% -10%, rgba(7, 54, 66, 0.98), transparent 52%),
+    radial-gradient(ellipse 110% 80% at 50% -10%, rgba(42, 161, 152, 0.48), transparent 45%),
+    radial-gradient(ellipse 80% 60% at 85% 85%, rgba(42, 161, 152, 0.28), transparent 48%),
+    radial-gradient(ellipse 60% 40% at 10% 90%, rgba(181, 137, 0, 0.22), transparent 42%),
+    radial-gradient(ellipse 50% 35% at 75% 15%, rgba(38, 139, 210, 0.18), transparent 38%),
     #002b36;
   background-attachment: fixed;
   transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
