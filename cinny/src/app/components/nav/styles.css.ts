@@ -45,21 +45,25 @@ const getVariant = (variant: ContainerColor): ComplexStyleRule => ({
 });
 
 const NavItemBase = style({
-  width: '100%',
+  width: 'calc(100% - 10px)',
+  margin: '1px 5px',
   display: 'flex',
   justifyContent: 'start',
   cursor: 'pointer',
   backgroundColor: Container,
   color: OnContainer,
   outline: 'none',
-  minHeight: toRem(36),
+  minHeight: toRem(34),
+  transition: 'background-color 150ms ease, transform 100ms ease, box-shadow 150ms ease',
 
   selectors: {
     '&:hover, &:focus-visible': {
       backgroundColor: ContainerHover,
+      transform: 'translateX(2px)',
     },
     '&[data-hover=true]': {
       backgroundColor: ContainerHover,
+      transform: 'translateX(2px)',
     },
     [`&:has(.${NavLink}:active)`]: {
       backgroundColor: ContainerActive,

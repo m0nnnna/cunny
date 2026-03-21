@@ -6,9 +6,10 @@ import { ContainerColor } from '../../styles/ContainerColor.css';
 export const Sidebar = style([
   DefaultReset,
   {
-    width: toRem(66),
+    width: toRem(70),
+    height: '100%',
     backgroundColor: color.Background.Container,
-    borderRight: `${config.borderWidth.B300} solid ${color.Background.ContainerLine}`,
+    boxShadow: '0 4px 24px rgba(0, 0, 0, 0.15)',
 
     display: 'flex',
     flexDirection: 'column',

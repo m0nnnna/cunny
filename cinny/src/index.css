@@ -57,17 +57,17 @@ body.neko-dark-theme {
   --neko-glass-blur: 28px;
   --neko-glass-saturate: 185%;
   --neko-glass-brightness: 1.04;
-  --neko-glass-border: rgba(167, 139, 250, 0.22);
-  --neko-glass-rim: rgba(255, 255, 255, 0.07);
-  --neko-glass-shadow: rgba(30, 24, 46, 0.5);
-  --neko-glass-glow: rgba(167, 139, 250, 0.18);
+  --neko-glass-border: rgba(167, 139, 250, 0.32);
+  --neko-glass-rim: rgba(255, 255, 255, 0.10);
+  --neko-glass-shadow: rgba(14, 12, 23, 0.65);
+  --neko-glass-glow: rgba(167, 139, 250, 0.28);
   background:
-    radial-gradient(ellipse 170% 110% at 50% -35%, rgba(109, 40, 217, 0.35), transparent 52%),
-    radial-gradient(ellipse 100% 80% at 105% 60%, rgba(147, 51, 234, 0.18), transparent 48%),
-    radial-gradient(ellipse 90% 70% at -5% 85%, rgba(236, 72, 153, 0.15), transparent 45%),
-    radial-gradient(ellipse 70% 45% at 82% 12%, rgba(167, 139, 250, 0.10), transparent 42%),
-    radial-gradient(ellipse 55% 35% at 18% 38%, rgba(244, 114, 182, 0.08), transparent 40%),
-    #13121a;
+    radial-gradient(ellipse 180% 120% at 50% -10%, rgba(124, 58, 237, 0.72), transparent 52%),
+    radial-gradient(ellipse 130% 90% at 110% 70%, rgba(168, 85, 247, 0.48), transparent 50%),
+    radial-gradient(ellipse 100% 80% at -5% 90%, rgba(236, 72, 153, 0.38), transparent 45%),
+    radial-gradient(ellipse 70% 45% at 80% 10%, rgba(192, 132, 252, 0.28), transparent 42%),
+    radial-gradient(ellipse 60% 40% at 20% 40%, rgba(244, 114, 182, 0.18), transparent 40%),
+    #0e0c17;
   background-attachment: fixed;
   transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -975,4 +975,114 @@ textarea {
 
 audio:not([controls]) {
   display: none !important;
+}
+
+/* ================================================================
+   NON-NEKO THEME BACKGROUNDS
+   Needed so the 6px gaps between floating panels have a visible colour.
+   Without this the gaps are just transparent → looks broken.
+   ================================================================ */
+
+/* Default / light theme */
+body:not([class*="neko"]):not(.dark-theme):not(.butter-theme) {
+  background: #c8c2d8;
+}
+
+/* Dark theme */
+body.dark-theme:not([class*="neko"]) {
+  background: #06060a;
+}
+
+/* Butter theme */
+body.butter-theme:not([class*="neko"]) {
+  background: #08070e;
+}
+
+/* Silver theme */
+body.silver-theme:not([class*="neko"]) {
+  background: #b8b4c8;
+}
+
+/* ================================================================
+   GLOBAL POLISH — font rendering, scrollbars, selection
+   ================================================================ */
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Thin custom scrollbars — all themes */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.28);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.48);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.28) transparent;
+}
+
+/* ── Neko theme scrollbar accent colors ───────────────────── */
+body.neko-dark-theme ::-webkit-scrollbar-thumb        { background: rgba(167, 139, 250, 0.35); }
+body.neko-dark-theme ::-webkit-scrollbar-thumb:hover  { background: rgba(167, 139, 250, 0.58); }
+body.neko-dark-theme *                                 { scrollbar-color: rgba(167, 139, 250, 0.35) transparent; }
+
+body.neko-light-theme ::-webkit-scrollbar-thumb       { background: rgba(124, 58, 237, 0.28); }
+body.neko-light-theme ::-webkit-scrollbar-thumb:hover { background: rgba(124, 58, 237, 0.48); }
+body.neko-light-theme *                               { scrollbar-color: rgba(124, 58, 237, 0.28) transparent; }
+
+body.neko-sunset-theme ::-webkit-scrollbar-thumb        { background: rgba(251, 146, 60, 0.38); }
+body.neko-sunset-theme ::-webkit-scrollbar-thumb:hover  { background: rgba(251, 146, 60, 0.60); }
+body.neko-sunset-theme *                                { scrollbar-color: rgba(251, 146, 60, 0.38) transparent; }
+
+body.neko-mint-theme ::-webkit-scrollbar-thumb          { background: rgba(52, 211, 153, 0.35); }
+body.neko-mint-theme ::-webkit-scrollbar-thumb:hover    { background: rgba(52, 211, 153, 0.58); }
+body.neko-mint-theme *                                  { scrollbar-color: rgba(52, 211, 153, 0.35) transparent; }
+
+body.neko-cyberpunk-theme ::-webkit-scrollbar-thumb        { background: rgba(0, 255, 245, 0.40); }
+body.neko-cyberpunk-theme ::-webkit-scrollbar-thumb:hover  { background: rgba(0, 255, 245, 0.65); }
+body.neko-cyberpunk-theme *                                { scrollbar-color: rgba(0, 255, 245, 0.40) transparent; }
+
+body.neko-solarized-theme ::-webkit-scrollbar-thumb       { background: rgba(42, 161, 152, 0.38); }
+body.neko-solarized-theme ::-webkit-scrollbar-thumb:hover { background: rgba(42, 161, 152, 0.60); }
+body.neko-solarized-theme *                               { scrollbar-color: rgba(42, 161, 152, 0.38) transparent; }
+
+body.neko-kawaii-theme ::-webkit-scrollbar-thumb          { background: rgba(244, 114, 182, 0.35); }
+body.neko-kawaii-theme ::-webkit-scrollbar-thumb:hover    { background: rgba(244, 114, 182, 0.58); }
+body.neko-kawaii-theme *                                  { scrollbar-color: rgba(244, 114, 182, 0.35) transparent; }
+
+/* ── Neko themes: NavItem hover gets a gentle glow ───────── */
+body[class*="neko"] .neko-nav-hover:hover {
+  box-shadow: 0 0 8px var(--neko-glass-glow);
+}
+
+/* ── Neko themes: make the sidebar (now <aside>) semi-transparent ── */
+/* backdrop-filter already applied via 'aside' selector above;
+   ensure solid background doesn't block it */
+body[class*="neko"] aside {
+  background-color: transparent !important;
+}
+
+/* ── Neko themes: room list panel (now <nav>) semi-transparent ── */
+body[class*="neko"] nav {
+  background-color: transparent !important;
+}
+
+/* ── Neko themes: smooth transition on all panels ─────────── */
+body[class*="neko"] aside,
+body[class*="neko"] nav {
+  transition:
+    background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }

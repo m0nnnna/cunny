@@ -240,9 +240,9 @@ function ScreenSharePopoutContent() {
         gap="200"
         style={{ padding: 24, height: '100%' }}
       >
-        <Text size="T300">Connection lost</Text>
+        <Text size="T300">Connection lost 🐾</Text>
         <Text size="T200" priority="400" style={{ textAlign: 'center' }}>
-          Close this window and click &quot;Pop out&quot; again in the voice call to reopen the screen share.
+          Close this window and click &quot;Pop out&quot; again in the voice call to reopen.
         </Text>
         <IconButton onClick={handleClose} variant="Secondary" size="300" radii="Pill" aria-label="Close">
           <Icon size="200" src={Icons.Cross} />
@@ -260,9 +260,9 @@ function ScreenSharePopoutContent() {
         gap="200"
         style={{ padding: 24, height: '100%' }}
       >
-        <Text size="T300">Waiting for screen share…</Text>
+        <Text size="T300">Waiting for screen share~ 🐾</Text>
         <Text size="T200" priority="400">
-          No one is sharing yet, or the stream hasn&apos;t loaded.
+          No one is sharing yet, or the stream hasn&apos;t loaded yet.
         </Text>
         <IconButton onClick={handleClose} variant="Secondary" size="300" radii="Pill" aria-label="Close">
           <Icon size="200" src={Icons.Cross} />
@@ -286,7 +286,7 @@ function ScreenSharePopoutContent() {
         }}
       >
         <Text size="T300" style={{ color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}>
-          Screen share
+          🐾 Screen share
         </Text>
         <IconButton
           onClick={handleClose}
@@ -320,7 +320,7 @@ export function ScreenSharePopout() {
           gap="200"
           style={{ padding: 24, height: '100vh' }}
         >
-          <Text size="T300">Invalid or expired link</Text>
+          <Text size="T300">Invalid or expired link 🐾</Text>
           <Text size="T200" priority="400">
             Close this window and use &quot;Pop out&quot; again from the voice call.
           </Text>

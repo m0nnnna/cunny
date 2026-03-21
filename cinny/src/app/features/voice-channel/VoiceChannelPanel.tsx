@@ -423,7 +423,7 @@ function VoiceParticipantList() {
   if (participants.length === 0) {
     return (
       <div className={css.NoParticipants}>
-        <Text size="T300">Just you in voice — others will appear here when they join</Text>
+        <Text size="T300">Just you here~ others will appear when they join 🐾</Text>
       </div>
     );
   }
@@ -858,7 +858,7 @@ function ScreenShareVideo({
             fontSize: 14,
           }}
         >
-          Loading video…
+          Loading stream... 🐾
         </div>
       )}
     </div>
@@ -884,13 +884,13 @@ function ScreenSharePreview({ trackRef, sharerName, isLocal, onStopSharing, onHi
         {/* Only one video decode: when modal (big view) is open, thumbnail shows placeholder */}
         {modalOpen ? (
           <div className={css.ScreenSharePreviewVideo} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111', color: '#888', fontSize: 12 }}>
-            Viewing in full screen
+            Viewing fullscreen ✨
           </div>
         ) : (
           <ScreenShareVideo trackRef={trackRef} className={css.ScreenSharePreviewVideo} />
         )}
         <div className={css.ScreenShareLabel}>
-          <Icon size="100" src={Icons.Terminal} />
+          <span aria-hidden>🐾</span>
           <Text size="T200" style={{ color: '#fff' }}>
             {isLocal ? 'You are sharing' : `${sharerName} is sharing`}
           </Text>
@@ -1176,7 +1176,7 @@ function ScreenShareViewerWithBoundary({
     return (
       <div className={css.ScreenShareHiddenBar}>
         <Box alignItems="Center" gap="200" style={{ minWidth: 0 }}>
-          <Icon size="100" src={Icons.Terminal} />
+          <span aria-hidden style={{ fontSize: '0.85rem' }}>🐾</span>
           <Text size="T200" priority="400" truncate>
             {screenSharerName} is sharing
           </Text>
@@ -1215,7 +1215,7 @@ function ScreenShareViewerWithBoundary({
               <Icon size="200" src={Icons.External} />
             </IconButton>
             <Text size="T200" as="span">
-              Pop out to separate window
+              Pop out to window
             </Text>
           </Box>
         )}
@@ -1269,8 +1269,7 @@ function VoiceChannelConnected() {
   const participantVolumes = useAtomValue(voiceParticipantVolumesAtom);
   const [expanded, setExpanded] = useState(false);
   const [screenShareHidden, setScreenShareHidden] = useState(false);
-  /** Opt-in: user must click "Watch stream" to view (avoids auto-render that can trigger "r is not a function"). */
-  const [userWatchingScreenShare, setUserWatchingScreenShare] = useState(false);
+  // Screen share auto-shows immediately — our manual MediaStreamTrack renderer avoids the old SDK bug.
   const inVoiceLabel =
     participants.length === 0 ? 'Just you' : `${participants.length} in voice`;
 
@@ -1388,16 +1387,11 @@ function VoiceChannelConnected() {
     }
   }, [screenSharerIdentity]);
 
-  // Reset "watching" when nobody is sharing
+  // Auto-subscribe when a screen share appears (handles late joiners seeing new shares)
   useEffect(() => {
-    if (!activeScreenShare) setUserWatchingScreenShare(false);
-  }, [activeScreenShare]);
-
-  const handleWatchStream = useCallback(() => {
     if (activeScreenShare?.publication) {
       subscribeToScreenSharePublication(activeScreenShare.publication as RemoteTrackPublication);
     }
-    setUserWatchingScreenShare(true);
   }, [activeScreenShare]);
 
   const handleStopSharing = useCallback(async () => {
@@ -1410,84 +1404,10 @@ function VoiceChannelConnected() {
 
   return (
     <Box className={css.VoiceChannelPanel} direction="Column">
-      {/* ── Unified header: status + controls + chevron ──────────── */}
-      <Box className={css.VoiceChannelCompact} alignItems="Center">
-        <Box
-          alignItems="Center"
-          gap="200"
-          shrink="No"
-          onClick={() => setExpanded((v) => !v)}
-          style={{ cursor: 'pointer', minWidth: 0 }}
-        >
-          <Icon size="200" src={Icons.Phone} className={css.VoiceButtonActive} />
-          <Text size="T300" priority="500" truncate>
-            Voice {'\u00B7'} {inVoiceLabel}
-          </Text>
-        </Box>
-        <VoiceControls isLocalSharing={isLocalSharing} someoneElseSharing={someoneElseSharing} />
-        <Box grow="Yes" style={{ minWidth: 0 }} />
-        <IconButton
-          size="300"
-          variant="Surface"
-          fill="None"
-          radii="300"
-          aria-label={expanded ? 'Collapse voice panel' : 'Expand voice panel'}
-          onClick={() => setExpanded((v) => !v)}
-        >
-          <Icon size="200" src={expanded ? Icons.ChevronBottom : Icons.ChevronTop} />
-        </IconButton>
-      </Box>
-
-      {/* ── Expandable: participants + screen share ──────────────── */}
+      {/* ── Expandable: screen share on top, participants below, controls at bottom ── */}
       {expanded && (
         <>
-          <div className={css.VoiceChannelContent}>
-            <VoiceParticipantList />
-          </div>
-
-          {activeScreenShare && !userWatchingScreenShare && (
-            <div className={css.ScreenShareSection}>
-              <Box
-                alignItems="Center"
-                gap="200"
-                style={{
-                  padding: config.space.S200,
-                  borderRadius: config.radii.R300,
-                  backgroundColor: color.Surface.Container,
-                  border: `1px solid ${color.Surface.ContainerLine}`,
-                }}
-              >
-                <Icon size="200" src={Icons.Terminal} aria-hidden />
-                <Text size="T300" as="span">
-                  {screenSharerIsLocal
-                    ? "You're sharing your screen"
-                    : `${screenSharerName} is sharing their screen`}
-                </Text>
-                <Button
-                  variant="Primary"
-                  size="300"
-                  radii="300"
-                  onClick={handleWatchStream}
-                >
-                  {screenSharerIsLocal ? 'Preview' : 'Watch stream'}
-                </Button>
-                {screenSharerIsLocal && (
-                  <IconButton
-                    size="300"
-                    variant="Critical"
-                    fill="None"
-                    radii="300"
-                    aria-label="Stop sharing"
-                    onClick={handleStopSharing}
-                  >
-                    <Icon size="200" src={Icons.Cross} />
-                  </IconButton>
-                )}
-              </Box>
-            </div>
-          )}
-
-          {activeScreenShare && userWatchingScreenShare && (
+          {activeScreenShare && (
             <ScreenShareViewerWithBoundary
               activeScreenShare={activeScreenShare}
               screenSharerName={screenSharerName}
@@ -1509,8 +1429,40 @@ function VoiceChannelConnected() {
               }
             />
           )}
+
+          <div className={css.VoiceChannelContent}>
+            <VoiceParticipantList />
+          </div>
         </>
       )}
+
+      {/* ── Controls bar — always last so it sits at the bottom of the card ── */}
+      <Box className={css.VoiceChannelCompact} alignItems="Center">
+        <IconButton
+          size="300"
+          variant="Surface"
+          fill="None"
+          radii="300"
+          aria-label={expanded ? 'Collapse voice panel' : 'Expand voice panel'}
+          onClick={() => setExpanded((v) => !v)}
+        >
+          <Icon size="200" src={expanded ? Icons.ChevronBottom : Icons.ChevronTop} />
+        </IconButton>
+        <Box
+          alignItems="Center"
+          gap="100"
+          grow="Yes"
+          shrink="Yes"
+          onClick={() => setExpanded((v) => !v)}
+          style={{ cursor: 'pointer', minWidth: 0 }}
+        >
+          <Icon size="200" src={Icons.Phone} className={css.VoiceButtonActive} />
+          <Text size="T200" priority="500" truncate>
+            {inVoiceLabel}
+          </Text>
+        </Box>
+        <VoiceControls isLocalSharing={isLocalSharing} someoneElseSharing={someoneElseSharing} />
+      </Box>
 
       {/* Screen share audio not rendered here to avoid useTracks([ScreenShareAudio]) which can trigger "r is not a function". */}
     </Box>

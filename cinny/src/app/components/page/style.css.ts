@@ -3,6 +3,11 @@ import { recipe, RecipeVariants } from '@vanilla-extract/recipes';
 import { DefaultReset, color, config, toRem } from 'folds';
 
 export const PageNav = recipe({
+  base: {
+    borderRadius: '0 12px 12px 0',
+    overflow: 'hidden',
+    boxShadow: '0 4px 24px rgba(0, 0, 0, 0.12)',
+  },
   variants: {
     size: {
       '400': {
@@ -58,7 +63,7 @@ export type PageNavHeaderVariants = RecipeVariants<typeof PageNavHeader>;
 export const PageNavContent = style({
   minHeight: '100%',
   padding: config.space.S200,
-  paddingRight: 0,
+  paddingRight: config.space.S100,
   paddingBottom: config.space.S700,
 });
 
@@ -84,6 +89,13 @@ export const PageHeader = recipe({
   },
 });
 export type PageHeaderVariants = RecipeVariants<typeof PageHeader>;
+
+/** Applied to the main chat/content area — gives it a floating card appearance. */
+export const PageSurface = style({
+  borderRadius: '12px 0 0 12px',
+  boxShadow: '0 4px 24px rgba(0, 0, 0, 0.12)',
+  overflow: 'hidden',
+});
 
 export const PageContent = style([
   DefaultReset,

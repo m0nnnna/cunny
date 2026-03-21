@@ -1,9 +1,8 @@
 import React, { ComponentProps, MutableRefObject, ReactNode } from 'react';
-import { Box, Header, Line, Scroll, Text, as } from 'folds';
+import { Box, Header, Scroll, Text, as } from 'folds';
 import classNames from 'classnames';
 import { ContainerColor } from '../../styles/ContainerColor.css';
 import * as css from './style.css';
-import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 
 type PageRootProps = {
   nav: ReactNode;
@@ -11,14 +10,9 @@ type PageRootProps = {
 };
 
 export function PageRoot({ nav, children }: PageRootProps) {
-  const screenSize = useScreenSizeContext();
-
   return (
-    <Box grow="Yes" className={ContainerColor({ variant: 'Background' })}>
+    <Box grow="Yes" style={{ gap: '6px' }}>
       {nav}
-      {screenSize !== ScreenSize.Mobile && (
-        <Line variant="Background" size="300" direction="Vertical" />
-      )}
       {children}
     </Box>
   );
@@ -33,6 +27,7 @@ export function PageNav({ size, children }: ClientDrawerLayoutProps & css.PageNa
 
   return (
     <Box
+      as="nav"
       grow={isMobile ? 'Yes' : undefined}
       className={css.PageNav({ size })}
       shrink={isMobile ? 'Yes' : 'No'}
@@ -83,7 +78,7 @@ export const Page = as<'div'>(({ className, ...props }, ref) => (
   <Box
     grow="Yes"
     direction="Column"
-    className={classNames(ContainerColor({ variant: 'Surface' }), className)}
+    className={classNames(ContainerColor({ variant: 'Surface' }), css.PageSurface, className)}
     {...props}
     ref={ref}
   />
