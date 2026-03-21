@@ -22,15 +22,11 @@ type ClientDrawerLayoutProps = {
   children: ReactNode;
 };
 export function PageNav({ size, children }: ClientDrawerLayoutProps & css.PageNavVariants) {
-  const screenSize = useScreenSizeContext();
-  const isMobile = screenSize === ScreenSize.Mobile;
-
   return (
     <Box
       as="nav"
-      grow={isMobile ? 'Yes' : undefined}
       className={css.PageNav({ size })}
-      shrink={isMobile ? 'Yes' : 'No'}
+      shrink="No"
     >
       <Box grow="Yes" direction="Column">
         {children}
