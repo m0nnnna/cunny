@@ -1083,6 +1083,20 @@ body[class*="neko"] nav {
   background-color: transparent !important;
 }
 
+/* ── Dialog nav panels (settings/room settings left column): fully glass ── */
+/* The dialog already applies backdrop-filter; the inner nav re-applying it
+   creates double-frost making the left panel look opaque vs the right side.
+   Strip the extra backdrop-filter and clear all inner fill layers. */
+body[class*="neko"] [role="dialog"] nav {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-color: transparent !important;
+}
+body[class*="neko"] [role="dialog"] nav header,
+body[class*="neko"] [role="dialog"] nav [data-folds-scroll] {
+  background-color: transparent !important;
+}
+
 /* ── Neko themes: smooth transition on all panels ─────────── */
 body[class*="neko"] aside,
 body[class*="neko"] nav {
