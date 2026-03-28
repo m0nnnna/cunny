@@ -21,6 +21,32 @@ livekit-token-server/node_modules/
 
 # ── Build output ─────────────────────────────────────────────────────
 cinny/dist/
+*.tsbuildinfo
+
+# ── Android build (generated on compile) ─────────────────────────────
+cinny/android/build/
+cinny/android/app/build/
+cinny/android/.gradle/
+cinny/android/local.properties
+cinny/android/capacitor-cordova-android-plugins/
+cinny/android/app/src/main/assets/public
+cinny/android/app/src/main/assets/capacitor.config.json
+cinny/android/app/src/main/assets/capacitor.plugins.json
+cinny/android/app/src/main/res/xml/config.xml
+*.apk
+*.aab
+*.ap_
+NekoChat-release.apk
+
+# ── Node / npm / yarn logs & cache ───────────────────────────────────
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn/
+.pnp.*
+.eslintcache
+*.log
 
 # ── OS / editor junk ────────────────────────────────────────────────
 .DS_Store
@@ -29,11 +55,22 @@ Thumbs.db
 ?Zone.Identifier
 desktop.ini
 
-# ── IDE ──────────────────────────────────────────────────────────────
+# ── IDE & editor ────────────────────────────────────────────────────
 .idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 *.swp
 *.swo
+*.iml
+.cursor/
+
+# ── Plans / optional markdown (not needed to build) ───────────────────
+docs/FORK-AND-IMPORT-PLAN.md
+TROUBLESHOOTING.md
 
 # ── Temp files from Claude/Cursor sessions ───────────────────────────
 tmpclaude-*/
 cinny/tmpclaude-*/
+.gitignore
+TROUBLESHOOTING.md
