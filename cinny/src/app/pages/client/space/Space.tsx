@@ -84,6 +84,7 @@ import { ContainerColor } from '../../../styles/ContainerColor.css';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { BreakWord } from '../../../styles/Text.css';
 import { InviteUserPrompt } from '../../../components/invite-user-prompt';
+import { useCallEmbed } from '../../../hooks/useCallEmbed';
 
 type SpaceMenuProps = {
   room: Room;
@@ -387,16 +388,16 @@ export function Space() {
   const notificationPreferences = useRoomsNotificationPreferencesContext();
 
   const tombstoneEvent = useStateEvent(space, StateEvent.RoomTombstone);
-
   const selectedRoomId = useSelectedRoom();
   const lobbySelected = useSpaceLobbySelected(spaceIdOrAlias);
   const searchSelected = useSpaceSearchSelected(spaceIdOrAlias);
+  const callEmbed = useCallEmbed();
 
   const [closedCategories, setClosedCategories] = useAtom(useClosedNavCategoriesAtom());
   const [ircMode] = useSetting(settingsAtom, 'ircMode');
 
   const getRoom = useCallback(
-    (rId: string) => {
+    (rId: string): Room | undefined => {
       if (allJoinedRooms.has(rId)) {
         return mx.getRoom(rId) ?? undefined;
       }
@@ -413,11 +414,11 @@ export function Space() {
         if (!closedCategories.has(makeNavCategoryId(space.roomId, parentId))) {
           return false;
         }
-        const showRoom = roomToUnread.has(roomId) || roomId === selectedRoomId;
-        if (showRoom) return false;
-        return true;
+        const showRoomAnyway =
+          roomToUnread.has(roomId) || roomId === selectedRoomId || callEmbed?.roomId === roomId;
+        return !showRoomAnyway;
       },
-      [space.roomId, closedCategories, roomToUnread, selectedRoomId]
+      [space.roomId, closedCategories, roomToUnread, selectedRoomId, callEmbed]
     ),
     useCallback(
       (sId) => closedCategories.has(makeNavCategoryId(space.roomId, sId)),

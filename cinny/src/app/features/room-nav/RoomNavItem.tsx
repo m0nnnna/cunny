@@ -19,15 +19,16 @@ import {
 } from 'folds';
 import { useFocusWithin, useHover } from 'react-aria';
 import FocusTrap from 'focus-trap-react';
+import { useAtom, useAtomValue } from 'jotai';
 import { NavItem, NavItemContent, NavItemOptions, NavLink } from '../../components/nav';
 import { UnreadBadge, UnreadBadgeCenter } from '../../components/unread-badge';
 import { RoomAvatar, RoomIcon } from '../../components/room-avatar';
-import { getDirectRoomAvatarUrl, getRoomAvatarUrl } from '../../utils/room';
+import { getDirectRoomAvatarUrl, getRoomAvatarUrl, getStateEvent } from '../../utils/room';
 import { nameInitials } from '../../utils/common';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useRoomUnread } from '../../state/hooks/unread';
 import { roomToUnreadAtom } from '../../state/room/roomToUnread';
-import { usePowerLevels } from '../../hooks/usePowerLevels';
+import { getPowersLevelFromMatrixEvent, usePowerLevels } from '../../hooks/usePowerLevels';
 import { copyToClipboard } from '../../utils/dom';
 import { markAsRead } from '../../utils/notifications';
 import { UseStateProvider } from '../../components/UseStateProvider';
@@ -48,10 +49,19 @@ import {
   RoomNotificationMode,
 } from '../../hooks/useRoomsNotificationPreferences';
 import { RoomNotificationModeSwitcher } from '../../components/RoomNotificationSwitcher';
-import { useRoomCreators } from '../../hooks/useRoomCreators';
-import { useRoomPermissions } from '../../hooks/useRoomPermissions';
+import { getRoomCreatorsForRoomId, useRoomCreators } from '../../hooks/useRoomCreators';
+import { getRoomPermissionsAPI, useRoomPermissions } from '../../hooks/useRoomPermissions';
 import { InviteUserPrompt } from '../../components/invite-user-prompt';
 import classNames from 'classnames';
+import { useRoomName } from '../../hooks/useRoomMeta';
+import { useCallMembers, useCallSession } from '../../hooks/useCall';
+import { useCallEmbed, useCallStart } from '../../hooks/useCallEmbed';
+import { callChatAtom } from '../../state/callEmbed';
+import { useCallPreferencesAtom } from '../../state/hooks/callPreferences';
+import { useAutoDiscoveryInfo } from '../../hooks/useAutoDiscoveryInfo';
+import { livekitSupport } from '../../hooks/useLivekitSupport';
+import { StateEvent } from '../../../types/matrix/room';
+import { webRTCSupported } from '../../utils/rtc';
 
 type RoomNavItemMenuProps = {
   room: Room;
@@ -210,6 +220,24 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
   }
 );
 
+function CallChatToggle() {
+  const [chat, setChat] = useAtom(callChatAtom);
+
+  return (
+    <IconButton
+      onClick={() => setChat(!chat)}
+      aria-pressed={chat}
+      aria-label="Toggle Chat"
+      variant="Background"
+      fill="None"
+      size="300"
+      radii="300"
+    >
+      <Icon size="50" src={Icons.Message} filled={chat} />
+    </IconButton>
+  );
+}
+
 type RoomNavItemProps = {
   room: Room;
   selected: boolean;
@@ -238,6 +266,8 @@ export function RoomNavItem({
     (receipt) => receipt.userId !== mx.getUserId()
   );
 
+  const roomName = useRoomName(room);
+
   const handleContextMenu: MouseEventHandler<HTMLElement> = (evt) => {
     evt.preventDefault();
     setMenuAnchor({
@@ -253,6 +283,39 @@ export function RoomNavItem({
   };
 
   const optionsVisible = hover || !!menuAnchor;
+  const callSession = useCallSession(room);
+  const callMembers = useCallMembers(callSession);
+  const startCall = useCallStart(direct);
+  const callEmbed = useCallEmbed();
+  const callPref = useAtomValue(useCallPreferencesAtom());
+  const autoDiscoveryInfo = useAutoDiscoveryInfo();
+
+  const handleStartCall: MouseEventHandler<HTMLAnchorElement> = (evt) => {
+    const powerLevelsEvent = getStateEvent(room, StateEvent.RoomPowerLevels);
+    const powerLevels = getPowersLevelFromMatrixEvent(powerLevelsEvent);
+    const creators = getRoomCreatorsForRoomId(mx, room.roomId);
+    const permissions = getRoomPermissionsAPI(creators, powerLevels);
+
+    const hasCallPermission = permissions.stateEvent(
+      StateEvent.GroupCallMemberPrefix,
+      mx.getSafeUserId()
+    );
+
+    // Do not join if missing permissions or no livekit support or no webRTC support
+    if (!hasCallPermission || !livekitSupport(autoDiscoveryInfo) || !webRTCSupported()) {
+      return;
+    }
+
+    // Do not join if already in call
+    if (callEmbed) {
+      return;
+    }
+    // Start call in second click
+    if (selected) {
+      evt.preventDefault();
+      startCall(room, callPref);
+    }
+  };
 
   return (
     <NavItem
@@ -265,7 +328,7 @@ export function RoomNavItem({
       {...hoverProps}
       {...focusWithinProps}
     >
-      <NavLink to={linkPath}>
+      <NavLink to={linkPath} onClick={room.isCallRoom() ? handleStartCall : undefined}>
         <NavItemContent style={ircMode ? { paddingLeft: config.space.S100, paddingRight: config.space.S200 } : undefined}>
           <Box as="span" grow="Yes" alignItems="Center" gap={ircMode ? '100' : '200'}>
             <Avatar size={ircMode ? '100' : '200'} radii="400">
@@ -277,25 +340,28 @@ export function RoomNavItem({
                       ? getDirectRoomAvatarUrl(mx, room, 96, useAuthentication)
                       : getRoomAvatarUrl(mx, room, 96, useAuthentication)
                   }
-                  alt={room.name}
+                  alt={roomName}
                   renderFallback={() => (
                     <Text as="span" size={ircMode ? 'T200' : 'H6'}>
-                      {nameInitials(room.name)}
+                      {nameInitials(roomName)}
                     </Text>
                   )}
                 />
               ) : (
                 <RoomIcon
-                  style={{ opacity: unread ? config.opacity.P500 : config.opacity.P300 }}
+                  style={{
+                    opacity: unread ? config.opacity.P500 : config.opacity.P300,
+                  }}
                   filled={selected}
                   size={ircMode ? '50' : '100'}
                   joinRule={room.getJoinRule()}
+                  roomType={room.getType()}
                 />
               )}
             </Avatar>
             <Box as="span" grow="Yes">
               <Text priority={unread ? '500' : '300'} as="span" size={ircMode ? 'T200' : 'Inherit'} truncate>
-                {room.name}
+                {roomName}
               </Text>
             </Box>
             {!optionsVisible && !unread && !selected && typingMember.length > 0 && (
@@ -309,14 +375,30 @@ export function RoomNavItem({
               </UnreadBadgeCenter>
             )}
             {!optionsVisible && notificationMode !== RoomNotificationMode.Unset && (
-              <Icon size="50" src={getRoomNotificationModeIcon(notificationMode)} />
+              <Icon
+                size="50"
+                src={getRoomNotificationModeIcon(notificationMode)}
+                aria-label={notificationMode}
+              />
+            )}
+            {callMembers.length > 0 && (
+              <Badge variant="Critical" fill="Solid" size="400">
+                <Text as="span" size="L400" truncate>
+                  {callMembers.length} Live
+                </Text>
+              </Badge>
             )}
           </Box>
         </NavItemContent>
       </NavLink>
       {optionsVisible && (
         <NavItemOptions>
+          {selected && (callEmbed?.roomId === room.roomId || room.isCallRoom()) && (
+            <CallChatToggle />
+          )}
           <PopOut
+            id={`menu-${room.roomId}`}
+            aria-expanded={!!menuAnchor}
             anchor={menuAnchor}
             offset={menuAnchor?.width === 0 ? 0 : undefined}
             alignOffset={menuAnchor?.width === 0 ? 0 : -5}
@@ -345,6 +427,8 @@ export function RoomNavItem({
             <IconButton
               onClick={handleOpenMenu}
               aria-pressed={!!menuAnchor}
+              aria-controls={`menu-${room.roomId}`}
+              aria-label="More Options"
               variant="Background"
               fill="None"
               size="300"

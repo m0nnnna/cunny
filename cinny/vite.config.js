@@ -22,6 +22,10 @@ const buildAppVersion = (process.env.VITE_APP_VERSION || '').trim() || _appConfi
 const copyFiles = {
   targets: [
     {
+      src: 'node_modules/@element-hq/element-call-embedded/dist/*',
+      dest: 'public/element-call',
+    },
+    {
       src: 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs',
       dest: '',
       rename: 'pdf.worker.min.js',
@@ -72,7 +76,10 @@ function serverMatrixSdkCryptoWasm(wasmFilePath) {
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         if (req.url === wasmFilePath) {
-          const resolvedPath = path.join(path.resolve(), "/node_modules/@matrix-org/matrix-sdk-crypto-wasm/pkg/matrix_sdk_crypto_wasm_bg.wasm");
+          const resolvedPath = path.join(
+            path.resolve(),
+            '/node_modules/@matrix-org/matrix-sdk-crypto-wasm/pkg/matrix_sdk_crypto_wasm_bg.wasm'
+          );
 
           if (fs.existsSync(resolvedPath)) {
             res.setHeader('Content-Type', 'application/wasm');
@@ -149,8 +156,8 @@ export default defineConfig({
       },
       devOptions: {
         enabled: true,
-        type: 'module'
-      }
+        type: 'module',
+      },
     }),
   ],
   optimizeDeps: {

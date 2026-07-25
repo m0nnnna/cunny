@@ -784,3 +784,8 @@ body.neko-kawaii-theme [role="dialog"] nav [aria-pressed="true"] {
   box-shadow: inset 4px 0 0 var(--neko-accent-line), 0 0 10px rgba(219, 112, 147, 0.08) !important;
 }
 
+/* Fix Firefox rendering lists that have empty items with those items collapsed in on eachother */
+li p::before {
+  content: '';
+  display: inline-block;
+}
