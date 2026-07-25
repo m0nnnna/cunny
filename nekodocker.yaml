@@ -1,0 +1,13 @@
+project: cunny
+compose_file: docker-compose.yml
+
+images:
+  - name: cunny-app
+    context: cinny
+    dockerfile: Dockerfile.voice
+    compose_service: cinny
+
+  - name: cunny-token-server
+    context: livekit-token-server
+    dockerfile: Dockerfile
+    compose_service: token-server

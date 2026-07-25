@@ -26,6 +26,7 @@ services:
 
   # Token Server - Generates LiveKit access tokens
   token-server:
+    image: cunny-token-server:latest
     build:
       context: ./livekit-token-server
       dockerfile: Dockerfile
@@ -45,6 +46,7 @@ services:
 
   # Cunny with Voice Channels - Modified Matrix client
   cinny:
+    image: cunny-app:latest
     build:
       context: ./cinny
       dockerfile: Dockerfile.voice
